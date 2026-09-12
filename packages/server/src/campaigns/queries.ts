@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto'
-import { Pool } from 'pg'
+import type { Pool } from '../db/pool.js'
 import {
   CampaignSummary,
   CampaignDetail,

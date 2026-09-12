@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { Pool } from 'pg'
+import type { Pool } from '../db/pool.js'
 import { authenticate } from '../middleware/authenticate.js'
 import { getNotificationsForUser, markNotificationRead } from '../campaigns/queries.js'
 

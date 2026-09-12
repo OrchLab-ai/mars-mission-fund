@@ -1,4 +1,4 @@
-import { Pool } from 'pg'
+import type { Pool } from '../db/pool.js'
 import pino from 'pino'
 
 const logger = pino({ name: 'audit' })

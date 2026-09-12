@@ -3,7 +3,7 @@ import request from 'supertest'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import { createApp } from '../app.js'
-import type { Pool } from 'pg'
+import type { Pool } from '../db/pool.js'
 
 const TEST_JWT_SECRET = 'test-jwt-secret-for-auth-tests'
 

@@ -1,4 +1,4 @@
-import { Pool } from 'pg'
+import type { Pool } from '../db/pool.js'
 import { AccountRow } from './types.js'
 
 export async function findAccountByEmail(pool: Pool, email: string): Promise<AccountRow | null> {

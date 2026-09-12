@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { Pool } from 'pg'
+import type { Pool } from '../db/pool.js'
 import { authenticate } from '../middleware/authenticate.js'
 import { requireRole } from '../middleware/requireRole.js'
 import { UserParamsSchema, UpdateProfileRequestSchema } from './types.js'

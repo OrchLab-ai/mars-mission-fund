@@ -1,0 +1,60 @@
+# Lightweight development image: Node, dbmate, and the app's dependencies.
+#
+# The contract: a contributor needs Docker installed and nothing else. No Node on
+# the host, no dbmate on the host, and since ADR-0004 no database server either.
+#
+# Deliberately NOT built on the Playwright base that Dockerfile.e2e uses. With the
+# database reduced to a file there is no service to wait for, and the dev loop needs
+# no browser — so this image drops Playwright and its Chromium download, which was
+# the bulk of the old one. Dockerfile.e2e keeps them, because driving a real browser
+# is the one thing that genuinely needs them.
+#
+# This is a LINUX container. On Windows it is built and run by Docker Desktop in its
+# default Linux-container mode on the WSL 2 backend. It does not need, and cannot run
+# under, Windows-container mode — every layer here is a Linux image.
+FROM ghcr.io/amacneil/dbmate AS dbmate
+
+# Alpine is safe here because better-sqlite3 v13 ships prebuilt bindings for eight
+# platforms inside its own tarball, `linuxmusl-x64` among them. There is no native
+# compile, so the image needs no python3/make/g++ — which is what makes a musl base
+# worth choosing over Debian slim.
+FROM node:22-alpine
+
+# dbmate's official image is Alpine-based, so its binary runs here unmodified.
+COPY --from=dbmate /usr/local/bin/dbmate /usr/local/bin/dbmate
+
+WORKDIR /app
+
+# Manifests first, so a source-only change does not reinstall dependencies.
+COPY package.json package-lock.json ./
+COPY packages/shared/package.json packages/shared/
+COPY packages/client/package.json packages/client/
+COPY packages/server/package.json packages/server/
+
+# --ignore-scripts is correct here, and not merely cautious.
+#
+# Two reasons. The repo's `prepare` script copies a git hook into .git/hooks, and
+# .git is excluded by .dockerignore. And better-sqlite3 carries a binding.gyp with no
+# install script of its own, so npm would helpfully run `node-gyp rebuild` and
+# compile from source — ignoring the prebuilt binding that is already in the package.
+# Suppressing scripts is what makes the bundled binary get used.
+RUN npm ci --ignore-scripts
+
+COPY . .
+
+# Both client and server import @mmf/shared, so it has to be built before either
+# dev server starts.
+RUN npm run build -w @mmf/shared
+
+# The exec bit does not survive every checkout on Windows, and an entrypoint without
+# it fails with a permission error that names the right file for the wrong reason.
+RUN chmod +x scripts/*.sh
+
+# One file, inside the image. Point DATABASE_URL at a mounted volume instead if the
+# database should survive `docker compose down`.
+ENV DATABASE_URL=sqlite:/app/packages/server/db/mmf.sqlite3
+ENV PORT=3001
+
+EXPOSE 3001 5173
+
+ENTRYPOINT ["/app/scripts/docker-dev-entrypoint.sh"]

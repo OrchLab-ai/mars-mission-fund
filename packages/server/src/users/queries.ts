@@ -1,4 +1,4 @@
-import { Pool } from 'pg'
+import type { Pool } from '../db/pool.js'
 import { AccountRow } from '../auth/types.js'
 import { UpdateProfileRequest } from '@mmf/shared'
 

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import type { Pool } from 'pg'
+import type { Pool } from '../db/pool.js'
 import jwt from 'jsonwebtoken'
 import {
   ListQuerySchema,
