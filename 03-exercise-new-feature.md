@@ -11,7 +11,7 @@ It should show the 3 most popular live campaigns by contributor count, displayed
 - **Server**: a new API endpoint `GET /v1/campaigns/trending` that returns the top 3 as campaign summaries
 - **Shared types**: a type for the trending response (or reuse `CampaignSummary`)
 - **Client API**: a new fetch function in `packages/client/src/api/campaigns.ts`
-- **UI**: a new section at the top of the Explore page (`packages/client/src/pages/ExplorePage.tsx`)
+- **UI**: a new section at the top of the Explore page (`packages/client/src/pages/CampaignsPage.tsx` — the page is routed at `/campaigns` and labelled “Explore Missions” in the nav)
 - **Tests**: server and client tests for the new endpoint and component
 
 ## Why this is hard without AI
