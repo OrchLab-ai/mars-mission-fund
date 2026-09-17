@@ -16,7 +16,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#test-results\" \"#.claude\" \"#plan\"",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#test-results\" \"#.claude\" \"#plan\" \"#autonomous-demo/logs\"",
     "dev:server": "npm run dev -w @mmf/server",
     "test:e2e": "playwright test",
     "prepare": "cp scripts/pre-push .git/hooks/pre-push"
