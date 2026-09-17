@@ -1,6 +1,32 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# git feeds the refs being pushed on stdin, one per line:
+#   <local ref> <local sha> <remote ref> <remote sha>
+#
+# A TAG PUSH CARRIES NO NEW CONTENT. The commit a tag names is already on the
+# remote and was checked when it got there, so running the suite over the current
+# working tree proves nothing about what is being pushed — it only reports on
+# whatever happens to be checked out right now. Publishing the cp-00 workshop
+# checkpoint was blocked this way: the tag pointed at an already-published commit,
+# and the push failed on lint errors in untracked local files.
+only_tags=1
+saw_ref=0
+while read -r local_ref _ _ _; do
+  [ -n "${local_ref:-}" ] || continue
+  saw_ref=1
+  case "$local_ref" in
+    refs/tags/*) ;;
+    # "(delete)" and every branch ref still get the full check.
+    *) only_tags=0 ;;
+  esac
+done
+
+if [ "$saw_ref" -eq 1 ] && [ "$only_tags" -eq 1 ]; then
+  echo "Tag-only push - no content to check, skipping CI."
+  exit 0
+fi
+
 echo "Running CI checks before push…"
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 "$REPO_ROOT/scripts/ci-check.sh"
