@@ -40,6 +40,6 @@ Add tests that verify the log fields are correct.
 ## Success criteria
 
 - `npm run test` passes
-- Start the server (`npm run dev:server`) and make any request (e.g., `curl http://localhost:3001/v1/proposals`)
+- Start the server (`npm run dev:server`) and make any request (e.g., `curl http://localhost:3001/v1/campaigns`, or `/v1/proposals` if you did exercise 01 first)
 - A JSON log line appears containing `method`, `path`, `status`, `duration`, and `correlationId` fields
 - The log line does not appear for unmatched routes that 404 before hitting your middleware (optional stretch goal)
