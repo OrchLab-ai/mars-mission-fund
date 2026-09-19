@@ -4,26 +4,42 @@ set -euo pipefail
 # git feeds the refs being pushed on stdin, one per line:
 #   <local ref> <local sha> <remote ref> <remote sha>
 #
-# A TAG PUSH CARRIES NO NEW CONTENT. The commit a tag names is already on the
-# remote and was checked when it got there, so running the suite over the current
-# working tree proves nothing about what is being pushed — it only reports on
-# whatever happens to be checked out right now. Publishing the cp-00 workshop
-# checkpoint was blocked this way: the tag pointed at an already-published commit,
-# and the push failed on lint errors in untracked local files.
-only_tags=1
+# A PUSH THAT SENDS NO NEW CONTENT SHOULD NOT RUN THE SUITE. Two kinds qualify.
+#
+# A TAG names a commit already on the remote, which was checked when it got there.
+# A DELETE sends no objects at all — it removes a ref.
+#
+# In both cases running the suite over the current working tree proves nothing
+# about what is being pushed; it only reports on whatever happens to be checked
+# out right now. Publishing the cp-00 checkpoint was blocked exactly this way: the
+# tag pointed at an already-published commit and the push failed on lint errors in
+# untracked local files. Deleting a merged branch hit the same wall for the same
+# reason, and this hook previously said deletes should — which contradicts the
+# paragraph above it.
+no_content=1
 saw_ref=0
-while read -r local_ref _ _ _; do
+while read -r local_ref local_sha _ _; do
   [ -n "${local_ref:-}" ] || continue
   saw_ref=1
+
+  # A deletion shows up two ways: git sets the local ref to the literal "(delete)"
+  # and the local sha to all zeros. Both are checked — the zero sha is the
+  # documented signal and works whatever the hash length, and the literal is the
+  # one a human reading `git push --delete` output would recognise.
+  [ "$local_ref" = "(delete)" ] && continue
+  case "$local_sha" in
+    *[!0]*) ;;
+    *) continue ;;
+  esac
+
   case "$local_ref" in
     refs/tags/*) ;;
-    # "(delete)" and every branch ref still get the full check.
-    *) only_tags=0 ;;
+    *) no_content=0 ;;
   esac
 done
 
-if [ "$saw_ref" -eq 1 ] && [ "$only_tags" -eq 1 ]; then
-  echo "Tag-only push - no content to check, skipping CI."
+if [ "$saw_ref" -eq 1 ] && [ "$no_content" -eq 1 ]; then
+  echo "No new content in this push (tags and/or deletes only) - skipping CI."
   exit 0
 fi
 
