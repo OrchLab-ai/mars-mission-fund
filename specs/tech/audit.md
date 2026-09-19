@@ -5,7 +5,7 @@
 > **Status**: Approved
 > **Rate of Change**: Sprint-level / tech decisions
 > **Depends On**: L1-001 (Product Vision & Mission), L2-002 (Engineering Standard), L3-001 (Architecture), L3-002 (Security)
-> **Depended On By**: L4-002 (Campaign), L4-004 (Payments), L4-005 (KYC)
+> **Depended On By**: L4-002 (Proposal), L4-004 (Payments), L4-005 (KYC)
 
 ---
 
@@ -13,7 +13,7 @@
 
 > **Local demo scope**: The audit event schema, event categories, logging trigger rules, and the PostgreSQL event store integration are **real** — audit events are written as part of the CQRS/Event Sourcing pattern in the local demo. Tamper detection (hash chains), tiered storage, anomaly detection, regulatory reporting processes, and the access grant workflow are theatre. The local demo writes audit events to PostgreSQL with no archival or detection pipeline.
 >
-> The demo uses three audit tables added incrementally during the Campaign Lifecycle milestone: `audit_log` (legacy JSONB append-only, used for settlement and milestone events), `campaign_audit_events` (structured events with previous/new state, used for workflow transitions), and `audit_events` (spec-aligned table matching L3-006 schema, used for campaign lifecycle events). Hash chaining (SHA-256), batch tamper verification, hot/warm/cold retention tier enforcement, and anomaly-detection rules are production requirements not implemented in the demo. See [ADR-0002](../adrs/0002-audit-log-demo-simplification.md) for the full architectural decision record.
+> The demo uses three audit tables added incrementally during the Proposal Lifecycle milestone: `audit_log` (legacy JSONB append-only, used for settlement and milestone events), `proposal_audit_events` (structured events with previous/new state, used for workflow transitions), and `audit_events` (spec-aligned table matching L3-006 schema, used for proposal lifecycle events). Hash chaining (SHA-256), batch tamper verification, hot/warm/cold retention tier enforcement, and anomaly-detection rules are production requirements not implemented in the demo. See [ADR-0002](../adrs/0002-audit-log-demo-simplification.md) for the full architectural decision record.
 
 This spec governs the audit logging architecture for Mars Mission Fund: what gets logged, how audit events are structured, how they are stored immutably, who can access them, how long they are retained, and how they support regulatory compliance and anomaly detection.
 
@@ -72,8 +72,8 @@ Audit events extend the structured logging baseline from [Engineering Standard](
 | `event_type`     | string (enum) | Yes         | Category of audit event (see Section 4)                                                     |
 | `actor_id`       | string        | Yes         | Identity of the user or service principal that performed the action                         |
 | `actor_type`     | string (enum) | Yes         | `user`, `service`, `system`, `admin`                                                        |
-| `action`         | string        | Yes         | The specific action performed (e.g., `campaign.create`, `payment.disburse`, `user.login`)   |
-| `resource_type`  | string        | Yes         | Type of resource affected (e.g., `campaign`, `payment`, `account`)                          |
+| `action`         | string        | Yes         | The specific action performed (e.g., `proposal.create`, `payment.disburse`, `user.login`)   |
+| `resource_type`  | string        | Yes         | Type of resource affected (e.g., `proposal`, `payment`, `account`)                          |
 | `resource_id`    | string        | Yes         | Identifier of the affected resource                                                         |
 | `outcome`        | string (enum) | Yes         | `success`, `failure`, `denied`                                                              |
 | `ip_address`     | string        | Conditional | Client IP address (required for user-initiated events, omitted for system events)           |
@@ -106,7 +106,7 @@ Beyond state mutations, the following event categories are mandatory.
 | ------------------------ | ----------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **Authentication**       | `auth`      | Login success/failure, logout, MFA challenge/success/failure, session creation/expiry, token refresh, password reset request/completion |
 | **Authorisation**        | `authz`     | Permission check granted/denied, role assignment/removal, privilege escalation, access to restricted resources                          |
-| **State Mutation**       | `mutation`  | Any create, update, or delete operation on a domain entity (campaign, payment, account, KYC record)                                     |
+| **State Mutation**       | `mutation`  | Any create, update, or delete operation on a domain entity (proposal, payment, account, KYC record)                                     |
 | **Data Access**          | `access`    | Read access to sensitive data (PII, financial records, KYC documents) — not every read, only reads of classified-sensitive resources    |
 | **Configuration Change** | `config`    | Feature flag changes, environment variable updates, service configuration changes, deployment events                                    |
 | **Admin Action**         | `admin`     | Any action performed with elevated privileges — user impersonation, manual overrides, data corrections, bulk operations                 |
@@ -260,7 +260,7 @@ The following patterns must be detected and alerted on:
 | Pattern                                      | Description                                                                                     | Severity |
 | -------------------------------------------- | ----------------------------------------------------------------------------------------------- | -------- |
 | Repeated authentication failures             | Multiple failed login attempts for the same account within a time window                        | High     |
-| Unusual transaction patterns                 | Transactions outside normal volume, frequency, or amount ranges for a given account or campaign | High     |
+| Unusual transaction patterns                 | Transactions outside normal volume, frequency, or amount ranges for a given account or proposal | High     |
 | Privilege escalation attempts                | Authorisation denials followed by successful access to the same resource (potential bypass)     | Critical |
 | Off-hours admin actions                      | Administrative actions performed outside normal business hours                                  | Medium   |
 | Bulk data access                             | Unusually large volumes of sensitive data reads by a single actor in a short period             | High     |
@@ -350,7 +350,7 @@ The SDK must:
 
 ### 11.5 Interface with Domain Specs (L4-002, L4-004, L4-005)
 
-- **Campaign (L4-002)**: Campaign lifecycle state changes (submission, review, approval, funding milestones, completion, failure) are audit-logged as `mutation` and `financial` events. The campaign spec defines which state transitions are auditable and references this spec for the logging mechanism.
+- **Proposal (L4-002)**: Proposal lifecycle state changes (submission, review, approval, funding milestones, completion, failure) are audit-logged as `mutation` and `financial` events. The proposal spec defines which state transitions are auditable and references this spec for the logging mechanism.
 - **Payments (L4-004)**: All payment operations (initiation, completion, refund, escrow, disbursement) are audit-logged as `financial` events. The payments spec defines the specific payment events and references this spec for PCI DSS audit trail compliance.
 - **KYC (L4-005)**: All identity verification events (document upload, verification result, sanctions screening, manual review decision) are audit-logged as `kyc` events. The KYC spec defines the specific KYC events and references this spec for AML/CTF record-keeping compliance.
 

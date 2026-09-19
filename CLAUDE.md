@@ -77,10 +77,10 @@ Schema: `packages/server/db/schema.sql`
 ## Architecture
 
 - **Hexagonal architecture** (Ports & Adapters) on the backend with repository pattern
-- **CQRS / Event Sourcing** for campaign management and audit trails
+- **CQRS / Event Sourcing** for proposal management and audit trails
 - **JWT authentication** with bcrypt password hashing; role-based access (Backer, Creator, Admin)
 - Frontend proxies `/v1` requests to backend (Vite proxy config)
-- API routes: `/v1/auth/*`, `/v1/users/*`, `/v1/campaigns/*`
+- API routes: `/v1/auth/*`, `/v1/users/*`, `/v1/proposals/*`
 
 ### Path Aliases
 

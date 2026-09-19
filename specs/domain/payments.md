@@ -5,7 +5,7 @@
 > **Status**: Approved
 > **Rate of Change**: Per feature / per release
 > **Depends On**: L2-002 (Engineering Standard), L3-001 (Architecture), L3-002 (Security), L3-004 (Data Management), L3-006 (Audit)
-> **Depended On By**: L4-002 (Campaign), L4-003 (Donor)
+> **Depended On By**: L4-002 (Proposal), L4-003 (Donor)
 
 ---
 
@@ -32,7 +32,7 @@ This spec governs all payment processing within Mars Mission Fund: how money ent
 
 **Out of scope**:
 
-- Campaign lifecycle and milestone definition — governed by [Campaign](L4-002).
+- Proposal lifecycle and milestone definition — governed by [Proposal](L4-002).
 - Donor-facing contribution UI and discovery flows — governed by [Donor](L4-003).
 - KYC verification process — governed by [KYC](L4-005).
   This spec receives KYC status as a gate; it does not perform verification.
@@ -150,16 +150,16 @@ Interest accrues on escrowed funds from the moment of capture until disbursement
 Donor initiates contribution
     → Tokenise card (client-side, gateway)
     → Authorise and capture payment (backend → gateway adapter)
-    → Create escrow record; funds held in campaign's segregated escrow account
+    → Create escrow record; funds held in proposal's segregated escrow account
     → Confirm contribution to donor
-    → Notify campaign of new contribution
+    → Notify proposal of new contribution
 ```
 
 ### 5.2 Authorisation and Capture
 
 - Authorisation and capture occur as a single immediate operation.
-- The charge includes metadata: campaign ID, donor ID, contribution ID, and timestamp.
-- On successful capture, funds are routed to the campaign's segregated escrow account (see Section 6.1).
+- The charge includes metadata: proposal ID, donor ID, contribution ID, and timestamp.
+- On successful capture, funds are routed to the proposal's segregated escrow account (see Section 6.1).
 - Capture failure triggers a retry strategy (defined in [Reliability](L3-003)) and donor notification.
 
 ### 5.3 Contribution States
@@ -180,11 +180,11 @@ Every state transition is logged in the audit trail per [Audit](L3-006).
 
 ### 6.1 Escrow Structure
 
-**Resolved**: Segregated escrow accounts — one per campaign.
+**Resolved**: Segregated escrow accounts — one per proposal.
 
-Each campaign has its own dedicated escrow account.
-Contributed funds are held in the campaign's segregated account until milestones are verified and disbursement is approved.
-This provides clear legal separation, simplifies per-campaign accounting, and eliminates cross-campaign fund commingling risk.
+Each proposal has its own dedicated escrow account.
+Contributed funds are held in the proposal's segregated account until milestones are verified and disbursement is approved.
+This provides clear legal separation, simplifies per-proposal accounting, and eliminates cross-proposal fund commingling risk.
 
 > **Workshop note**: Segregated accounts are the architectural design.
 > In the local demo, this may be represented as logical separation within a single data store rather than actual separate bank accounts.
@@ -193,7 +193,7 @@ This provides clear legal separation, simplifies per-campaign accounting, and el
 
 Each segregated escrow account is backed by a double-entry ledger tracking:
 
-- Per-campaign escrow balance.
+- Per-proposal escrow balance.
 - Per-contribution escrow allocation.
 - Disbursement debits.
 - Refund debits.
@@ -203,11 +203,11 @@ The ledger is append-only and immutable per [Engineering Standard](L2-002), Sect
 
 ### 6.3 Interest Handling
 
-**Resolved**: Interest earned on escrowed funds is passed to the campaign.
+**Resolved**: Interest earned on escrowed funds is passed to the proposal.
 
 - Interest accrues from the moment of capture until disbursement.
-- Accrued interest is included with the milestone disbursement payment to the campaign creator.
-- If a campaign fails and contributions are refunded, any accrued interest is returned to donors pro-rata along with their contribution refund.
+- Accrued interest is included with the milestone disbursement payment to the proposal creator.
+- If a proposal fails and contributions are refunded, any accrued interest is returned to donors pro-rata along with their contribution refund.
 - Interest calculations and disbursement are recorded in the escrow ledger and audit trail.
 
 ---
@@ -216,8 +216,8 @@ The ledger is append-only and immutable per [Engineering Standard](L2-002), Sect
 
 ### 7.1 Disbursement Trigger
 
-Disbursement is triggered when a campaign milestone is verified as complete per [Campaign](L4-002).
-This spec receives a disbursement trigger event from the campaign domain — it does not determine whether a milestone is met.
+Disbursement is triggered when a proposal milestone is verified as complete per [Proposal](L4-002).
+This spec receives a disbursement trigger event from the proposal domain — it does not determine whether a milestone is met.
 
 ### 7.2 Multi-Approval Workflow
 
@@ -230,12 +230,12 @@ Per [Product Vision & Mission](L1-001), disbursement of escrowed funds requires 
 
 ### 7.3 Disbursement Processing
 
-1. Campaign milestone verified → disbursement request created.
+1. Proposal milestone verified → disbursement request created.
 1. First administrator approves.
 1. Second administrator approves.
 1. KYC status confirmed as current for the creator per [KYC](L4-005) — disbursement is blocked if KYC has expired or been revoked.
 1. Accrued interest on the disbursement portion calculated and added to the payout amount (see Section 6.3).
-1. Payout executed via gateway adapter to campaign creator's verified bank account.
+1. Payout executed via gateway adapter to proposal creator's verified bank account.
 1. Escrow ledger debited for principal and interest; disbursement recorded.
 
 ### 7.4 Disbursement States
@@ -256,14 +256,14 @@ Per [Product Vision & Mission](L1-001), disbursement of escrowed funds requires 
 
 ### 8.1 Refund Triggers
 
-- **Campaign failure**: If a campaign fails to meet its funding goal by the deadline, all contributions are refunded in full.
-  The failure event is received from [Campaign](L4-002).
-- **Campaign cancellation**: If a campaign is cancelled by administrators, all contributions are refunded.
+- **Proposal failure**: If a proposal fails to meet its funding goal by the deadline, all contributions are refunded in full.
+  The failure event is received from [Proposal](L4-002).
+- **Proposal cancellation**: If a proposal is cancelled by administrators, all contributions are refunded.
 - **Donor-initiated refund**: Subject to the milestone-based refund policy (see Section 8.5).
 
 ### 8.2 Refund Processing
 
-1. Refund event received (campaign failure, cancellation, or donor request).
+1. Refund event received (proposal failure, cancellation, or donor request).
 1. Refund eligibility validated against policy.
 1. Refund initiated via gateway adapter (full or partial).
 1. Escrow ledger debited for the refund amount.
@@ -280,14 +280,14 @@ Per [Product Vision & Mission](L1-001), disbursement of escrowed funds requires 
 
 ### 8.4 Partial Refunds
 
-If a campaign has partially disbursed (some milestones completed, others not), only the undisbursed portion is eligible for refund.
-The refund amount per donor is calculated pro-rata based on their contribution relative to total campaign escrow.
+If a proposal has partially disbursed (some milestones completed, others not), only the undisbursed portion is eligible for refund.
+The refund amount per donor is calculated pro-rata based on their contribution relative to total proposal escrow.
 
 ### 8.5 Donor-Initiated Refund Policy
 
 **Resolved**: Milestone-based refund policy.
 
-Donor-initiated refunds are governed by the campaign's disbursement state:
+Donor-initiated refunds are governed by the proposal's disbursement state:
 
 - **No milestones disbursed**: Full refund available.
   The donor may request a full refund of their contribution at any time before the first milestone disbursement.
@@ -352,7 +352,7 @@ Data provided per contribution:
 
 - Contribution ID.
 - Donor ID.
-- Campaign ID and campaign name.
+- Proposal ID and proposal name.
 - Contribution amount (gross).
 - Currency.
 - Date of contribution (capture date).
@@ -379,16 +379,16 @@ The payment service exposes financial data for the admin dashboard:
 
 | Metric                   | Description                                                                       |
 | ------------------------ | --------------------------------------------------------------------------------- |
-| Total raised             | Sum of all captured contributions across all campaigns.                           |
+| Total raised             | Sum of all captured contributions across all proposals.                           |
 | Total disbursed          | Sum of all completed disbursements (principal).                                   |
-| Total interest disbursed | Sum of all interest paid out to campaigns.                                        |
-| Total in escrow          | Current escrow balance across all campaigns (principal + accrued interest).       |
+| Total interest disbursed | Sum of all interest paid out to proposals.                                        |
+| Total in escrow          | Current escrow balance across all proposals (principal + accrued interest).       |
 | Total refunded           | Sum of all completed refunds (principal + interest).                              |
 | Net platform position    | Total raised + total interest earned − disbursed − interest disbursed − refunded. |
 
-### 12.2 Per-Campaign Financials
+### 12.2 Per-Proposal Financials
 
-For each campaign:
+For each proposal:
 
 - Total contributions (count and amount).
 - Escrow balance (principal + accrued interest).
@@ -406,17 +406,17 @@ All report access is logged in the audit trail.
 
 ## 13. Interface Contracts
 
-### 13.1 Interface with [Campaign](L4-002)
+### 13.1 Interface with [Proposal](L4-002)
 
 | Direction           | Event / Data             | Description                                                                                        |
 | ------------------- | ------------------------ | -------------------------------------------------------------------------------------------------- |
-| Campaign → Payments | `escrow_create`          | When a campaign is approved and goes live, an escrow allocation is created.                        |
-| Campaign → Payments | `milestone_verified`     | When a campaign milestone is verified, triggers disbursement workflow.                             |
-| Campaign → Payments | `campaign_failed`        | When a campaign fails (deadline reached, goal not met), triggers full refund of all contributions. |
-| Campaign → Payments | `campaign_cancelled`     | When a campaign is cancelled by administrators, triggers full refund.                              |
-| Payments → Campaign | `contribution_received`  | Confirms a new contribution has been captured and added to escrow.                                 |
-| Payments → Campaign | `disbursement_completed` | Confirms milestone disbursement has been transferred.                                              |
-| Payments → Campaign | `escrow_balance`         | Current escrow balance for a campaign (on request).                                                |
+| Proposal → Payments | `escrow_create`          | When a proposal is approved and goes live, an escrow allocation is created.                        |
+| Proposal → Payments | `milestone_verified`     | When a proposal milestone is verified, triggers disbursement workflow.                             |
+| Proposal → Payments | `proposal_failed`        | When a proposal fails (deadline reached, goal not met), triggers full refund of all contributions. |
+| Proposal → Payments | `proposal_cancelled`     | When a proposal is cancelled by administrators, triggers full refund.                              |
+| Payments → Proposal | `contribution_received`  | Confirms a new contribution has been captured and added to escrow.                                 |
+| Payments → Proposal | `disbursement_completed` | Confirms milestone disbursement has been transferred.                                              |
+| Payments → Proposal | `escrow_balance`         | Current escrow balance for a proposal (on request).                                                |
 
 ### 13.2 Interface with [Donor](L4-003)
 
@@ -456,49 +456,49 @@ Reference: [Account](L4-001), Section 8.4.
 
 ### Contribution Processing
 
-**AC-PAY-001**: Given a donor has a valid payment method token, when they submit a contribution to a live campaign, then the payment is immediately captured, the contribution is recorded in the campaign's segregated escrow ledger, and the donor receives a confirmation including a tax-deductible receipt.
+**AC-PAY-001**: Given a donor has a valid payment method token, when they submit a contribution to a live proposal, then the payment is immediately captured, the contribution is recorded in the proposal's segregated escrow ledger, and the donor receives a confirmation including a tax-deductible receipt.
 
 **AC-PAY-002**: Given a payment capture fails (insufficient funds, card declined), when the gateway returns a failure, then the contribution is marked as `failed`, the donor is notified with a clear error message, and no funds are held.
 
-**AC-PAY-003**: Given a donor submits a duplicate contribution (same donor, same campaign, same amount within a short time window), when the system detects the duplicate, then the second attempt is rejected or flagged for confirmation, preventing accidental double charges.
+**AC-PAY-003**: Given a donor submits a duplicate contribution (same donor, same proposal, same amount within a short time window), when the system detects the duplicate, then the second attempt is rejected or flagged for confirmation, preventing accidental double charges.
 
 ### Escrow
 
-**AC-PAY-004**: Given a contribution has been captured, when the escrow ledger is updated, then the campaign's escrow balance reflects the new contribution and the ledger entry is immutable.
+**AC-PAY-004**: Given a contribution has been captured, when the escrow ledger is updated, then the proposal's escrow balance reflects the new contribution and the ledger entry is immutable.
 
-**AC-PAY-005**: Given the escrow ledger records for a campaign, when the balances are summed (contributions + interest credits − disbursements − refunds), then the result matches the actual escrow account balance for that campaign.
+**AC-PAY-005**: Given the escrow ledger records for a proposal, when the balances are summed (contributions + interest credits − disbursements − refunds), then the result matches the actual escrow account balance for that proposal.
 
 ### Disbursement
 
-**AC-PAY-006**: Given a campaign milestone has been verified, when an administrator submits a disbursement approval, then the disbursement enters `partially_approved` state and awaits a second approval from a different administrator.
+**AC-PAY-006**: Given a proposal milestone has been verified, when an administrator submits a disbursement approval, then the disbursement enters `partially_approved` state and awaits a second approval from a different administrator.
 
-**AC-PAY-007**: Given a disbursement has received one approval, when a second different administrator approves, then the disbursement is processed and funds are transferred to the campaign creator's bank account.
+**AC-PAY-007**: Given a disbursement has received one approval, when a second different administrator approves, then the disbursement is processed and funds are transferred to the proposal creator's bank account.
 
 **AC-PAY-008**: Given a disbursement has received one approval, when the approval window expires before a second approval, then the disbursement returns to `pending_approval` and both approvals must be resubmitted.
 
-**AC-PAY-009**: Given a disbursement is approved, when the campaign creator's KYC status is not current (expired or revoked), then the disbursement is blocked and an alert is raised to administrators.
+**AC-PAY-009**: Given a disbursement is approved, when the proposal creator's KYC status is not current (expired or revoked), then the disbursement is blocked and an alert is raised to administrators.
 
 ### Refunds
 
-**AC-PAY-010**: Given a campaign has failed (deadline passed, goal not met), when the failure event is received, then all contributions to that campaign are refunded in full and donors are notified.
+**AC-PAY-010**: Given a proposal has failed (deadline passed, goal not met), when the failure event is received, then all contributions to that proposal are refunded in full and donors are notified.
 
-**AC-PAY-011**: Given a campaign has partially disbursed (some milestones completed), when the campaign fails for remaining milestones, then only the undisbursed portion is refunded pro-rata to donors.
+**AC-PAY-011**: Given a proposal has partially disbursed (some milestones completed), when the proposal fails for remaining milestones, then only the undisbursed portion is refunded pro-rata to donors.
 
 **AC-PAY-012**: Given a refund is initiated, when the gateway processes the refund, then the escrow ledger is debited, the contribution state is updated to `refunded` or `partially_refunded`, and the donor is notified.
 
 ### Donor-Initiated Refunds
 
-**AC-PAY-018**: Given no milestones have been disbursed for a campaign, when a donor requests a refund, then their full contribution is refunded.
+**AC-PAY-018**: Given no milestones have been disbursed for a proposal, when a donor requests a refund, then their full contribution is refunded.
 
-**AC-PAY-019**: Given some milestones have been disbursed for a campaign, when a donor requests a refund, then they receive a pro-rata refund of the undisbursed escrow balance proportional to their contribution.
+**AC-PAY-019**: Given some milestones have been disbursed for a proposal, when a donor requests a refund, then they receive a pro-rata refund of the undisbursed escrow balance proportional to their contribution.
 
-**AC-PAY-020**: Given all milestones have been disbursed for a campaign, when a donor requests a refund, then the request is rejected and the donor is informed that no funds remain in escrow.
+**AC-PAY-020**: Given all milestones have been disbursed for a proposal, when a donor requests a refund, then the request is rejected and the donor is informed that no funds remain in escrow.
 
 ### Interest
 
-**AC-PAY-021**: Given funds are held in a campaign's segregated escrow account, when a milestone disbursement is processed, then accrued interest on the disbursed portion is included in the payout to the campaign creator and recorded in the escrow ledger.
+**AC-PAY-021**: Given funds are held in a proposal's segregated escrow account, when a milestone disbursement is processed, then accrued interest on the disbursed portion is included in the payout to the proposal creator and recorded in the escrow ledger.
 
-**AC-PAY-022**: Given a campaign has failed and contributions are being refunded, when refunds are processed, then accrued interest is returned to donors pro-rata along with their contribution refund.
+**AC-PAY-022**: Given a proposal has failed and contributions are being refunded, when refunds are processed, then accrued interest is returned to donors pro-rata along with their contribution refund.
 
 ### Reconciliation
 
@@ -524,4 +524,4 @@ Reference: [Account](L4-001), Section 8.4.
 | ---------- | ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | March 2026 | 0.1     | —      | Initial stub.                                                                                                                                                                                                                                                                                                                                                                                |
 | March 2026 | 0.2     | —      | Resolved OQ-1: Stripe selected as primary payment gateway. Updated tokenisation references to Stripe Elements.                                                                                                                                                                                                                                                                               |
-| March 2026 | 0.3     | —      | Resolved all remaining open questions: USD single currency (OQ-2), segregated escrow accounts (OQ-3), interest passed to campaign (OQ-4), milestone-based donor refund policy (OQ-5), no stored payment methods (OQ-6), tax-deductible entity (OQ-7), immediate capture (OQ-8). Simplified contribution states for immediate capture model. Added Section 8.5 donor-initiated refund policy. |
+| March 2026 | 0.3     | —      | Resolved all remaining open questions: USD single currency (OQ-2), segregated escrow accounts (OQ-3), interest passed to proposal (OQ-4), milestone-based donor refund policy (OQ-5), no stored payment methods (OQ-6), tax-deductible entity (OQ-7), immediate capture (OQ-8). Simplified contribution states for immediate capture model. Added Section 8.5 donor-initiated refund policy. |

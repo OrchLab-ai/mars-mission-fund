@@ -5,11 +5,11 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { HomePage } from './pages/HomePage'
 import { AboutPage } from './pages/AboutPage'
 import { ContactPage } from './pages/ContactPage'
-import { CampaignsPage } from './pages/CampaignsPage'
+import { ProposalsPage } from './pages/ProposalsPage'
 
-const CampaignDetailPage = React.lazy(() =>
-  import('./pages/CampaignDetailPage').then((m) => ({
-    default: m.CampaignDetailPage,
+const ProposalDetailPage = React.lazy(() =>
+  import('./pages/ProposalDetailPage').then((m) => ({
+    default: m.ProposalDetailPage,
   }))
 )
 const ContributePlaceholderPage = React.lazy(() =>
@@ -35,11 +35,11 @@ const ReviewDetailPage = React.lazy(() =>
 const DashboardPage = React.lazy(() =>
   import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage }))
 )
-const CampaignFormPage = React.lazy(() =>
-  import('./pages/CampaignFormPage').then((m) => ({ default: m.CampaignFormPage }))
+const ProposalFormPage = React.lazy(() =>
+  import('./pages/ProposalFormPage').then((m) => ({ default: m.ProposalFormPage }))
 )
-const CampaignEditPage = React.lazy(() =>
-  import('./pages/CampaignEditPage').then((m) => ({ default: m.CampaignEditPage }))
+const ProposalEditPage = React.lazy(() =>
+  import('./pages/ProposalEditPage').then((m) => ({ default: m.ProposalEditPage }))
 )
 const NotificationsPage = React.lazy(() =>
   import('./pages/NotificationsPage').then((m) => ({ default: m.NotificationsPage }))
@@ -54,8 +54,8 @@ export default function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
-            <Route path="/campaigns" element={<CampaignsPage />} />
-            <Route path="/campaigns/:id" element={<CampaignDetailPage />} />
+            <Route path="/proposals" element={<ProposalsPage />} />
+            <Route path="/proposals/:id" element={<ProposalDetailPage />} />
             <Route path="/contribute/:id" element={<ContributePlaceholderPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route element={<ProtectedRoute />}>
@@ -71,8 +71,8 @@ export default function App() {
             </Route>
             <Route element={<ProtectedRoute requireCreator />}>
               <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/campaigns/new" element={<CampaignFormPage />} />
-              <Route path="/campaigns/:id/edit" element={<CampaignEditPage />} />
+              <Route path="/proposals/new" element={<ProposalFormPage />} />
+              <Route path="/proposals/:id/edit" element={<ProposalEditPage />} />
             </Route>
           </Route>
         </Routes>

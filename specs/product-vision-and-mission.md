@@ -52,7 +52,7 @@ Mars Mission Fund bridges this gap by creating a secure, transparent, and purpos
 - **Security as Foundation:** Every line of code, every workflow, every integration is built on a security-first architecture. In a financial platform, trust is not a feature — it is the product. See: `tech/security.md`
 - **Transparency as Currency:** Backers see exactly where their money goes. Projects report milestones publicly. The platform itself is auditable and explainable. See: `tech/audit.md`
 - **Accessibility Over Exclusivity:** A $50 contribution and a $50,000 institutional commitment both matter. The platform democratises access to space funding. See: `domain/donor.md`
-- **Curation Over Volume:** We are not a marketplace for everything. Every project is reviewed, vetted, and approved before going live. Quality over quantity. See: `domain/campaign.md`
+- **Curation Over Volume:** We are not a marketplace for everything. Every project is reviewed, vetted, and approved before going live. Quality over quantity. See: `domain/proposal.md`
 - **Bold but Responsible:** Our brand is bold and optimistic, but our financial systems are cautious and compliant. We speak like engineers who dream big and build carefully. See: `standards/brand.md`
 
 ---
@@ -67,17 +67,17 @@ To build and operate a secure, regulation-ready crowdfunding platform that enabl
 
 The platform is organised around three core transactional workflows. Each is summarised here at the strategic level; detailed acceptance criteria, state machines, and interface contracts are defined in the corresponding domain specs.
 
-#### Workflow 1: Campaign Lifecycle
+#### Workflow 1: Proposal Lifecycle
 
-*Detailed spec: `domain/campaign.md`*
+*Detailed spec: `domain/proposal.md`*
 
-Project creators submit proposals containing mission objectives, team credentials, funding targets, milestone plans, and risk disclosures. Submissions enter a structured review pipeline managed by platform administrators. Approved projects become live campaigns with public funding pages, progress tracking, milestone verification, and completion or failure handling.
+Project creators submit proposals containing mission objectives, team credentials, funding targets, milestone plans, and risk disclosures. Submissions enter a structured review pipeline managed by platform administrators. Approved projects become live proposals with public funding pages, progress tracking, milestone verification, and completion or failure handling.
 
 - Creator registers, completes identity verification (KYC), and submits a project proposal via guided form.
 - Platform administrators with "Reviewer" role assess proposals against published curation criteria with full audit logging.
-- Approved projects transition to "Live" status with public campaign pages. Rejected proposals receive written rationale and resubmission guidance.
-- Live campaigns track funding progress, manage stretch goals, and enforce deadline rules.
-- Milestone verification triggers staged fund disbursement. Campaign completion or failure triggers appropriate settlement workflows.
+- Approved projects transition to "Live" status with public proposal pages. Rejected proposals receive written rationale and resubmission guidance.
+- Live proposals track funding progress, manage stretch goals, and enforce deadline rules.
+- Milestone verification triggers staged fund disbursement. Proposal completion or failure triggers appropriate settlement workflows.
 - All state transitions are immutable and timestamped for audit trail integrity.
 
 #### Workflow 2: Donor Lifecycle
@@ -86,7 +86,7 @@ Project creators submit proposals containing mission objectives, team credential
 
 The donor-side experience encompasses discovery, contribution, and ongoing relationship management. Backers find projects aligned with their interests, contribute through a secure payment flow, and maintain a long-term relationship with the missions they fund through impact reporting and engagement features.
 
-- Backers discover campaigns via search, recommendation algorithms, curated collections, and category browsing.
+- Backers discover proposals via search, recommendation algorithms, curated collections, and category browsing.
 - Contribution flow uses PCI DSS-compliant payment processing with tokenisation — the platform never stores raw card data.
 - Funds are held in escrow until predefined milestones are met and verified by administrators.
 - Backers receive milestone updates, impact reports, and mission progress notifications for projects they fund.
@@ -153,7 +153,7 @@ This document is the root of a four-layer specification hierarchy designed for a
 | L1    | Strategic vision and scope | `product-vision-and-mission.md`                                                                                  | Quarterly / pivots            |
 | L2    | Standards and principles   | `standards/brand.md`, `standards/engineering.md`                                                                 | Monthly / standard reviews    |
 | L3    | Technical how-we-build     | `tech/architecture`, `security`, `reliability`, `data-management`, `frontend`, `audit`, `markdown`, `tech-stack` | Sprint-level / tech decisions |
-| L4    | Domain what-we-build       | `domain/account`, `campaign`, `donor`, `payments`, `kyc`                                                         | Per feature / per release     |
+| L4    | Domain what-we-build       | `domain/account`, `proposal`, `donor`, `payments`, `kyc`                                                         | Per feature / per release     |
 
 **Agent protocol:** Before implementing any task, read `specs/README.md` to identify which specs govern the affected domain. Specs at lower layers must not contradict higher layers. If a conflict is detected, flag it as a blocking issue and reference both specs.
 

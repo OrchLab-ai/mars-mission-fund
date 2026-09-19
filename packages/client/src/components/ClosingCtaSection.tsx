@@ -41,7 +41,7 @@ export function ClosingCtaSection() {
           Join thousands of backers already funding the next chapter of human space exploration.
           Find a mission that matches your vision and make your mark on history.
         </p>
-        <Button variant="secondary" href="/campaigns">
+        <Button variant="secondary" href="/proposals">
           Browse All Missions
         </Button>
       </div>

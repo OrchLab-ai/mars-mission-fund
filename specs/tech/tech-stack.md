@@ -124,7 +124,7 @@ Together they form the developer observability stack, complementing PostHog's pr
 
 ## Search
 
-Campaign discovery search is served by **PostgreSQL full-text search** over CQRS read models.
+Proposal discovery search is served by **PostgreSQL full-text search** over CQRS read models.
 No external search provider is required.
 
 ---
@@ -152,7 +152,7 @@ No external search provider is required.
 
 | Technology | Purpose                                                                                              |
 | ---------- | ---------------------------------------------------------------------------------------------------- |
-| AWS S3     | Frontend static assets (CloudFront origin), audit cold storage, KYC document uploads, campaign media |
+| AWS S3     | Frontend static assets (CloudFront origin), audit cold storage, KYC document uploads, proposal media |
 
 ---
 
@@ -198,7 +198,7 @@ No external search provider is required.
   ```
 
 - Migration file naming convention: `YYYYMMDDHHMMSS_<snake_case_description>.sql`
-  (e.g. `20260301120000_create_campaigns.sql`).
+  (e.g. `20260301120000_create_proposals.sql`).
 
 ### Express Server
 
@@ -213,7 +213,7 @@ npm run dev:server
 ```text
 packages/server/
 └── src/
-    ├── campaigns/     # Campaign domain handlers and routes
+    ├── proposals/     # Proposal domain handlers and routes
     ├── db/            # Database client, migration helpers, migrations/
     ├── middleware/     # Express middleware (logging, error handling)
     └── __tests__/     # Integration and unit tests

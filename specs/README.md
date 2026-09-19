@@ -90,7 +90,7 @@ Each spec includes a **Local demo scope** note identifying what matters for the 
 | Spec ID | Document             | Purpose                                                                                                                                                                                                                                                                                                                                                                                                                   | Depends On                             | Status   |
 | ------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | -------- |
 | L4-001  | `domain/account.md`  | The full account lifecycle: registration, onboarding, email verification, password policies, SSO integration, profile management, role assignment, session management, notification preferences, account recovery, account deactivation, and data portability. Onboarding is a phase within this lifecycle, not a separate concern.                                                                                       | L2-001, L3-002, L3-005, L4-005         | Approved |
-| L4-002  | `domain/campaign.md` | Full campaign lifecycle: project submission, review pipeline, approval/rejection, live campaign management, funding progress tracking, milestone definition and verification, stretch goals, deadline enforcement, campaign completion, campaign failure handling, and fund settlement. Origination is a phase within this lifecycle, not a separate concern.                                                             | L1-001, L2-001, L3-001, L3-006, L4-004 | Approved |
+| L4-002  | `domain/proposal.md` | Full proposal lifecycle: project submission, review pipeline, approval/rejection, live proposal management, funding progress tracking, milestone definition and verification, stretch goals, deadline enforcement, proposal completion, proposal failure handling, and fund settlement. Origination is a phase within this lifecycle, not a separate concern.                                                             | L1-001, L2-001, L3-001, L3-006, L4-004 | Approved |
 | L4-003  | `domain/donor.md`    | The complete donor-side bounded context: project discovery and search, recommendation engine, curated collections, category browsing, contribution flow (references L4-004), ongoing donor relationship management, contribution history, impact reporting, milestone notifications, cumulative impact dashboards, and repeat engagement patterns. Implements the "Accessibility Over Exclusivity" principle from L1-001. | L1-001, L2-001, L3-005, L4-002, L4-004 | Approved |
 | L4-004  | `domain/payments.md` | Payment processing: gateway integration (Stripe), tokenisation, PCI DSS scope management (SAQ-A), escrow mechanics, milestone-based disbursement, multi-approval disbursement workflows, refund handling, currency support, transaction reconciliation, tax receipt generation, and financial reporting.                                                                                                                  | L2-002, L3-001, L3-002, L3-004, L3-006 | Approved |
 | L4-005  | `domain/kyc.md`      | Identity verification: KYC document upload, automated verification checks, sanctions screening, manual review workflows, verification status lifecycle, re-verification triggers, jurisdictional requirements, and data retention rules specific to identity documents.                                                                                                                                                   | L2-002, L3-002, L3-004, L3-006         | Approved |
@@ -120,10 +120,10 @@ L1-001 Product Vision & Mission
 ├── L2-001 standards/brand.md
 │   ├── L3-005 tech/frontend.md
 │   │   ├── L4-001 domain/account.md
-│   │   ├── L4-002 domain/campaign.md
+│   │   ├── L4-002 domain/proposal.md
 │   │   └── L4-003 domain/donor.md
 │   ├── L4-001 domain/account.md
-│   ├── L4-002 domain/campaign.md
+│   ├── L4-002 domain/proposal.md
 │   └── L4-003 domain/donor.md
 │
 ├── L2-002 standards/engineering.md
@@ -140,14 +140,14 @@ L1-001 Product Vision & Mission
 │   │   │   └── L4-005 domain/kyc.md
 │   │   ├── L3-005 tech/frontend.md
 │   │   └── L3-006 tech/audit.md
-│   │       ├── L4-002 domain/campaign.md
+│   │       ├── L4-002 domain/proposal.md
 │   │       ├── L4-004 domain/payments.md
 │   │       └── L4-005 domain/kyc.md
 │   ├── L4-004 domain/payments.md
 │   └── L4-005 domain/kyc.md
 │
 ├── L3-006 tech/audit.md
-├── L4-002 domain/campaign.md
+├── L4-002 domain/proposal.md
 └── L4-003 domain/donor.md
 ```
 
@@ -161,9 +161,9 @@ Some concerns span multiple specs. When working in these areas, read all referen
 | ---------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------- |
 | Payment security             | L3-002, L3-006, L4-004, L4-005 | PCI DSS compliance touches security, audit, payments, and KYC                                  |
 | User data privacy            | L3-002, L3-004, L4-001, L4-005 | GDPR and Australian Privacy Act span security, data management, account, and KYC               |
-| Campaign financial integrity | L3-006, L4-002, L4-004         | Escrow, milestone disbursement, and audit trail must be consistent                             |
+| Proposal financial integrity | L3-006, L4-002, L4-004         | Escrow, milestone disbursement, and audit trail must be consistent                             |
 | Donor experience             | L2-001, L3-005, L4-003, L4-004 | Brand standards, frontend standards, donor spec, and payments must deliver a cohesive flow     |
-| Access control               | L3-002, L4-001, L4-002, L4-005 | RBAC model defined in security, implemented across account, campaign review, and KYC workflows |
+| Access control               | L3-002, L4-001, L4-002, L4-005 | RBAC model defined in security, implemented across account, proposal review, and KYC workflows |
 
 ---
 
@@ -194,7 +194,7 @@ specs/
 │   └── github.md                      ← GitHub CLI reference
 └── domain/
     ├── account.md                     ← L4-001
-    ├── campaign.md                    ← L4-002
+    ├── proposal.md                    ← L4-002
     ├── donor.md                       ← L4-003
     ├── payments.md                    ← L4-004
     └── kyc.md                         ← L4-005
@@ -209,7 +209,7 @@ All specs in this ecosystem follow these conventions:
 - **Spec ID**: Every document has a unique ID (e.g., L3-002) used for cross-referencing.
 - **Frontmatter metadata**: Each spec includes spec ID, version, status, rate of change, depends-on list, and depended-on-by list.
 - **Acceptance criteria**: L4 domain specs must include explicit, testable acceptance criteria for every workflow.
-- **Interface contracts**: Where specs share boundaries (e.g., payments ↔ campaign), both specs must define the interface contract and reference each other.
+- **Interface contracts**: Where specs share boundaries (e.g., payments ↔ proposal), both specs must define the interface contract and reference each other.
 - **Change log**: Every spec maintains a change log with date, author, and summary of changes.
 - **Status values**: `Not Started` → `Draft` → `Review` → `Approved` → `Superseded`
 

@@ -10,13 +10,13 @@ The domain specs for Payments (L4-004, `specs/domain/payments.md`) and KYC (L4-0
 `specs/domain/kyc.md`) describe production-grade third-party integrations:
 
 - **Payments**: Stripe Connect integration with escrow account management, fund disbursement
-  to campaign creators, backer refunds on campaign failure or cancellation, and webhook
+  to proposal creators, backer refunds on proposal failure or cancellation, and webhook
   handling for asynchronous payment events.
 - **KYC (Know Your Customer)**: Third-party KYC provider integration for identity document
   upload, identity verification API calls, and automated approval/rejection of creator accounts
-  before campaigns can be submitted for review.
+  before proposals can be submitted for review.
 
-The Campaign Lifecycle milestone required the full campaign workflow — from submission through
+The Proposal Lifecycle milestone required the full proposal workflow — from submission through
 review, funding, milestone verification, and settlement — to be demoed end-to-end in a local
 workshop environment. Integrating real payment and KYC providers would require:
 
@@ -31,7 +31,7 @@ None of these are feasible for a local workshop demo running on a developer's la
 
 Both integrations are stubbed in the demo:
 
-**KYC stub** — In `packages/server/src/campaigns/queries.ts`, the `submitCampaign` function
+**KYC stub** — In `packages/server/src/proposals/queries.ts`, the `submitProposal` function
 sets `const kycVerified = true` unconditionally. Every creator is treated as KYC-verified
 regardless of their actual verification status. No external API call is made.
 
@@ -40,23 +40,23 @@ to the console instead of calling Stripe:
 
 - **Fund disbursement** — when an admin verifies a milestone and marks it complete, a
   `console.log('[STUB] Disburse funds for milestone ...')` records the intended action.
-- **Backer refund** — when a settlement is cancelled (campaign failed or creator cancels with
-  existing contributions), a `console.log('[STUB] Refund backers for campaign ...')` records
+- **Backer refund** — when a settlement is cancelled (proposal failed or creator cancels with
+  existing contributions), a `console.log('[STUB] Refund backers for proposal ...')` records
   the intended refund.
 - **Admin notification** — when a creator submits milestone evidence, a
   `console.log('[STUB] Notify admin of evidence submission ...')` records the event.
 
 ## Rationale
 
-- A local workshop demo's value lies in demonstrating the campaign lifecycle workflow — state
+- A local workshop demo's value lies in demonstrating the proposal lifecycle workflow — state
   transitions, role-based access, audit visibility — not in exercising real payment rails or
   identity verification.
 - Stubs make the demo runnable with zero external dependencies: no Stripe account, no KYC
   provider, no internet access required during the workshop.
 - The `console.log('[STUB] ...')` pattern makes stub points visible and easy to locate when
   a real integration is added; they function as inline `// TODO: implement` markers.
-- KYC-always-verified simplifies the workshop flow: participants can submit campaigns
-  immediately without a separate KYC step, keeping the focus on campaign lifecycle states.
+- KYC-always-verified simplifies the workshop flow: participants can submit proposals
+  immediately without a separate KYC step, keeping the focus on proposal lifecycle states.
 
 ## Alternatives Considered
 
@@ -68,7 +68,7 @@ network access, and key management that add setup friction without adding worksh
 Stripe API locally. Rejected for the same reason: additional infrastructure with no
 workshop-visible benefit over a console.log stub.
 
-**KYC always-rejected stub** — flagging all creators as unverified would block campaign
+**KYC always-rejected stub** — flagging all creators as unverified would block proposal
 submission and prevent the lifecycle demo from running end-to-end. The always-verified
 approach keeps the full workflow accessible.
 
@@ -91,7 +91,7 @@ would add complexity without current value.
 - The gap between demo and production is invisible at runtime — the workflow completes
   successfully whether or not funds are actually moved, which could mask integration bugs
   if real code is added without removing stubs.
-- `const kycVerified = true` means the KYC enforcement path in the campaign submission logic
+- `const kycVerified = true` means the KYC enforcement path in the proposal submission logic
   is untested; a production integration would require new tests and potentially different
   branching logic.
 
