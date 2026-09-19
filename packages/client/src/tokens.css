@@ -184,7 +184,7 @@
   --gradient-surface-card: var(--grad-deep-field);
   --gradient-surface-stat: linear-gradient(135deg, var(--nebula), var(--deep-space));
   --gradient-hero: var(--grad-night-launch);
-  --gradient-campaign-hero: var(--grad-mars-atmosphere);
+  --gradient-proposal-hero: var(--grad-mars-atmosphere);
   --gradient-celebration: var(--grad-mission-success);
   --gradient-achievement: var(--grad-metallic-sheen);
 

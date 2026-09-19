@@ -5,7 +5,7 @@
 > **Status**: Approved
 > **Rate of Change**: Monthly / standard reviews
 > **Depends On**: L1-001 (Product Vision & Mission), Brand Guidelines (mars-mission-fund-brand.html)
-> **Depended On By**: L3-005 (tech/frontend.md), L4-001 (domain/account.md), L4-002 (domain/campaign.md), L4-003 (domain/donor.md)
+> **Depended On By**: L3-005 (tech/frontend.md), L4-001 (domain/account.md), L4-002 (domain/proposal.md), L4-003 (domain/donor.md)
 
 ---
 
@@ -157,10 +157,10 @@ These are the only tokens components may reference. Each maps to a Tier 1 identi
 | `--color-status-success`        | `--success`          | Funded, milestone complete, transaction confirmed        |
 | `--color-status-success-bg`     | `--success / 12%`    | Success badge/card background                            |
 | `--color-status-success-border` | `--success / 20%`    | Success badge/card border                                |
-| `--color-status-error`          | `--red-planet`       | Validation errors, failed transactions, campaign failure |
-| `--color-status-warning`        | `--afterburn`        | Deadline approaching, campaign ending soon               |
+| `--color-status-error`          | `--red-planet`       | Validation errors, failed transactions, proposal failure |
+| `--color-status-warning`        | `--afterburn`        | Deadline approaching, proposal ending soon               |
 | `--color-status-info`           | `--orbit`            | Neutral informational badges, help text                  |
-| `--color-status-active`         | `--launchfire`       | Live campaign indicator dot                              |
+| `--color-status-active`         | `--launchfire`       | Live proposal indicator dot                              |
 | `--color-status-active-bg`      | `--launchfire / 12%` | Active badge background                                  |
 | `--color-status-active-border`  | `--launchfire / 20%` | Active badge border                                      |
 | `--color-status-new`            | `--signal-blue`      | New mission indicator dot                                |
@@ -206,8 +206,8 @@ These are the only tokens components may reference. Each maps to a Tier 1 identi
 
 | Semantic Token               | Maps To                                             | Usage                         |
 | ---------------------------- | --------------------------------------------------- | ----------------------------- |
-| `--color-progress-fill`      | `linear-gradient(90deg, --launchfire, --afterburn)` | In-progress campaign bar fill |
-| `--color-progress-complete`  | `linear-gradient(90deg, --success, --success-deep)` | Completed campaign bar fill   |
+| `--color-progress-fill`      | `linear-gradient(90deg, --launchfire, --afterburn)` | In-progress proposal bar fill |
+| `--color-progress-complete`  | `linear-gradient(90deg, --success, --success-deep)` | Completed proposal bar fill   |
 | `--color-progress-track`     | `--white / 6%`                                      | Progress bar background track |
 | `--color-progress-indicator` | `--afterburn`                                       | Endpoint dot on progress bars |
 | `--color-data-positive`      | `--success`                                         | Upward trend, gain indicators |
@@ -221,8 +221,8 @@ These are the only tokens components may reference. Each maps to a Tier 1 identi
 | `--gradient-surface-card`   | `--grad-deep-field`                               | Card gradient backgrounds         |
 | `--gradient-surface-stat`   | `linear-gradient(135deg, --nebula, --deep-space)` | Stat card backgrounds             |
 | `--gradient-hero`           | `--grad-night-launch`                             | Landing page hero sections        |
-| `--gradient-campaign-hero`  | `--grad-mars-atmosphere`                          | Campaign hero backgrounds         |
-| `--gradient-celebration`    | `--grad-mission-success`                          | Funded campaign celebration state |
+| `--gradient-proposal-hero`  | `--grad-mars-atmosphere`                          | Proposal hero backgrounds         |
+| `--gradient-celebration`    | `--grad-mission-success`                          | Funded proposal celebration state |
 | `--gradient-achievement`    | `--grad-metallic-sheen`                           | Achievement badges, coin renders  |
 
 ### 2.8 Typography — Semantic
@@ -379,11 +379,11 @@ The brand guidelines define the overall voice. This section specifies how that v
 
 ### 4.2 Copy Patterns by Surface
 
-#### Campaign Pages
+#### Proposal Pages
 
 | Element             | Pattern                          | Example                                                  |
 | ------------------- | -------------------------------- | -------------------------------------------------------- |
-| Campaign title      | Active verb + specific objective | "Building Pressurised Habitats for the First Mars Crews" |
+| Proposal title      | Active verb + specific objective | "Building Pressurised Habitats for the First Mars Crews" |
 | Funding status      | Percentage + time urgency        | "73% funded — 18 days left to join the mission"          |
 | CTA button          | Direct action, no "click here"   | "Back This Mission"                                      |
 | Contribution prompt | Personal impact framing          | "Every $50 moves the launch window closer"               |
@@ -409,7 +409,7 @@ The brand guidelines define the overall voice. This section specifies how that v
 | Element              | Pattern                 | Example                                                           |
 | -------------------- | ----------------------- | ----------------------------------------------------------------- |
 | No contributions yet | Invitation, not absence | "Your mission log is empty. Find a mission to back."              |
-| No search results    | Redirect, not dead end  | "No missions match that search. Browse active campaigns instead." |
+| No search results    | Redirect, not dead end  | "No missions match that search. Browse active proposals instead." |
 | No milestones        | Progress framing        | "Milestones will appear here as the team hits targets."           |
 
 ### 4.3 Forbidden Language Patterns
@@ -479,7 +479,7 @@ All interactive elements must have a visible focus indicator meeting WCAG 2.1 AA
 
 | Context           | Requirement                                                                                       |
 | ----------------- | ------------------------------------------------------------------------------------------------- |
-| Progress bars     | `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-label` with campaign name and percentage |
+| Progress bars     | `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-label` with proposal name and percentage |
 | Badge indicators  | Dots are decorative (`aria-hidden="true"`); status via text                                       |
 | Stat cards        | Values and labels associated via `aria-labelledby`                                                |
 | Button icons      | Decorative: `aria-hidden="true"`. Icon-only: `aria-label` required                                |

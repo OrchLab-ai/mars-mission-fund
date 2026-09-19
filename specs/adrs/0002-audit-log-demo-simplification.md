@@ -15,7 +15,7 @@ with the following capabilities:
 - Anomaly-detection rules (e.g., flagging unusual disbursement patterns)
 - Audit-access logging (who read the audit log and when)
 
-The Campaign Lifecycle milestone required an auditable trail — reviewers approving campaigns,
+The Proposal Lifecycle milestone required an auditable trail — reviewers approving proposals,
 admins verifying milestones, settlement disbursements — visible in the UI during the workshop
 demo. Implementing the full production event-sourcing infrastructure (hash chaining, tiered
 storage, anomaly detection) was out of scope for a local development demo.
@@ -30,11 +30,11 @@ The demo uses three audit tables instead of the single spec-aligned event stream
 - **`audit_log`** — Legacy JSONB append-only table. Used for settlement and milestone events
   added in earlier issues. Stores unstructured event payloads as JSONB; no hash chaining or
   structured schema enforcement.
-- **`campaign_audit_events`** — Structured event table with `previous_state` and `new_state`
-  columns. Used for campaign workflow transitions (status changes). Added mid-milestone to
+- **`proposal_audit_events`** — Structured event table with `previous_state` and `new_state`
+  columns. Used for proposal workflow transitions (status changes). Added mid-milestone to
   support a richer audit UI showing before/after state diffs.
 - **`audit_events`** — Spec-aligned table matching the L3-006 schema (typed `event_type`,
-  `entity_id`, `actor_id`, `payload` JSONB). Used for campaign lifecycle events introduced in
+  `entity_id`, `actor_id`, `payload` JSONB). Used for proposal lifecycle events introduced in
   later issues. Closest to the production design but without hash chaining.
 
 No migration was made to unify the three tables; each was introduced when a feature needed it.
@@ -44,7 +44,7 @@ No migration was made to unify the three tables; each was introduced when a feat
 - The demo value comes from *event visibility* in the admin UI — reviewers and admins can see
   what happened and when — not from hash-chain integrity or tamper-proof guarantees.
 - Adding SHA-256 chaining, tiered retention, and anomaly detection during a workshop-focused
-  milestone would have shifted effort away from the core campaign lifecycle workflows being
+  milestone would have shifted effort away from the core proposal lifecycle workflows being
   demonstrated.
 - Each table was added in context of a specific feature; unifying them retrospectively would
   have introduced risk without workshop-visible benefit.

@@ -40,13 +40,13 @@ This is the single most important formatting rule in this spec.
 ```markdown
 Mars Mission Fund uses escrow-based funding.
 Funds are released only when milestones are verified.
-This protects both donors and campaign teams.
+This protects both donors and proposal teams.
 ```
 
 **Incorrect**:
 
 ```markdown
-Mars Mission Fund uses escrow-based funding. Funds are released only when milestones are verified. This protects both donors and campaign teams.
+Mars Mission Fund uses escrow-based funding. Funds are released only when milestones are verified. This protects both donors and proposal teams.
 ```
 
 ### 1.2 Line Length

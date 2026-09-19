@@ -108,7 +108,7 @@ The [specs/](./specs/) directory contains a layered specification system:
 | ![L1](https://img.shields.io/badge/L1-STRATEGIC-FF5C1A?style=flat-square&labelColor=0B1628) | Product vision and mission                                | 1 spec  |
 | ![L2](https://img.shields.io/badge/L2-STANDARDS-FF8C42?style=flat-square&labelColor=0B1628) | Brand and engineering standards                           | 2 specs |
 | ![L3](https://img.shields.io/badge/L3-TECHNICAL-1A3A6E?style=flat-square&labelColor=0B1628) | Architecture, security, frontend, data, audit, tech stack | 8 specs |
-| ![L4](https://img.shields.io/badge/L4-DOMAIN-FFB347?style=flat-square&labelColor=0B1628)    | Account, campaign, donor, payments, KYC workflows         | 5 specs |
+| ![L4](https://img.shields.io/badge/L4-DOMAIN-FFB347?style=flat-square&labelColor=0B1628)    | Account, proposal, donor, payments, KYC workflows         | 5 specs |
 
 Read [specs/README.md](./specs/README.md) before implementing any feature.
 It includes the full dependency graph, agent protocol, and cross-cutting concern index.

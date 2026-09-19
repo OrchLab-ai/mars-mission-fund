@@ -5,7 +5,7 @@
 > **Status**: Approved
 > **Rate of Change**: Per feature / per release
 > **Depends On**: L2-001 (Brand Application Standard), L3-002 (Security), L3-005 (Frontend Standards), L4-005 (KYC)
-> **Depended On By**: L4-002 (Campaign), L4-003 (Donor), L4-004 (Payments)
+> **Depended On By**: L4-002 (Proposal), L4-003 (Donor), L4-004 (Payments)
 
 ---
 
@@ -23,7 +23,7 @@ Onboarding is a phase within the account lifecycle, not a separate domain concer
 
 - Identity verification and KYC document handling — governed by [KYC](L4-005).
 - Payment methods and financial instruments — governed by [Payments](L4-004).
-- Campaign creation or management workflows — governed by [Campaign](L4-002).
+- Proposal creation or management workflows — governed by [Proposal](L4-002).
 - Donor-specific features (discovery, contribution history, impact dashboards) — governed by [Donor](L4-003).
 
 **Boundary rule**: This spec owns the identity, authentication state, role assignments, and profile data of a user.
@@ -167,9 +167,9 @@ Mars Mission Fund defines five roles as specified in the Product Vision & Missio
 
 | Role                    | Description                                                                                                                                                           |
 | ----------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Backer**              | Can browse campaigns, make contributions, view contribution history and impact dashboards. Default role for all registered users.                                     |
-| **Creator**             | Can submit campaign proposals, manage campaigns, define milestones. Requires KYC verification.                                                                        |
-| **Reviewer**            | Can review submitted campaigns, approve or reject proposals, verify milestones. Assigned by Administrator.                                                            |
+| **Backer**              | Can browse proposals, make contributions, view contribution history and impact dashboards. Default role for all registered users.                                     |
+| **Creator**             | Can submit proposal proposals, manage proposals, define milestones. Requires KYC verification.                                                                        |
+| **Reviewer**            | Can review submitted proposals, approve or reject proposals, verify milestones. Assigned by Administrator.                                                            |
 | **Administrator**       | Can manage users, assign roles, suspend accounts, configure platform settings. Assigned by Super Administrator.                                                       |
 | **Super Administrator** | Full platform access. Can assign Administrator roles, manage system configuration, access audit logs. Provisioned through a controlled process (not self-assignable). |
 
@@ -187,7 +187,7 @@ Mars Mission Fund defines five roles as specified in the Product Vision & Missio
 
 **AC-ACCT-011**: Given a newly activated account, when the user reaches `Active` state, then the Backer role is automatically assigned.
 
-**AC-ACCT-012**: Given a user with Creator role but KYC status `Pending`, when they attempt to submit a campaign, then access is denied with a message directing them to complete KYC.
+**AC-ACCT-012**: Given a user with Creator role but KYC status `Pending`, when they attempt to submit a proposal, then access is denied with a message directing them to complete KYC.
 
 **AC-ACCT-013**: Given an Administrator, when they assign the Reviewer role to a user, then the user gains access to the review pipeline and the role change is logged.
 
@@ -204,7 +204,7 @@ Mars Mission Fund defines five roles as specified in the Product Vision & Missio
 | Field                     | Required           | Editable                   | Notes                                                                 |
 | ------------------------- | ------------------ | -------------------------- | --------------------------------------------------------------------- |
 | Email                     | Yes                | Yes (with re-verification) | Primary identifier. Change triggers verification of new email.        |
-| Display name              | No                 | Yes                        | Shown on public-facing surfaces (campaign pages, contribution lists). |
+| Display name              | No                 | Yes                        | Shown on public-facing surfaces (proposal pages, contribution lists). |
 | Avatar                    | No                 | Yes                        | File upload validated per [Engineering Standard](L2-002) Section 1.4. |
 | Bio                       | No                 | Yes                        | Free-text, sanitised on input.                                        |
 | Notification preferences  | Yes (defaults set) | Yes                        | See Section 4.2.                                                      |
@@ -215,10 +215,10 @@ Mars Mission Fund defines five roles as specified in the Product Vision & Missio
 
 Users can configure notification preferences for the following categories:
 
-- Campaign updates (for backed campaigns)
+- Proposal updates (for backed proposals)
 - Milestone completions
 - Contribution confirmations
-- New campaign recommendations
+- New proposal recommendations
 - Account security alerts (mandatory — cannot be disabled)
 - Platform announcements
 
@@ -330,7 +330,7 @@ If a user loses access to their MFA device:
 - A user may deactivate their account from account settings.
 - Deactivation requires session elevation (re-authentication).
 - Deactivation does not delete data. The account enters `Deactivated` state.
-- Active campaigns owned by the user must be resolved (completed, failed, or transferred) before deactivation is permitted.
+- Active proposals owned by the user must be resolved (completed, failed, or transferred) before deactivation is permitted.
 - Active contributions in escrow are not affected by deactivation (the escrow lifecycle continues per [Payments](L4-004)).
 - The user may reactivate within 90 days by logging in and confirming reactivation. After 90 days, the account transitions to `Deleted` and the GDPR erasure process (Section 7.2) is triggered automatically.
 
@@ -356,7 +356,7 @@ If a user loses access to their MFA device:
 
 **AC-ACCT-029**: Given an authenticated user, when they deactivate their account, then the account enters `Deactivated` state and login is prevented.
 
-**AC-ACCT-030**: Given a user with active campaigns, when they attempt to deactivate, then they are informed that campaigns must be resolved first.
+**AC-ACCT-030**: Given a user with active proposals, when they attempt to deactivate, then they are informed that proposals must be resolved first.
 
 **AC-ACCT-031**: Given a deactivated user, when they log in within the reactivation window, then they are prompted to reactivate and the account returns to `Active` state.
 
@@ -400,20 +400,20 @@ Status changes are communicated via the event/messaging pattern defined in [Arch
 **Contract**: Donor domain queries Account for identity context using the account ID.
 Contribution data displayed in the account profile is fetched from the Donor domain's read API.
 
-### 8.3 Account ↔ Campaign ([Campaign](L4-002))
+### 8.3 Account ↔ Proposal ([Proposal](L4-002))
 
-**Account → Campaign**:
+**Account → Proposal**:
 
-- Account provides role context (Creator, Reviewer, Administrator) that gates campaign workflows.
-- A user must have the Creator role and KYC `Verified` status to submit a campaign.
+- Account provides role context (Creator, Reviewer, Administrator) that gates proposal workflows.
+- A user must have the Creator role and KYC `Verified` status to submit a proposal.
 - A user must have the Reviewer role to access the review pipeline.
 
-**Campaign → Account**:
+**Proposal → Account**:
 
-- Campaign references the account ID as the campaign owner (Creator).
-- Campaign does not modify account state.
+- Proposal references the account ID as the proposal owner (Creator).
+- Proposal does not modify account state.
 
-**Contract**: Campaign domain validates role and KYC status by querying Account at the point of action (campaign submission, review access).
+**Contract**: Proposal domain validates role and KYC status by querying Account at the point of action (proposal submission, review access).
 The specific API contract (endpoint, payload) is to be defined in implementation.
 
 ### 8.4 Account ↔ Payments ([Payments](L4-004))
@@ -437,6 +437,6 @@ Escrow status queries during deactivation use the Payments read API.
 
 | Date       | Version | Author | Summary                                                                                                                                                                                                                                                                                                               |
 | ---------- | ------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| March 2026 | 0.1     | —      | Initial stub. Registration, onboarding, roles, profile, sessions, recovery, deactivation, data portability, interface contracts with KYC, Donor, Campaign, and Payments.                                                                                                                                              |
+| March 2026 | 0.1     | —      | Initial stub. Registration, onboarding, roles, profile, sessions, recovery, deactivation, data portability, interface contracts with KYC, Donor, Proposal, and Payments.                                                                                                                                              |
 | March 2026 | 0.2     | —      | Resolved all open questions: verification link expiry (24h), password reset expiry (1h), SSO providers (Google, Microsoft), default notifications (all opt-in except announcements), reactivation window (90 days), export format (JSON + CSV), MFA recovery process (manual ID verification), no cooling-off period. |
 | March 2026 | 0.3     | —      | Updated local demo scope note: replaced Clerk reference with custom stateless JWT stub description (no refresh, no revocation, JWT in localStorage, bcrypt-hashed demo passwords); Clerk/OIDC noted as theatre for the demo. |

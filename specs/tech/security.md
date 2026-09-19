@@ -73,11 +73,11 @@ The threat model is a living document — it must be reviewed and updated whenev
 | STRIDE Category            | Description                                                                      | Primary Targets                                                                           |
 | -------------------------- | -------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | **Spoofing**               | An attacker impersonates a legitimate user, service, or system component         | Authentication endpoints, service-to-service calls, API Gateway                           |
-| **Tampering**              | An attacker modifies data in transit or at rest                                  | Payment transactions, campaign data, escrow balances, KYC documents                       |
-| **Repudiation**            | An actor denies performing an action, and the system cannot prove otherwise      | Financial transactions, campaign approvals, disbursement authorisations, admin operations |
+| **Tampering**              | An attacker modifies data in transit or at rest                                  | Payment transactions, proposal data, escrow balances, KYC documents                       |
+| **Repudiation**            | An actor denies performing an action, and the system cannot prove otherwise      | Financial transactions, proposal approvals, disbursement authorisations, admin operations |
 | **Information Disclosure** | Sensitive data is exposed to unauthorised parties                                | PII, financial data, KYC documents, authentication credentials, audit logs                |
 | **Denial of Service**      | An attacker degrades or prevents legitimate access to the platform               | API Gateway, authentication service, payment processing                                   |
-| **Elevation of Privilege** | An attacker gains access to resources or operations beyond their authorised role | Role assignment, admin endpoints, campaign review pipeline, disbursement approval         |
+| **Elevation of Privilege** | An attacker gains access to resources or operations beyond their authorised role | Role assignment, admin endpoints, proposal review pipeline, disbursement approval         |
 
 ### 3.2 Trust Boundaries
 
@@ -110,7 +110,7 @@ The threat model is a living document — it must be reviewed and updated whenev
 | **Repudiation**                     |                               |                                                                                                  |                                      |          |
 | Financial action denial             | All internal boundaries       | Immutable audit logging of all payment state mutations with actor, timestamp, correlation ID     | [Audit](L3-006)                      | Critical |
 | Role change denial                  | API Gateway → Domain Services | Security-critical audit events for all role assignments and changes                              | Section 5.2, [Audit](L3-006)         | Critical |
-| Campaign approval denial            | API Gateway → Domain Services | Audit trail for all campaign review decisions with reviewer identity                             | [Audit](L3-006)                      | High     |
+| Proposal approval denial            | API Gateway → Domain Services | Audit trail for all proposal review decisions with reviewer identity                             | [Audit](L3-006)                      | High     |
 | Disbursement approval denial        | API Gateway → Domain Services | Dual-approval workflow with independent audit entries per approver                               | [Payments](L4-004), Section 7.2      | Critical |
 | **Information Disclosure**          |                               |                                                                                                  |                                      |          |
 | PII exposure                        | All boundaries                | Data classification scheme; field-level encryption for sensitive fields; log sanitisation        | Section 6, [Data Management](L3-004) | Critical |
@@ -125,7 +125,7 @@ The threat model is a living document — it must be reviewed and updated whenev
 | Resource exhaustion via file upload | External → API Gateway        | File type validation (magic bytes), size limits, storage in separate domain                      | Section 7.1                          | High     |
 | **Elevation of Privilege**          |                               |                                                                                                  |                                      |          |
 | Unauthorised role assignment        | API Gateway → Domain Services | RBAC enforcement; Reviewer/Admin assigned by Admin; Super Admin by Super Admin only with MFA     | Section 5.2                          | Critical |
-| Horizontal privilege escalation     | API Gateway → Domain Services | Resource-level authorisation in domain services (e.g., creators manage only own campaigns)       | Section 5.3                          | Critical |
+| Horizontal privilege escalation     | API Gateway → Domain Services | Resource-level authorisation in domain services (e.g., creators manage only own proposals)       | Section 5.3                          | Critical |
 | Vertical privilege escalation       | API Gateway → Domain Services | API-layer authorisation on every request; role claims validated from access token                | Section 5.3                          | Critical |
 | UI-only access control bypass       | External → API Gateway        | Authorisation enforced at API layer, not UI; UI role-based hiding is cosmetic only               | Section 5.3                          | Critical |
 | MFA bypass on privileged actions    | API Gateway → Domain Services | MFA required for all financial actions, admin operations, and account recovery                   | Section 4.2                          | Critical |
@@ -148,7 +148,7 @@ Authentication is based on OAuth 2.0 with OpenID Connect (OIDC) for identity.
 Per [Engineering Standard](L2-002), Section 1.5, MFA is required for:
 
 - All financial actions (contributions, disbursements, refunds).
-- All administrative operations (role assignment, campaign approval, system configuration).
+- All administrative operations (role assignment, proposal approval, system configuration).
 - Account recovery.
 - Changes to authentication settings (password change, MFA method change).
 
@@ -201,9 +201,9 @@ Mars Mission Fund uses Role-Based Access Control (RBAC) with five roles defined 
 
 | Role                    | Description                                       | Typical Capabilities                                                                                                                 |
 | ----------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| **Backer**              | A user who contributes funds to campaigns         | Browse campaigns, make contributions, view own contribution history, manage own profile                                              |
-| **Creator**             | A user who creates and manages campaigns          | All Backer capabilities + create campaigns, manage own campaigns, define milestones, request disbursements                           |
-| **Reviewer**            | A user who reviews and approves/rejects campaigns | All Backer capabilities + review submitted campaigns, approve/reject, request changes                                                |
+| **Backer**              | A user who contributes funds to proposals         | Browse proposals, make contributions, view own contribution history, manage own profile                                              |
+| **Creator**             | A user who creates and manages proposals          | All Backer capabilities + create proposals, manage own proposals, define milestones, request disbursements                           |
+| **Reviewer**            | A user who reviews and approves/rejects proposals | All Backer capabilities + review submitted proposals, approve/reject, request changes                                                |
 | **Administrator**       | A user who manages platform operations            | All Reviewer capabilities + manage users, assign roles (except Super Administrator), view audit logs, manage platform settings       |
 | **Super Administrator** | Highest-privilege platform user                   | All Administrator capabilities + assign Administrator/Super Administrator roles, access compliance reports, manage security settings |
 
@@ -221,7 +221,7 @@ Mars Mission Fund uses Role-Based Access Control (RBAC) with five roles defined 
 - Authorisation is enforced at the API layer, not the UI layer.
   The UI may hide elements based on role, but the API must independently validate permissions on every request.
 - Permissions are evaluated against the role claims in the access token (Section 4.3).
-- Resource-level authorisation (e.g., "this Creator can only manage their own campaigns") is enforced by the domain service, not the API Gateway.
+- Resource-level authorisation (e.g., "this Creator can only manage their own proposals") is enforced by the domain service, not the API Gateway.
 - All authorisation failures are logged with: actor identity, requested resource, requested action, and the reason for denial.
 
 ### 5.4 Service-to-Service Authorisation

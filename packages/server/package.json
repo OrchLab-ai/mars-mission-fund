@@ -18,7 +18,6 @@
     "jsonwebtoken": "^9.0.3",
     "pg": "^8",
     "pino": "^9",
-    "pino-http": "^10",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "zod": "^3"

@@ -5,7 +5,7 @@
 > **Status**: Approved
 > **Rate of Change**: Sprint-level / tech decisions
 > **Depends On**: L2-001 (Brand Application Standard), L2-002 (Engineering Standard), L3-001 (Architecture)
-> **Depended On By**: L4-001 (domain/account.md), L4-002 (domain/campaign.md), L4-003 (domain/donor.md)
+> **Depended On By**: L4-001 (domain/account.md), L4-002 (domain/proposal.md), L4-003 (domain/donor.md)
 
 ---
 
@@ -23,7 +23,7 @@ It **does not cover**:
 
 - Brand identity, voice, or token definitions — those live in [Brand Application Standard](L2-001).
 - Backend API design, service boundaries, or infrastructure — those live in [Architecture](L3-001).
-- Domain-specific UI workflows (account registration, campaign pages, donor dashboards) — those live in the L4 domain specs that depend on this document.
+- Domain-specific UI workflows (account registration, proposal pages, donor dashboards) — those live in the L4 domain specs that depend on this document.
 
 ---
 
@@ -70,10 +70,10 @@ The application is a **single-page application (SPA)** with **selective static p
 | Page type                                                    | Rendering                                                                   | Rationale                                                                   |
 | ------------------------------------------------------------ | --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
 | Marketing / landing pages                                    | Static pre-rendering at build time (via `vite-plugin-ssr` or equivalent)    | SEO-critical; content changes infrequently; can be served directly from CDN |
-| Public campaign pages                                        | Static pre-rendering with revalidation (rebuild on campaign publish/update) | SEO-important; content is user-generated but changes on known events        |
+| Public proposal pages                                        | Static pre-rendering with revalidation (rebuild on proposal publish/update) | SEO-important; content is user-generated but changes on known events        |
 | Authenticated pages (dashboard, account, contribution flows) | Client-side SPA rendering                                                   | Not SEO-relevant; require authentication; benefit from SPA interactivity    |
 
-Full server-side rendering (SSR) is not required at this stage. The SPA + selective pre-rendering approach avoids SSR infrastructure complexity while covering SEO needs. If SSR becomes necessary (e.g., for dynamic meta tags on campaign pages at scale), the architecture can adopt a framework like React Router's SSR mode or a lightweight Node SSR layer without restructuring the component library.
+Full server-side rendering (SSR) is not required at this stage. The SPA + selective pre-rendering approach avoids SSR infrastructure complexity while covering SEO needs. If SSR becomes necessary (e.g., for dynamic meta tags on proposal pages at scale), the architecture can adopt a framework like React Router's SSR mode or a lightweight Node SSR layer without restructuring the component library.
 
 The following architectural constraints apply.
 
@@ -84,7 +84,7 @@ The UI is built from a hierarchy of composable components.
 | Component Tier               | Description                                                                                                             | Ownership                                                      |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
 | **Design system primitives** | Button, Input, Card, Badge, ProgressBar, StatCard — implementing [Brand Application Standard](L2-001) Section 3 exactly | Shared library; changes require design review                  |
-| **Composite components**     | Form groups, navigation, campaign cards, stat dashboards — assembled from primitives                                    | Feature teams; must only use primitives from the design system |
+| **Composite components**     | Form groups, navigation, proposal cards, stat dashboards — assembled from primitives                                    | Feature teams; must only use primitives from the design system |
 | **Page components**          | Full page layouts — assembled from composites; manage data fetching and state                                           | Feature teams; defined by L4 domain specs                      |
 
 **Rule**: No component may define its own colours, font sizes, spacing, or animation timings.
@@ -93,7 +93,7 @@ Hardcoded visual values in component code are a spec violation.
 
 ### 1.2.1 Trusted HTML Rendering
 
-`dangerouslySetInnerHTML` is permitted **only** for HTML content sourced from the application's own API (e.g. rich-text campaign descriptions stored in the database and returned by the server).
+`dangerouslySetInnerHTML` is permitted **only** for HTML content sourced from the application's own API (e.g. rich-text proposal descriptions stored in the database and returned by the server).
 
 **Security boundary:**
 
@@ -101,7 +101,7 @@ Hardcoded visual values in component code are a spec violation.
 - Content rendered this way must originate exclusively from the application's own API responses, which are treated as trusted because they are stored and served by the application itself.
 - If the source of HTML content is in any doubt, use a sanitisation library (e.g. DOMPurify) before rendering.
 
-**Current usage:** `campaign.description` in `CampaignDetailPage` — the campaign description is authored by campaign owners, stored in the database, and returned by the API. It is rendered via `dangerouslySetInnerHTML` to preserve formatting.
+**Current usage:** `proposal.description` in `ProposalDetailPage` — the proposal description is authored by proposal owners, stored in the database, and returned by the API. It is rendered via `dangerouslySetInnerHTML` to preserve formatting.
 
 ### 1.3 State Management
 
@@ -109,13 +109,13 @@ State management uses a **layered approach** that avoids heavy frameworks in fav
 
 | Layer                   | Tool                            | Scope                                                                                                                                             |
 | ----------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Server state**        | TanStack Query (React Query) v5 | All API data: campaigns, accounts, contributions, funding progress. Handles caching, revalidation, optimistic updates, and background refetching. |
+| **Server state**        | TanStack Query (React Query) v5 | All API data: proposals, accounts, contributions, funding progress. Handles caching, revalidation, optimistic updates, and background refetching. |
 | **Local UI state**      | React `useState` / `useReducer` | Form state, modal visibility, UI toggles — ephemeral state that does not survive navigation.                                                      |
 | **Shared client state** | React Context + `useReducer`    | Authentication state, user preferences, correlation ID — small amount of cross-cutting state shared across the component tree.                    |
 
 **Why TanStack Query**: It is the lightest-touch solution that satisfies the server-state requirements (caching with revalidation, optimistic mutations with rollback, background polling for real-time progress) without introducing a global state framework like Redux or Zustand. All server data flows through TanStack Query; no component fetches or caches API data outside this layer.
 
-**Why not a global store**: The application's complexity is overwhelmingly server-state-driven (campaigns, contributions, account data). A global client store adds indirection without benefit when TanStack Query already manages the cache, loading states, and error states for server data.
+**Why not a global store**: The application's complexity is overwhelmingly server-state-driven (proposals, contributions, account data). A global client store adds indirection without benefit when TanStack Query already manages the cache, loading states, and error states for server data.
 
 The following constraints apply regardless of implementation detail:
 
@@ -130,28 +130,28 @@ The following constraints apply regardless of implementation detail:
 - Protected routes enforce authentication state before rendering; unauthenticated users are redirected to login.
 - Route transitions use `--motion-page` semantic token for animation timing.
 
-**Lazy loading pattern**: Non-marketing routes (e.g., campaign detail, contribute) use `React.lazy` + `Suspense` for route-level code splitting. A root `<Suspense>` with a fallback UI wraps the entire `<Routes>` tree so that any lazy-loaded route is covered without individual `<Suspense>` wrappers at each route definition.
+**Lazy loading pattern**: Non-marketing routes (e.g., proposal detail, contribute) use `React.lazy` + `Suspense` for route-level code splitting. A root `<Suspense>` with a fallback UI wraps the entire `<Routes>` tree so that any lazy-loaded route is covered without individual `<Suspense>` wrappers at each route definition.
 
 ```tsx
 // Route definitions (src/App.tsx or router config)
-const CampaignDetail = React.lazy(() => import('./pages/CampaignDetail'));
+const ProposalDetail = React.lazy(() => import('./pages/ProposalDetail'));
 const Contribute = React.lazy(() => import('./pages/Contribute'));
 
 // Root layout
 <Suspense fallback={<PageSpinner />}>
   <Routes>
-    <Route path="/campaigns/:id" element={<CampaignDetail />} />
-    <Route path="/campaigns/:id/contribute" element={<Contribute />} />
+    <Route path="/proposals/:id" element={<ProposalDetail />} />
+    <Route path="/proposals/:id/contribute" element={<Contribute />} />
   </Routes>
 </Suspense>
 ```
 
-Marketing pages (landing, public campaign list) may be statically pre-rendered and do not require lazy loading.
+Marketing pages (landing, public proposal list) may be statically pre-rendered and do not require lazy loading.
 
 **Page title management pattern** (introduced in Issue #81):
 
 - A static `routeTitles` map in `Layout.tsx` maps known route paths to their full page title strings. On every location change, a `useEffect` in `Layout` looks up the current path in this map and sets `document.title` accordingly.
-- For dynamic routes whose titles depend on fetched data (e.g. a campaign's name on the campaign detail page), the page component sets `document.title` in its own `useEffect` once the data is available.
+- For dynamic routes whose titles depend on fetched data (e.g. a proposal's name on the proposal detail page), the page component sets `document.title` in its own `useEffect` once the data is available.
 - Title format: `<Page Name> — Mars Mission Fund` (em dash separator, app name suffix on every page).
 
 ```tsx
@@ -166,12 +166,12 @@ useEffect(() => {
   document.title = routeTitles[location.pathname] ?? 'Mars Mission Fund'
 }, [location.pathname])
 
-// CampaignDetailPage.tsx — dynamic title set once campaign data loads
+// ProposalDetailPage.tsx — dynamic title set once proposal data loads
 useEffect(() => {
-  if (campaign) {
-    document.title = `${campaign.title} — Mars Mission Fund`
+  if (proposal) {
+    document.title = `${proposal.title} — Mars Mission Fund`
   }
-}, [campaign])
+}, [proposal])
 ```
 
 ### 1.5 API Communication
@@ -197,14 +197,14 @@ Example structure:
 ```text
 src/
   api/
-    campaigns.ts       # fetchCampaign(), fetchCampaigns(), etc.
+    proposals.ts       # fetchProposal(), fetchProposals(), etc.
   hooks/
-    useCampaign.ts     # useQuery wrapping fetchCampaign()
+    useProposal.ts     # useQuery wrapping fetchProposal()
   pages/
-    CampaignDetail.tsx # imports useCampaign(), never fetchCampaign()
+    ProposalDetail.tsx # imports useProposal(), never fetchProposal()
 ```
 
-**Vite dev-server proxy**: `vite.config.ts` includes a `server.proxy` entry that forwards all `/v1` requests to `http://localhost:3000` during local development. This allows the frontend to call `/v1/campaigns` without CORS issues while the Express API server runs on port 3000.
+**Vite dev-server proxy**: `vite.config.ts` includes a `server.proxy` entry that forwards all `/v1` requests to `http://localhost:3000` during local development. This allows the frontend to call `/v1/proposals` without CORS issues while the Express API server runs on port 3000.
 
 ```ts
 // vite.config.ts (relevant excerpt)
@@ -398,7 +398,7 @@ Regardless of specific values, the following constraints apply:
 
 | Context                                        | Requirement                                                                                            |
 | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Campaign browsing                              | Full functionality at all breakpoints; card grid adapts from single-column to multi-column             |
+| Proposal browsing                              | Full functionality at all breakpoints; card grid adapts from single-column to multi-column             |
 | Financial flows (contribution, KYC)            | Full functionality at all breakpoints; forms must be usable on mobile without horizontal scrolling     |
 | Data tables (transaction history, admin views) | Responsive pattern required — horizontal scroll, card conversion, or column prioritisation             |
 | Navigation                                     | Collapses to mobile-appropriate pattern (hamburger, bottom nav, or equivalent) below tablet breakpoint |
@@ -515,7 +515,7 @@ Font preload hint (`<link rel="preload">`) is applied to DM Sans as the critical
 | Lazy loading      | Images below the fold use `loading="lazy"`                                                                                         |
 | Aspect ratio      | Explicit `width` and `height` attributes on all `<img>` elements to prevent CLS                                                    |
 | CDN               | Images served via CDN with appropriate cache headers                                                                               |
-| Uploads           | User-uploaded images (campaign photos, KYC documents) served from a separate domain per [Engineering Standard](L2-002) Section 1.4 |
+| Uploads           | User-uploaded images (proposal photos, KYC documents) served from a separate domain per [Engineering Standard](L2-002) Section 1.4 |
 
 ### 9.3 Icon System
 
@@ -553,7 +553,7 @@ Implements [Engineering Standard](L2-002) Section 4.2: 80% coverage for UI compo
 | Unit tests              | Individual component rendering, prop variations, event handling          | Vitest + React Testing Library                                             |
 | Snapshot tests          | Visual regression detection for design system primitives                 | Vitest inline snapshots                                                    |
 | Integration tests       | Component composition, form flows, API interaction (mocked)              | Vitest + React Testing Library + MSW (Mock Service Worker)                 |
-| End-to-end tests        | Critical user flows: contribution, campaign browsing, account management | Playwright                                                                 |
+| End-to-end tests        | Critical user flows: contribution, proposal browsing, account management | Playwright                                                                 |
 | Accessibility tests     | Automated WCAG audit on every component                                  | axe-core (via `vitest-axe` for unit tests; `@axe-core/playwright` for E2E) |
 | Visual regression tests | Screenshot comparison for design system components                       | Playwright screenshot assertions                                           |
 | API integration tests   | Backend API endpoint testing (mocked or local server)                    | Supertest                                                                  |
@@ -605,7 +605,7 @@ The frontend is deployed as defined in L3-001; the frontend build pipeline integ
 **Interface**: API endpoints, authentication mechanism, deployment pipeline.
 Changes to API contracts require corresponding updates to the frontend API client and generated types.
 
-### With L4-001 (Account), L4-002 (Campaign), L4-003 (Donor)
+### With L4-001 (Account), L4-002 (Proposal), L4-003 (Donor)
 
 These domain specs **consume** the component library, responsive design system, accessibility standards, and performance budgets defined in this spec.
 Domain specs define the specific pages, workflows, and data requirements; this spec defines how those are built.
@@ -622,8 +622,8 @@ Domain specs may not introduce visual properties that bypass this spec's token a
 | March 2026 | 0.1     | —      | Initial stub. Frontend architecture constraints, component library standards, performance budgets, accessibility implementation, responsive design, animation constraints, browser support, dark mode implementation, asset optimisation, and testing strategy. Framework selection and specific breakpoints deferred as open decisions.                                                                                                                                                  |
 | March 2026 | 0.2     | —      | Resolved OQ-1: React 19.x selected as frontend framework per L3-008.                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | March 2026 | 0.3     | —      | Resolved OQ-2 through OQ-9: Mobile-first responsive strategy with breakpoints at 640/768/1024/1280px. Bundle size budgets established. TanStack Query + React built-in state for state management. Inline SVG React components for icons. Vitest + React Testing Library + Playwright + MSW + Supertest for testing (with Playwright MCP for AI agent integration). SPA with selective static pre-rendering for SEO pages. Graceful degradation for no-JS with branded noscript fallback. |
-| 2026-03-09 | 0.4     | —      | Documented patterns introduced in issues #40–#43 (Public Campaign Pages milestone): (1) Section 1.4 — lazy loading pattern for non-marketing routes using `React.lazy` + `Suspense` with a root `<Suspense>` wrapping `<Routes>`; (2) Section 1.5 — api/hooks layering convention (`src/api/<domain>.ts` for fetch functions, `src/hooks/use<Domain>.ts` for TanStack Query hooks, page components consume hooks only); (3) Section 1.5 — Vite dev-server proxy forwarding `/v1` to `http://localhost:3000` for local development. |
-| 2026-03-10 | 0.5     | —      | Documented patterns introduced in issues #80–#81 (Milestone housekeeping milestone): (1) Section 1.2.1 — Trusted HTML Rendering: `dangerouslySetInnerHTML` permitted only for API-sourced content; raw user-supplied HTML explicitly forbidden (XSS); current usage is `campaign.description` in `CampaignDetailPage`; (2) Section 1.4 — Page title management: static `routeTitles` map in `Layout.tsx` for known routes; page components use `useEffect` for dynamic titles; title format `<Page Name> — Mars Mission Fund`. |
+| 2026-03-09 | 0.4     | —      | Documented patterns introduced in issues #40–#43 (Public Proposal Pages milestone): (1) Section 1.4 — lazy loading pattern for non-marketing routes using `React.lazy` + `Suspense` with a root `<Suspense>` wrapping `<Routes>`; (2) Section 1.5 — api/hooks layering convention (`src/api/<domain>.ts` for fetch functions, `src/hooks/use<Domain>.ts` for TanStack Query hooks, page components consume hooks only); (3) Section 1.5 — Vite dev-server proxy forwarding `/v1` to `http://localhost:3000` for local development. |
+| 2026-03-10 | 0.5     | —      | Documented patterns introduced in issues #80–#81 (Milestone housekeeping milestone): (1) Section 1.2.1 — Trusted HTML Rendering: `dangerouslySetInnerHTML` permitted only for API-sourced content; raw user-supplied HTML explicitly forbidden (XSS); current usage is `proposal.description` in `ProposalDetailPage`; (2) Section 1.4 — Page title management: static `routeTitles` map in `Layout.tsx` for known routes; page components use `useEffect` for dynamic titles; title format `<Page Name> — Mars Mission Fund`. |
 
 ---
 

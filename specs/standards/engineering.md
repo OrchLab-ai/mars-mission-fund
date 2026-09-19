@@ -257,7 +257,7 @@ Every significant technology decision must pass through this framework.
 
 | Question                                                                                                                                         | If Yes                                                                       | If No                                                  |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------ |
-| Is this capability core to our competitive advantage — the product experience, campaign curation, or donor relationship that differentiates MMF? | Evaluate building. Proceed to build-quality assessment.                      | Default to integrate or buy.                           |
+| Is this capability core to our competitive advantage — the product experience, proposal curation, or donor relationship that differentiates MMF? | Evaluate building. Proceed to build-quality assessment.                      | Default to integrate or buy.                           |
 | Does an open-source or SaaS solution exist that solves ≥80% of the requirement?                                                                  | Use it. Engineer the remaining 20% as integration, not reimplementation.     | Evaluate building. Document why the market gap exists. |
 | Does integrating the third-party solution expand our PCI DSS scope or introduce an unacceptable trust boundary?                                  | This is a valid trigger to build. Document the security rationale.           | Integrate.                                             |
 | Does the external solution's roadmap, pricing model, or licence create an existential risk to the platform?                                      | Evaluate alternatives first. If none exist, build with an abstraction layer. | Integrate.                                             |
@@ -265,7 +265,7 @@ Every significant technology decision must pass through this framework.
 
 ### 2.2 What We Build
 
-The competitive advantage of Mars Mission Fund lives in: the campaign curation and review pipeline, the donor matching and impact reporting experience, the product experience layer, and the trust and transparency mechanisms that differentiate us from generic crowdfunding.
+The competitive advantage of Mars Mission Fund lives in: the proposal curation and review pipeline, the donor matching and impact reporting experience, the product experience layer, and the trust and transparency mechanisms that differentiate us from generic crowdfunding.
 Engineering time is concentrated here.
 
 ### 2.3 What We Don't Build

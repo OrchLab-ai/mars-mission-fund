@@ -5,7 +5,7 @@
 > **Status**: Approved
 > **Rate of Change**: Per feature / per release
 > **Depends On**: L2-002 (Engineering Standard), L3-002 (Security), L3-004 (Data Management), L3-006 (Audit Logging & Transparency)
-> **Depended On By**: L4-001 (Account), L4-002 (Campaign), L4-004 (Payments)
+> **Depended On By**: L4-001 (Account), L4-002 (Proposal), L4-004 (Payments)
 
 ---
 
@@ -13,7 +13,7 @@
 
 > **Local demo scope**: The KYC verification status lifecycle and its gating effect on Creator role features are **real** — the local demo enforces KYC status checks. The actual KYC provider is **stubbed** (no real document verification). Sanctions screening, manual review workflows, document storage encryption, re-verification triggers, and jurisdictional requirements are theatre. The local demo auto-approves KYC submissions.
 >
-> The demo stub is a single line in `packages/server/src/campaigns/queries.ts` (`submitCampaign`): `const kycVerified = true`. No KYC provider API keys, document upload flows, or webhook callbacks are required. See [ADR-0003](../adrs/0003-stubbed-integrations.md) for the full rationale and what a production integration would require.
+> The demo stub is a single line in `packages/server/src/proposals/queries.ts` (`submitProposal`): `const kycVerified = true`. No KYC provider API keys, document upload flows, or webhook callbacks are required. See [ADR-0003](../adrs/0003-stubbed-integrations.md) for the full rationale and what a production integration would require.
 
 This spec governs identity verification for Mars Mission Fund: KYC document upload, automated verification checks, sanctions screening, manual review workflows, verification status lifecycle, re-verification triggers, jurisdictional requirements, and data retention rules specific to identity documents.
 
@@ -35,8 +35,8 @@ This spec governs identity verification for Mars Mission Fund: KYC document uplo
   This spec defines the KYC verification states that feed into account verification; [Account](L4-001) implements the user-facing integration.
 - Payment processing, escrow, and disbursement — see [Payments](L4-004).
   This spec defines KYC status as a gate for disbursement eligibility; [Payments](L4-004) enforces that gate.
-- Campaign submission and review pipeline — see [Campaign](L4-002).
-  This spec defines KYC status as a gate for project submission eligibility; [Campaign](L4-002) enforces that gate.
+- Proposal submission and review pipeline — see [Proposal](L4-002).
+  This spec defines KYC status as a gate for project submission eligibility; [Proposal](L4-002) enforces that gate.
 - Authentication, authorisation, and RBAC model — see [Security](L3-002).
 - Data classification scheme and general retention policies — see [Data Management](L3-004).
   This spec references the Restricted classification for identity documents and defines KYC-specific retention.
@@ -326,8 +326,8 @@ The following events trigger a transition to Expired or Re-verification Required
 
 **Impact of non-Verified status on dependent systems**:
 
-- **Campaign submission**: Users without Verified KYC status cannot submit new campaigns.
-  Existing live campaigns are not immediately affected but new milestone disbursements are paused — see [Campaign](L4-002) interface contract.
+- **Proposal submission**: Users without Verified KYC status cannot submit new proposals.
+  Existing live proposals are not immediately affected but new milestone disbursements are paused — see [Proposal](L4-002) interface contract.
 - **Disbursements**: Users without Verified KYC status are ineligible for disbursements — see [Payments](L4-004) interface contract.
 - **Creator role**: The Creator role is conditional on Verified KYC status per [Security](L3-002), Section 5.2.
   If KYC status transitions to Expired or Re-verification Required, Creator role capabilities are suspended until re-verification completes.
@@ -442,14 +442,14 @@ Only resource identifiers and result classifications are logged, per [Audit](L3-
 
 **Integration mechanism**: [Payments](L4-004) queries KYC status synchronously before disbursement processing and subscribes to status change events for proactive disbursement holds.
 
-### 10.3 KYC <> Campaign (L4-002)
+### 10.3 KYC <> Proposal (L4-002)
 
-| This Spec Provides                                | Campaign Spec Consumes                                                                                                         |
+| This Spec Provides                                | Proposal Spec Consumes                                                                                                         |
 | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| KYC verification status (Verified / not Verified) | [Campaign](L4-002) checks KYC status before allowing project submission — only users with Verified status can submit campaigns |
-| KYC status change events                          | [Campaign](L4-002) may use status changes to update campaign eligibility for existing campaigns                                |
+| KYC verification status (Verified / not Verified) | [Proposal](L4-002) checks KYC status before allowing project submission — only users with Verified status can submit proposals |
+| KYC status change events                          | [Proposal](L4-002) may use status changes to update proposal eligibility for existing proposals                                |
 
-**Integration mechanism**: [Campaign](L4-002) queries KYC status synchronously at project submission time.
+**Integration mechanism**: [Proposal](L4-002) queries KYC status synchronously at project submission time.
 
 ### 10.4 KYC <> Security (L3-002)
 
@@ -556,6 +556,6 @@ Reference: [Audit](L3-006), Section 11.5.
 
 | Date       | Version | Author | Summary                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | ---------- | ------- | ------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| March 2026 | 0.1     | —      | Initial stub. KYC verification flow, document types and jurisdictional requirements, automated verification with provider abstraction, sanctions screening (OFAC, EU, UN, Australian DFAT), manual review workflow, verification status lifecycle (eight states), re-verification triggers, identity document storage and retention (Restricted classification, AML/CTF retention), right-to-erasure handling, auditable events, interface contracts with Account/Payments/Campaign/Security/Data Management/Audit, acceptance criteria. |
+| March 2026 | 0.1     | —      | Initial stub. KYC verification flow, document types and jurisdictional requirements, automated verification with provider abstraction, sanctions screening (OFAC, EU, UN, Australian DFAT), manual review workflow, verification status lifecycle (eight states), re-verification triggers, identity document storage and retention (Restricted classification, AML/CTF retention), right-to-erasure handling, auditable events, interface contracts with Account/Payments/Proposal/Security/Data Management/Audit, acceptance criteria. |
 | March 2026 | 0.2     | —      | Closed open questions OQ-2 through OQ-6 and OQ-8. Resolved: video liveness check required, 20 MB max file size, 3/5-attempt resubmission escalation, 2-year re-verification period, sanctions re-screening at re-verification, launch countries AU/US/UK/EU. Updated spec body to reflect resolved values.                                                                                                                                                                                                                               |
 | March 2026 | 0.3     | —      | Added Locked status to lifecycle (9 states). Added Depended On By for L4-002 and L4-004. Added video liveness to governs list and Australian DFAT to sanctions list reference. Added liveness data storage clarification (retained by Veriff only). Added audit events for resubmission escalation thresholds and account unlock. Added AC-KYC-013c for admin unlock.                                                                                                                                                                    |

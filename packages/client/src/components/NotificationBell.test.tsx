@@ -37,10 +37,10 @@ const mockNotifications: Notification[] = [
   {
     id: 'n1',
     userId: 'u1',
-    type: 'campaign_approved',
-    campaignId: null,
-    title: 'Campaign approved',
-    message: 'Your campaign was approved.',
+    type: 'proposal_approved',
+    proposalId: null,
+    title: 'Proposal approved',
+    message: 'Your proposal was approved.',
     read: false,
     createdAt: new Date('2026-03-19T10:00:00.000Z'),
   },
@@ -48,7 +48,7 @@ const mockNotifications: Notification[] = [
     id: 'n2',
     userId: 'u1',
     type: 'milestone_verified',
-    campaignId: 'c1',
+    proposalId: 'c1',
     title: 'Milestone verified',
     message: 'Milestone 1 has been verified.',
     read: true,
@@ -150,7 +150,7 @@ describe('NotificationBell', () => {
     // Click bell to open
     fireEvent.click(screen.getByRole('button', { name: /notifications/i }))
     expect(screen.getByRole('dialog', { name: 'Notifications' })).toBeInTheDocument()
-    expect(screen.getByText('Campaign approved')).toBeInTheDocument()
+    expect(screen.getByText('Proposal approved')).toBeInTheDocument()
     expect(screen.getByText('Milestone verified')).toBeInTheDocument()
 
     // Click bell again to close
@@ -186,7 +186,7 @@ describe('NotificationBell', () => {
     renderBell()
 
     fireEvent.click(screen.getByRole('button', { name: /notifications/i }))
-    const markReadBtn = screen.getByRole('button', { name: /mark as read: campaign approved/i })
+    const markReadBtn = screen.getByRole('button', { name: /mark as read: proposal approved/i })
     fireEvent.click(markReadBtn)
 
     expect(mutate).toHaveBeenCalled()

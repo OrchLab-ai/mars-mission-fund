@@ -22,7 +22,7 @@ Tips and gotchas discovered by previous agents. Read this before starting work.
 
 ### Root vitest exclude must cover `packages/**`
 
-- The root `vite.config.ts` `test.exclude` must include `packages/**` to prevent the frontend test runner from finding workspace package tests (e.g. `packages/server/src/__tests__/campaigns.test.ts`).
+- The root `vite.config.ts` `test.exclude` must include `packages/**` to prevent the frontend test runner from finding workspace package tests (e.g. `packages/server/src/__tests__/proposals.test.ts`).
 
 ## Server Patterns
 
@@ -54,9 +54,9 @@ Tips and gotchas discovered by previous agents. Read this before starting work.
 - DB columns use `snake_case` (e.g. `min_funding_target_usd`). All API JSON responses must use `camelCase`. The server aliases column names directly in SQL `SELECT` clauses (e.g. `min_funding_target_usd AS "minFundingTargetUsd"`).
 - Shared Zod schemas in `@mmf/shared` must use camelCase field names to match the API responses.
 
-### Nested entity queries for campaign detail
+### Nested entity queries for proposal detail
 
-- The campaign detail endpoint (`GET /api/campaigns/:slug`) fetches milestones, stretch goals, team members, and updates via separate SQL queries, then assembles them in application code.
+- The proposal detail endpoint (`GET /api/proposals/:slug`) fetches milestones, stretch goals, team members, and updates via separate SQL queries, then assembles them in application code.
 - This avoids complex multi-table JOINs and keeps each query simple and independently testable.
 
 ### Mock data removal enables reliable error-state testing
@@ -80,8 +80,8 @@ Tips and gotchas discovered by previous agents. Read this before starting work.
 
 ### @mmf/shared package
 
-- `packages/shared/src/index.ts` exports the shared Campaign types. Uses `"exports": { ".": "./src/index.ts" }` so bundler-mode TypeScript resolves types directly from source without a compile step.
-- Re-exporting types from `packages/client/src/api/campaigns.ts` preserves backward compatibility for components importing from that module.
+- `packages/shared/src/index.ts` exports the shared Proposal types. Uses `"exports": { ".": "./src/index.ts" }` so bundler-mode TypeScript resolves types directly from source without a compile step.
+- Re-exporting types from `packages/client/src/api/proposals.ts` preserves backward compatibility for components importing from that module.
 
 ## Auth Patterns
 
@@ -106,12 +106,12 @@ Tips and gotchas discovered by previous agents. Read this before starting work.
 - Demo accounts use known passwords (e.g. `password123`) stored as bcrypt hashes in seed SQL.
 - These are workshop-only; never use known seed passwords in a production system.
 
-## Campaign Lifecycle Patterns
+## Proposal Lifecycle Patterns
 
 ### Three active audit write paths (demo artifact)
 
-- The Campaign Lifecycle milestone produced three separate audit tables through parallel PR development: `campaign_audit_events` (written by `createAuditEvent` in `queries.ts`), `audit_events` (written by `writeAuditEvent` in `audit.ts`), and `audit_log` (written by `insertAuditLog` in `queries.ts`).
-- A fourth table `campaign_audit_log` exists from the earliest migration but is no longer written to.
+- The Proposal Lifecycle milestone produced three separate audit tables through parallel PR development: `proposal_audit_events` (written by `createAuditEvent` in `queries.ts`), `audit_events` (written by `writeAuditEvent` in `audit.ts`), and `audit_log` (written by `insertAuditLog` in `queries.ts`).
+- A fourth table `proposal_audit_log` exists from the earliest migration but is no longer written to.
 - This three-table divergence is intentional for the demo scope and is documented in ADR-0002. New code should use `writeAuditEvent` (→ `audit_events`) for consistency.
 
 ### `writeAuditEvent` is best-effort (errors swallowed)
@@ -127,7 +127,7 @@ Tips and gotchas discovered by previous agents. Read this before starting work.
 ### Migration version collision from parallel branches
 
 - dbmate migrations use a timestamp-based prefix (e.g. `20260311000003`). When two branches create migrations with the same prefix number, they collide on merge.
-- Resolution: renumber the PR branch migrations to the next available sequence before merging (e.g. bump `000003` → `000009`). This has happened multiple times during the Campaign Lifecycle milestone.
+- Resolution: renumber the PR branch migrations to the next available sequence before merging (e.g. bump `000003` → `000009`). This has happened multiple times during the Proposal Lifecycle milestone.
 
 ## Issue #115: dbmate `--no-dump-schema` is a global flag, not a subcommand flag
 
