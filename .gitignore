@@ -5,6 +5,10 @@ node_modules/
 dist/
 build/
 
+# Vite's dependency pre-bundling cache. Written into the package on first run, so it
+# shows up as untracked in every clone that has started the dev server.
+.vite/
+
 # Environment variables
 .env
 .env.*

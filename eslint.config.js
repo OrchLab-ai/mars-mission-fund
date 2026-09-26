@@ -4,7 +4,10 @@ import react from 'eslint-plugin-react'
 import reactHooks from 'eslint-plugin-react-hooks'
 
 export default tseslint.config(
-  { ignores: ['**/dist/', '**/node_modules/', '**/coverage/'] },
+  // .vite/ is Vite's dependency cache - bundled third-party code, written on the first
+  // dev-server run. ESLint does not read .gitignore, so without this `npm run lint` (and
+  // ci-check.sh) failed on every machine that had started the app.
+  { ignores: ['**/dist/', '**/node_modules/', '**/coverage/', '**/.vite/'] },
   // Base TypeScript rules for all packages
   {
     files: ['**/*.{ts,tsx}'],
