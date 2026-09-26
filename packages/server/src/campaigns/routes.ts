@@ -9,7 +9,6 @@ import {
   UpdateCampaignRequestSchema,
   ApproveBodySchema,
   RejectBodySchema,
-  PostUpdateBodySchema,
   ContributeBodySchema,
   MilestoneRouteParamsSchema,
   SubmitEvidenceBodySchema,
@@ -31,7 +30,6 @@ import {
   createNotification,
   getCampaignState,
   launchCampaign,
-  postCampaignUpdate,
   recordContribution,
   cancelCampaign,
   requestCancellation,
@@ -658,64 +656,6 @@ export function createCampaignRouter(pool: Pool): Router {
       })
 
       res.json({ data: updated })
-    } catch (err) {
-      next(err)
-    }
-  })
-
-  // POST /v1/campaigns/:id/updates
-  router.post('/:id/updates', authenticate, async (req, res, next) => {
-    const user = res.locals['user'] as JwtUser
-    if (user.role !== 'Creator') {
-      return next(makeError('Forbidden', 403, 'FORBIDDEN'))
-    }
-
-    const parsed = RouteParamsSchema.safeParse(req.params)
-    if (!parsed.success) {
-      return next(makeError('Invalid campaign ID', 400, 'INVALID_CAMPAIGN_ID'))
-    }
-
-    const bodyParsed = PostUpdateBodySchema.safeParse(req.body)
-    if (!bodyParsed.success) {
-      return next(
-        Object.assign(new Error('Invalid request body'), {
-          status: 400,
-          code: 'INVALID_REQUEST_BODY',
-          details: bodyParsed.error.flatten(),
-        })
-      )
-    }
-
-    try {
-      const campaign = await getCampaignState(pool, parsed.data.id)
-      if (campaign === null) {
-        return next(makeError('Campaign not found', 404, 'CAMPAIGN_NOT_FOUND'))
-      }
-
-      if (campaign.creatorId !== null && campaign.creatorId !== user.id) {
-        return next(makeError('Forbidden', 403, 'FORBIDDEN'))
-      }
-
-      if (campaign.status !== 'Live' && campaign.status !== 'Funded') {
-        return next(
-          makeError('Campaign is not in Live or Funded state', 409, 'INVALID_CAMPAIGN_STATE')
-        )
-      }
-
-      const result = await postCampaignUpdate(pool, parsed.data.id, bodyParsed.data.body)
-
-      await writeAuditEvent(pool, {
-        action: 'campaign.update_posted',
-        actorId: user.id,
-        actorType: 'Creator',
-        resourceType: 'campaign',
-        resourceId: parsed.data.id,
-        outcome: 'success',
-      })
-
-      res
-        .status(201)
-        .json({ data: { id: result.id, body: result.body, postedAt: result.postedAt } })
     } catch (err) {
       next(err)
     }

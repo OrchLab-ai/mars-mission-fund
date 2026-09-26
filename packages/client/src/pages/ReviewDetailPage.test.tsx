@@ -82,7 +82,6 @@ const mockCampaign: CampaignDetail = {
       sortOrder: 1,
     },
   ],
-  updates: [],
   creatorId: 'creator-1',
   reviewerId: 'reviewer-1',
   cancellationRequestedAt: null,

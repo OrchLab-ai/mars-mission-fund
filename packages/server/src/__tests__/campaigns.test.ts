@@ -116,12 +116,6 @@ const mockLaunchResult = {
   launchedAt: new Date('2026-03-11T00:00:00.000Z'),
 }
 
-const mockPostUpdateResult = {
-  id: 'upd00000-e5f6-7890-abcd-ef1234567890',
-  body: 'Great progress on the habitat!',
-  postedAt: new Date('2026-03-11T12:00:00.000Z'),
-}
-
 const mockContributeResult = {
   currentAmountUsd: 60000,
   contributorCount: 6,
@@ -151,13 +145,12 @@ function mockGetCampaignNotFound(): void {
 }
 
 /**
- * Mock the 5 pool.query calls that getCampaignById makes:
- * campaign row, milestones, stretch goals, team members, updates.
+ * Mock the 4 pool.query calls that getCampaignById makes:
+ * campaign row, milestones, stretch goals, team members.
  */
 function mockGetCampaignWithStatus(status: string, milestones: unknown[] = []): void {
   mockQuery.mockResolvedValueOnce({ rows: [{ ...mockCampaignRow, status }], rowCount: 1 })
   mockQuery.mockResolvedValueOnce({ rows: milestones, rowCount: milestones.length })
-  mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 })
   mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 })
   mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 })
 }
@@ -278,7 +271,6 @@ describe('Campaign Routes', () => {
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // milestones
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // stretch goals
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // team members
-      mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // updates
 
       const res = await request(app).get(`/v1/campaigns/${TEST_UUID}`)
 
@@ -389,115 +381,6 @@ describe('Campaign Routes', () => {
       const res = await request(app)
         .post(`/v1/campaigns/${TEST_UUID}/launch`)
         .set('Authorization', `Bearer ${makeCreatorToken()}`)
-
-      expect(res.status).toBe(500)
-    })
-  })
-
-  describe('POST /v1/campaigns/:id/updates', () => {
-    it('returns 201 with posted update data on success', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [mockLiveCampaignRow], rowCount: 1 })
-      mockQuery.mockResolvedValueOnce({ rows: [mockPostUpdateResult], rowCount: 1 })
-
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .set('Authorization', `Bearer ${makeCreatorToken()}`)
-        .send({ body: 'Great progress on the habitat!' })
-
-      expect(res.status).toBe(201)
-      expect(res.body.data).toHaveProperty('id')
-      expect(res.body.data).toHaveProperty('body', 'Great progress on the habitat!')
-      expect(res.body.data).toHaveProperty('postedAt')
-    })
-
-    it('returns 201 when campaign is in Funded state', async () => {
-      mockQuery.mockResolvedValueOnce({
-        rows: [{ ...mockLiveCampaignRow, status: 'Funded' }],
-        rowCount: 1,
-      })
-      mockQuery.mockResolvedValueOnce({ rows: [mockPostUpdateResult], rowCount: 1 })
-
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .set('Authorization', `Bearer ${makeCreatorToken()}`)
-        .send({ body: 'Campaign funded! Here is an update.' })
-
-      expect(res.status).toBe(201)
-    })
-
-    it('returns 401 when no token is provided', async () => {
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .send({ body: 'Some update' })
-
-      expect(res.status).toBe(401)
-    })
-
-    it('returns 403 when role is not Creator', async () => {
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .set('Authorization', `Bearer ${makeBackerToken()}`)
-        .send({ body: 'Some update' })
-
-      expect(res.status).toBe(403)
-      expect(res.body.error.code).toBe('FORBIDDEN')
-    })
-
-    it('returns 403 when Creator does not own the campaign', async () => {
-      mockQuery.mockResolvedValueOnce({
-        rows: [{ ...mockLiveCampaignRow, creatorId: OTHER_CREATOR_UUID }],
-        rowCount: 1,
-      })
-
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .set('Authorization', `Bearer ${makeCreatorToken()}`)
-        .send({ body: 'Some update' })
-
-      expect(res.status).toBe(403)
-      expect(res.body.error.code).toBe('FORBIDDEN')
-    })
-
-    it('returns 400 when body is missing', async () => {
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .set('Authorization', `Bearer ${makeCreatorToken()}`)
-        .send({})
-
-      expect(res.status).toBe(400)
-      expect(res.body.error.code).toBe('INVALID_REQUEST_BODY')
-    })
-
-    it('returns 400 when body is empty string', async () => {
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .set('Authorization', `Bearer ${makeCreatorToken()}`)
-        .send({ body: '' })
-
-      expect(res.status).toBe(400)
-      expect(res.body.error.code).toBe('INVALID_REQUEST_BODY')
-    })
-
-    it('returns 409 INVALID_CAMPAIGN_STATE when campaign is Approved', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [mockApprovedCampaignRow], rowCount: 1 })
-
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .set('Authorization', `Bearer ${makeCreatorToken()}`)
-        .send({ body: 'Some update' })
-
-      expect(res.status).toBe(409)
-      expect(res.body.error.code).toBe('INVALID_CAMPAIGN_STATE')
-    })
-
-    it('returns 500 on DB error during update insert', async () => {
-      mockQuery.mockResolvedValueOnce({ rows: [mockLiveCampaignRow], rowCount: 1 })
-      mockQuery.mockRejectedValueOnce(new Error('DB error'))
-
-      const res = await request(app)
-        .post(`/v1/campaigns/${TEST_UUID}/updates`)
-        .set('Authorization', `Bearer ${makeCreatorToken()}`)
-        .send({ body: 'Some update' })
 
       expect(res.status).toBe(500)
     })
@@ -1392,13 +1275,12 @@ function makeSubmitCampaignRow(overrides: Record<string, unknown> = {}): Record<
   }
 }
 
-// Sets up the 5 pool.query calls that getCampaignById makes
+// Sets up the 4 pool.query calls that getCampaignById makes
 function mockGetCampaignById(): void {
   mockQuery.mockResolvedValueOnce({ rows: [mockCampaignRow], rowCount: 1 }) // campaign
   mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // milestones
   mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // stretch goals
   mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // team members
-  mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // updates
 }
 
 describe('Campaign Write Endpoints', () => {

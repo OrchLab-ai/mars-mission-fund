@@ -11,7 +11,10 @@
 
 ## Purpose
 
-> **Local demo scope**: React component architecture, semantic token consumption, accessibility standards (WCAG 2.1 AA), and the testing strategy are **real** — they drive the local demo's frontend implementation. Lighthouse CI enforcement, bundle size budgets, visual regression testing, and SSR/SSG decisions are theatre until the application is deployed beyond local.
+> **Local demo scope**: React component architecture, semantic token consumption, and accessibility standards (WCAG 2.1 AA) are **real** — they drive the local demo's frontend implementation.
+> The demo's tests are Vitest + React Testing Library unit/component tests and Playwright E2E tests.
+> MSW, snapshot tests, `vitest-axe`, `@axe-core/playwright`, visual regression tests, Lighthouse CI, bundle size budgets, and the per-tier coverage thresholds in Section 10.2 are **targets, not present or enforced** in the demo; the only enforced coverage threshold is 80% on `src/components/ui/Button.tsx` (`packages/client/vite.config.ts`).
+> The demo HTTP client does not attach a correlation ID. SSR/SSG decisions are production design only.
 
 This spec governs the frontend architecture, component library standards, performance requirements, accessibility implementation, responsive design strategy, and browser support for the Mars Mission Fund platform.
 
@@ -177,7 +180,7 @@ useEffect(() => {
 ### 1.5 API Communication
 
 - All API communication goes through a centralised HTTP client that enforces:
-  - Correlation ID attachment (per [Engineering Standard](L2-002) Section 6.2).
+  - Correlation ID attachment (per [Engineering Standard](L2-002) Section 6.2) — target; the demo client (`src/api/client.ts`) does not send one, and the server generates it.
   - Authentication token injection.
   - Consistent error handling and transformation into user-facing messages.
   - Request/response logging (no sensitive data — per [Engineering Standard](L2-002) Section 6.1).
@@ -204,13 +207,13 @@ src/
     CampaignDetail.tsx # imports useCampaign(), never fetchCampaign()
 ```
 
-**Vite dev-server proxy**: `vite.config.ts` includes a `server.proxy` entry that forwards all `/v1` requests to `http://localhost:3000` during local development. This allows the frontend to call `/v1/campaigns` without CORS issues while the Express API server runs on port 3000.
+**Vite dev-server proxy**: `vite.config.ts` includes a `server.proxy` entry that forwards all `/v1` requests to `http://localhost:3001` during local development. This allows the frontend to call `/v1/campaigns` without CORS issues while the Express API server runs on port 3001.
 
 ```ts
 // vite.config.ts (relevant excerpt)
 server: {
   proxy: {
-    '/v1': 'http://localhost:3000',
+    '/v1': 'http://localhost:3001',
   },
 },
 ```
@@ -285,7 +288,7 @@ Every design system primitive must include:
 These budgets assume React 19 + TanStack Query + router as the core dependency set (~90 KB compressed baseline). The remaining budget is for application code and design system.
 
 The principle is: every byte must justify its presence.
-Bundle analysis runs in CI via `vite-plugin-bundle-analyzer` and fails the build if budgets are exceeded.
+Bundle analysis runs in CI via `vite-plugin-bundle-analyzer` and fails the build if budgets are exceeded (target — not configured in the demo).
 
 ### 3.3 Runtime Performance
 
@@ -313,7 +316,7 @@ Level AAA conformance is targeted where feasible, particularly for:
 
 ### 4.2 Automated Accessibility Testing
 
-- An accessibility audit tool (e.g., axe-core or equivalent) runs as part of CI on every PR.
+- An accessibility audit tool (e.g., axe-core or equivalent) runs as part of CI on every PR (target — not configured in the demo).
 - Violations at the "critical" or "serious" level fail the build.
 - Accessibility tests are included in the component test suite for every design system primitive.
 
@@ -492,11 +495,10 @@ The brand typography defined in [Brand Application Standard](L2-001) Section 1.3
 
 Font loading implementation:
 
-Fonts are loaded via the `@fontsource/bebas-neue`, `@fontsource/dm-sans`, and `@fontsource/space-mono` npm packages, imported in `src/index.css`.
-The underlying font files are WOFF2 format — the same self-hosted, no-CDN approach described in the spec intent — but the mechanism is npm-managed rather than manually downloaded.
-At build time, Vite bundles the WOFF2 files from the `@fontsource` packages into the output; no runtime CDN request occurs.
+Fonts are self-hosted WOFF2 files committed in `packages/client/src/assets/fonts/`, declared with `@font-face` rules in `src/fonts.css` (imported by `src/index.css`).
+At build time, Vite bundles the WOFF2 files into the output; no runtime CDN request occurs.
 
-Rationale: standardised font loading via `@fontsource` npm packages avoids manual file management (no manual WOFF2 downloads or `@font-face` declarations to maintain) and provides controlled subsetting through each package's CSS imports.
+Rationale: self-hosting avoids a third-party font CDN dependency and keeps the font files under version control.
 
 `font-display` strategy per font:
 
@@ -504,7 +506,7 @@ Rationale: standardised font loading via `@fontsource` npm packages avoids manua
 - `font-display: optional` for Bebas Neue (display font) on slow connections — a fallback is acceptable for display headings.
 - `font-display: swap` for Space Mono (data font).
 
-Font preload hint (`<link rel="preload">`) is applied to DM Sans as the critical path font for body text rendering.
+Font preload hint (`<link rel="preload">` in `packages/client/index.html`) is applied to DM Sans 400 as the critical path font for body text rendering.
 
 ### 9.2 Image Optimisation
 
@@ -545,6 +547,8 @@ The project uses a curated subset of an open-source icon library (e.g., Lucide, 
 ## 10. Frontend Testing Strategy
 
 Implements [Engineering Standard](L2-002) Section 4.2: 80% coverage for UI components.
+
+> **Local demo note**: Only unit/component tests (Vitest + React Testing Library), API integration tests (SuperTest), and Playwright E2E tests exist in the demo. The other layers in 10.1, the thresholds in 10.2, and the CI checks in 10.3 other than running the tests are targets, not enforced.
 
 ### 10.1 Test Layers
 

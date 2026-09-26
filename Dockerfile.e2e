@@ -1,5 +1,5 @@
 # Full project image — Node, Playwright + Chromium, dbmate, and all app deps.
-# Used by docker-compose.yml (run app) and docker-compose.e2e.yml (run checks).
+# Used by docker-compose.e2e.yml (run checks via ./scripts/e2e-check-docker.sh).
 # No host dependencies beyond Docker.
 FROM ghcr.io/amacneil/dbmate AS dbmate
 FROM mcr.microsoft.com/playwright:v1.58.0-noble

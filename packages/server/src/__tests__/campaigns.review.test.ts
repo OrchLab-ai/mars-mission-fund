@@ -79,7 +79,7 @@ function backerToken(): string {
   return makeToken({ id: OTHER_UUID, email: 'backer@example.com', role: 'Backer' })
 }
 
-/** Mock the 5 pool.query calls made by getCampaignById */
+/** Mock the 4 pool.query calls made by getCampaignById */
 function mockGetCampaignById(row: typeof baseCampaignRow | null): void {
   if (row === null) {
     mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 })
@@ -89,7 +89,6 @@ function mockGetCampaignById(row: typeof baseCampaignRow | null): void {
   mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // milestones
   mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // stretch goals
   mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // team members
-  mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 }) // updates
 }
 
 describe('Review Pipeline Routes', () => {

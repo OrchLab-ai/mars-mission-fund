@@ -26,7 +26,6 @@ const mockCampaign: CampaignDetail = {
   milestones: [],
   stretchGoals: [],
   teamMembers: [],
-  updates: [],
   creatorId: null,
   reviewerId: null,
   cancellationRequestedAt: null,

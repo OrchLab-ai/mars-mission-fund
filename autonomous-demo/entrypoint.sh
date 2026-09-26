@@ -21,7 +21,7 @@ export MAX_ITERATIONS COOLDOWN_SECONDS TIMEOUT_SECONDS MAX_TURNS
 # ── Validate Claude auth ─────────────────────────────────────────────────────
 if [ -z "${CLAUDE_CODE_OAUTH_TOKEN:-}" ] && [ -z "${ANTHROPIC_API_KEY:-}" ]; then
   echo "!!! No Claude credentials. Set CLAUDE_CODE_OAUTH_TOKEN (or ANTHROPIC_API_KEY)"
-  echo "!!! in autonomous-demo/.env (copy from .env.example)."
+  echo "!!! in the workshop's .env - the same credential the rest of the day uses."
   exit 1
 fi
 
@@ -29,7 +29,7 @@ fi
 PROMPT_FILE="/workspace/PROMPT.md"
 if [ ! -s "$PROMPT_FILE" ]; then
   echo "!!! PROMPT.md is missing or empty."
-  echo "!!! Edit autonomous-demo/PROMPT.md with the feature you want built."
+  echo "!!! Edit app/autonomous-demo/PROMPT.md with the feature you want built."
   exit 1
 fi
 
@@ -47,7 +47,7 @@ node -e "require('/usr/lib/node_modules/@playwright/mcp/cli.js')" 2>/dev/null \
 # ── Use the bind-mounted repo directly ───────────────────────────────────────
 # The repo is mounted read-write at /workspace/repo, so the agent edits the REAL
 # files on your host — you can watch every change in VS Code. node_modules are
-# shadowed by container-only volumes (see docker-compose.yml), so npm ci here
+# shadowed by container-only volumes (see docker-compose.workshop.yml), so npm ci here
 # never touches your host's node_modules.
 REPO_DIR="/workspace/repo"
 if [ ! -d "$REPO_DIR/.git" ]; then
@@ -58,18 +58,14 @@ cd "$REPO_DIR"
 
 if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
   echo "!!! Note: the repo has uncommitted changes. The agent will branch off the"
-  echo "!!! current HEAD and may sweep them into commits. For a clean demo, run"
-  echo "!!! from a clean checkout of main."
+  echo "!!! current HEAD and may sweep them into commits. For a clean demo, commit"
+  echo "!!! or park them first (./checkpoint.sh parks work before it moves you)."
 fi
 
-# ── Pick a base ref for diffs, then branch off the current HEAD ───────────────
-if git show-ref --verify --quiet "refs/heads/main"; then
-  BASE_BRANCH="main"
-elif git show-ref --verify --quiet "refs/remotes/origin/main"; then
-  BASE_BRANCH="origin/main"
-else
-  BASE_BRANCH="$(git rev-parse HEAD)"
-fi
+# ── Diff base = where this run starts, then branch off the current HEAD ──────
+# Not main: in the workshop the run starts from a checkpoint (work/cp-06), and a
+# diff against main would credit the agent with every earlier checkpoint's work.
+BASE_BRANCH="$(git rev-parse HEAD)"
 export BASE_BRANCH
 
 BRANCH="${DEMO_BRANCH:-demo/$(date +%Y%m%d-%H%M%S)}"
@@ -131,7 +127,7 @@ while [ "$iteration" -lt "$MAX_ITERATIONS" ]; do
     break
   elif [ "$exit_code" -eq 2 ]; then
     # Pillar 04: this is the "Loop of Death" backstop — the agent is stuck.
-    echo "!!! Agent stuck (guardrail tripped). Stopping. See autonomous-demo/logs/."
+    echo "!!! Agent stuck (guardrail tripped). Stopping. See app/autonomous-demo/logs/."
     break
   fi
 
@@ -147,4 +143,4 @@ fi
 
 echo ""
 echo "=== Demo run finished (branch: ${BRANCH}) ==="
-echo "=== Inspect results in autonomous-demo/logs/ and autonomous-demo/screenshots/ ==="
+echo "=== Inspect results in app/autonomous-demo/logs/ and the workshop's screenshots/ ==="

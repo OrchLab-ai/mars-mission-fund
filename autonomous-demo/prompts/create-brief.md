@@ -11,7 +11,6 @@ guessing.
 
 ### Step 1: Gather context
 
-1. Read `./specs/learnings.md` if it exists — gotchas from previous runs.
 1. Read the **Feature Request** appended at the end of this prompt.
 1. Read the project specs — start with `./specs/README.md` and follow references.
 1. Explore the codebase to understand the current structure, components, and

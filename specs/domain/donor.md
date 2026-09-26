@@ -11,7 +11,9 @@
 
 ## 1. Purpose
 
-> **Local demo scope**: Campaign discovery, search, contribution flow (up to payment handoff), and contribution history are **real** — they are implemented in the local demo. The recommendation engine, re-engagement automation, tax receipt generation, and social sharing are theatre. The local demo focuses on browse, contribute, and view history.
+> **Local demo scope**: Campaign discovery and search are **real** — the local demo lists campaigns with status and category filters and a case-insensitive `ILIKE` search on title and summary.
+> Contributions are minimal: there is **no** contributions table and no contribution history. `POST /v1/campaigns/:id/contribute` validates the amount against the funding cap, increments `current_amount_usd` and `contributor_count` on the campaign (moving it to Funded when the minimum target is reached), and writes an audit row; the frontend "contribute" link leads to a "Coming Soon" placeholder page.
+> The recommendation engine, curated collections, contribution history, impact dashboards, re-engagement automation, tax receipt generation, and social sharing are production design only.
 
 This spec defines the complete donor-side bounded context for Mars Mission Fund: how backers discover campaigns, make contributions, and maintain an ongoing relationship with the missions they support.
 

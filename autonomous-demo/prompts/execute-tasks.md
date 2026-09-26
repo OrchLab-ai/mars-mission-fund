@@ -20,7 +20,6 @@ task done. You STOP.**
 
 ### Step 1: Load context
 
-1. Read `./specs/learnings.md` if it exists.
 1. Read `./specs/README.md` for project standards (follow references as needed).
 1. Read `./plan/ready/brief.md` for the goal.
 1. Read `./plan/ready/tasks.md` and find the **first unchecked task** — that is

@@ -89,7 +89,6 @@ const mockCampaign: CampaignDetail = {
       sortOrder: 0,
     },
   ],
-  updates: [],
   riskDisclosures: ['Habitat pressure failure', 'Dust storm damage'],
 }
 

@@ -169,18 +169,6 @@ CREATE TABLE public.campaign_team_members (
 
 
 --
--- Name: campaign_updates; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.campaign_updates (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    campaign_id uuid NOT NULL,
-    body text NOT NULL,
-    posted_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
---
 -- Name: campaigns; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -328,14 +316,6 @@ ALTER TABLE ONLY public.campaign_team_members
 
 
 --
--- Name: campaign_updates campaign_updates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaign_updates
-    ADD CONSTRAINT campaign_updates_pkey PRIMARY KEY (id);
-
-
---
 -- Name: campaigns campaigns_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -469,14 +449,6 @@ ALTER TABLE ONLY public.campaign_team_members
 
 
 --
--- Name: campaign_updates campaign_updates_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaign_updates
-    ADD CONSTRAINT campaign_updates_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id) ON DELETE CASCADE;
-
-
---
 -- Name: campaigns campaigns_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -556,7 +528,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260309000002'),
     ('20260309000003'),
     ('20260309000004'),
-    ('20260309000005'),
     ('20260309000006'),
     ('20260311000001'),
     ('20260311000002'),

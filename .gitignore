@@ -49,3 +49,7 @@ Thumbs.db
 # Logs
 *.log
 .logs/
+
+# The autonomous demo's working plan (brief.md, tasks.md), written into the repo
+# root by autonomous-demo/demo-loop.sh on every run.
+plan/

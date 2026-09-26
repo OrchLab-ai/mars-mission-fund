@@ -11,7 +11,7 @@ The project is designed to teach software engineering practices using production
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-FF8C42?style=flat-square&labelColor=0E2040&logo=typescript&logoColor=FF8C42)
 ![React](https://img.shields.io/badge/React_19-FF8C42?style=flat-square&labelColor=0E2040&logo=react&logoColor=FF8C42)
-![Node.js](https://img.shields.io/badge/Node_22_LTS-FF8C42?style=flat-square&labelColor=0E2040&logo=node.js&logoColor=FF8C42)
+![Node.js](https://img.shields.io/badge/Node_20%2B-FF8C42?style=flat-square&labelColor=0E2040&logo=node.js&logoColor=FF8C42)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-FF8C42?style=flat-square&labelColor=0E2040&logo=postgresql&logoColor=FF8C42)
 ![Docker](https://img.shields.io/badge/Docker-FF8C42?style=flat-square&labelColor=0E2040&logo=docker&logoColor=FF8C42)
 
@@ -34,11 +34,11 @@ Each spec includes a "Local demo scope" note identifying what matters for the wo
 | Layer                                                                       | Technology                                              |
 | --------------------------------------------------------------------------- | ------------------------------------------------------- |
 | ![Lang](https://img.shields.io/badge/Language-0E2040?style=flat-square)     | TypeScript (frontend and backend)                       |
-| ![Runtime](https://img.shields.io/badge/Runtime-0E2040?style=flat-square)   | Node.js 22.x LTS                                        |
+| ![Runtime](https://img.shields.io/badge/Runtime-0E2040?style=flat-square)   | Node.js 20+                                             |
 | ![Frontend](https://img.shields.io/badge/Frontend-0E2040?style=flat-square) | React 19.x                                              |
 | ![Backend](https://img.shields.io/badge/Backend-0E2040?style=flat-square)   | Express 5.x                                             |
 | ![Database](https://img.shields.io/badge/Database-0E2040?style=flat-square) | PostgreSQL 16.11 (Aurora in production, Docker locally) |
-| ![Arch](https://img.shields.io/badge/Architecture-0E2040?style=flat-square) | Hexagonal (Ports and Adapters), CQRS / Event Sourcing   |
+| ![Arch](https://img.shields.io/badge/Architecture-0E2040?style=flat-square) | Layered Express routes over SQL query functions (production design in specs) |
 | ![Testing](https://img.shields.io/badge/Testing-0E2040?style=flat-square)   | Vitest, Playwright, Testing Library, SuperTest          |
 | ![Auth](https://img.shields.io/badge/Auth-0E2040?style=flat-square)         | JWT + bcrypt (Clerk planned for production — stubbed locally) |
 | ![Payments](https://img.shields.io/badge/Payments-0E2040?style=flat-square) | Stripe (stubbed locally)                                |
@@ -49,20 +49,24 @@ For the full technology inventory, see [specs/tech/tech-stack.md](./specs/tech/t
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) 22.x LTS
-- [npm](https://www.npmjs.com/) 10.x
-- [Docker](https://www.docker.com/) and Docker Compose
-- Git
+For the workshop: Docker and Git only. The workshop repository runs this app for you
+in a container (Node, PostgreSQL, Playwright and Claude Code included).
+
+To run it on your own machine instead: [Node.js](https://nodejs.org/) 20+, npm 10+,
+[Docker](https://www.docker.com/) and Docker Compose.
 
 ---
 
 ## Getting Started
 
+**In the workshop**, follow the guide in
+[OrchLab-ai/workshop-example](https://github.com/OrchLab-ai/workshop-example): it clones
+this repository as `app/` and starts it with `./workshop/up.sh`.
+
+**On your own machine:**
+
 ```bash
-git clone https://github.com/LeeCampbell/mars-mission-fund.git
-cd mars-mission-fund
-./scripts/run-local.sh      # Docker Postgres + local dev servers (requires Node + Docker)
-./scripts/run-docker.sh     # Entirely in Docker (only requires Docker)
+./scripts/run-local.sh      # Docker Postgres + migrations + both dev servers (requires Node + Docker)
 ```
 
 > **Note:** External services (Stripe, Clerk, Veriff, AWS SES) are stubbed or mocked for local development.
@@ -94,7 +98,8 @@ packages/server/    Express API server
 packages/shared/    Shared TypeScript types
 specs/              Product and technical specifications (start here)
 scripts/            Development and CI utility scripts
-autonomous/         Autonomous agent system (Dockerfile, prompts)
+autonomous/         Image for the workshop's claude-container (Claude Code + Playwright + dbmate)
+autonomous-demo/    Level 4: autonomous agent loop with guardrails (see its README)
 ```
 
 ---

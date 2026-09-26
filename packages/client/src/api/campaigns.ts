@@ -5,7 +5,6 @@ import type {
   Milestone,
   StretchGoal,
   TeamMember,
-  CampaignUpdate,
   CreateCampaignRequest,
   UpdateCampaignRequest,
 } from '@mmf/shared'
@@ -17,7 +16,6 @@ export type {
   Milestone,
   StretchGoal,
   TeamMember,
-  CampaignUpdate,
   CreateCampaignRequest,
   UpdateCampaignRequest,
 }
@@ -125,14 +123,6 @@ export async function submitCampaignForReview(id: string): Promise<void> {
 
 export async function launchCampaign(id: string): Promise<void> {
   const response = await authedFetch(`/v1/campaigns/${id}/launch`, { method: 'POST' })
-  if (!response.ok) throw new Error(`HTTP ${response.status}`)
-}
-
-export async function postCampaignUpdate(id: string, body: string): Promise<void> {
-  const response = await authedFetch(`/v1/campaigns/${id}/update`, {
-    method: 'POST',
-    body: JSON.stringify({ body }),
-  })
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
 }
 

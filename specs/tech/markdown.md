@@ -14,8 +14,8 @@
 This document defines how Markdown files are authored, formatted, and validated across the Mars Mission Fund codebase.
 Consistent Markdown matters because specifications, documentation, and READMEs are engineering artefacts — they receive the same quality standards as code (L2-002, Section 4).
 
-> **Local demo scope:** Fully enforced.
-> The markdownlint configuration and one-sentence-per-line rule apply to the local demo — all specs and docs in this repo are validated against this standard.
+> **Local demo scope:** The markdownlint configuration (`.markdownlint.jsonc`) is enforced in CI via `npm run lint:md`.
+> The one-sentence-per-line rule applies to the local demo as a writing convention but is not machine-checked.
 
 ---
 

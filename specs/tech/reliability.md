@@ -11,7 +11,10 @@
 
 ## Purpose
 
-> **Local demo scope**: Health check contracts and the graceful degradation principles are **real** — the local demo implements health endpoints and handles dependency failures cleanly. Everything else in this spec is theatre: availability targets, SLAs, failover, disaster recovery, on-call rotations, backup verification, and alerting escalation. The local demo runs on a single machine with no redundancy.
+> **Local demo scope**: Almost all of this spec is production design.
+> The local demo has **no** health endpoints (`/health/live` and `/health/ready` do not exist), no circuit breakers, bulkheads, or degradation modes; its only resilience behaviour is a central Express error handler that returns the standard JSON error response.
+> Availability targets, SLAs, failover, disaster recovery, on-call rotations, backup verification, and alerting escalation are also production design only.
+> The local demo runs on a single machine with no redundancy.
 
 This spec governs the availability, resilience, and recoverability of the Mars Mission Fund platform.
 It defines how the system behaves when things go wrong — from a single dependency timeout to a full region failure.
@@ -213,6 +216,8 @@ External dependency calls must be isolated so that a failure in one dependency d
 Implements [Engineering Standard](L2-002), Section 6.3.
 
 ### 6.1 Endpoint Specification
+
+> **Local demo note**: Not implemented in the demo; this is the production contract.
 
 Every service must expose the following health check endpoints:
 

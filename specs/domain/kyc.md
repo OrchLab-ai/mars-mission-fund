@@ -11,7 +11,9 @@
 
 ## 1. Purpose
 
-> **Local demo scope**: The KYC verification status lifecycle and its gating effect on Creator role features are **real** — the local demo enforces KYC status checks. The actual KYC provider is **stubbed** (no real document verification). Sanctions screening, manual review workflows, document storage encryption, re-verification triggers, and jurisdictional requirements are theatre. The local demo auto-approves KYC submissions.
+> **Local demo scope**: Almost all of this spec is production design. The local demo has **no** KYC data model — no KYC status column, table, endpoint, or UI — and no KYC provider.
+> The only KYC behaviour is a hard-coded check in `submitCampaign` (`packages/server/src/campaigns/queries.ts`): `const kycVerified = true`, so every Creator is treated as verified (see [ADR-0003](../adrs/0003-stubbed-integrations.md)).
+> The verification status lifecycle, document upload, sanctions screening, manual review workflows, document storage encryption, re-verification triggers, and jurisdictional requirements are production design only.
 >
 > The demo stub is a single line in `packages/server/src/campaigns/queries.ts` (`submitCampaign`): `const kycVerified = true`. No KYC provider API keys, document upload flows, or webhook callbacks are required. See [ADR-0003](../adrs/0003-stubbed-integrations.md) for the full rationale and what a production integration would require.
 

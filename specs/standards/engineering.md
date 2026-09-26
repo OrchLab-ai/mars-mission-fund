@@ -11,7 +11,11 @@
 
 ## Purpose
 
-> **Local demo scope**: Engineering values, quality gates, testing standards, and API contract rules are **real** — they govern the local demo code. Multi-team dynamics, bar-raiser reviews, on-call expectations, and cross-team resource allocation are theatre for the workshop setting. The security invariants apply to all code written for the demo.
+> **Local demo scope**: Engineering values, testing standards, and API contract rules are **real** — they govern the local demo code, and the security invariants apply to all code written for the demo.
+> Of the quality gates, the demo CI (`.github/workflows/ci.yml`) enforces type checks, ESLint, Prettier, markdownlint, build, unit/integration tests, Playwright E2E tests, and `npm audit --omit=dev --audit-level=high`.
+> The coverage thresholds in Section 4.2 and secret scanning are **not enforced** — the only coverage threshold is 80% on the client `src/components/ui/Button.tsx` (`packages/client/vite.config.ts`).
+> Observability (Section 6) is only partly implemented: the server reads or generates an `x-correlation-id` header and returns it in error responses, and `pino-http` logs requests, but log entries do not yet include the correlation ID and there are no health check endpoints.
+> Multi-team dynamics, bar-raiser reviews, on-call expectations, deployment gates, and cross-team resource allocation are production design only.
 
 This document is the engineering constitution for Mars Mission Fund.
 It defines the non-negotiable constraints that every L3 and L4 spec inherits, and the values that give those constraints meaning.
@@ -388,6 +392,8 @@ The minimum coverage thresholds are:
 Coverage is measured on new and changed code, not retroactively applied to legacy code.
 Legacy code coverage is improved incrementally — every PR that touches legacy code must leave test coverage higher than it found it.
 
+> **Local demo note**: These thresholds are the target, not enforced in CI. The only configured threshold is 80% on `src/components/ui/Button.tsx` in `packages/client/vite.config.ts`.
+
 ### 4.3 The "Better Than We Found It" Rule
 
 Every PR must leave the codebase in a better state than the author found it.
@@ -419,6 +425,8 @@ CI enforces what it can; reviewers enforce the rest.
 | No secrets in code or config        | CI (automated, secret scanning) | All PRs                            |
 | "Better than we found it" check     | Reviewer (manual)               | All PRs                            |
 | Spec alignment verified             | Reviewer (manual)               | PRs implementing spec requirements |
+
+> **Local demo note**: The demo CI enforces tests, lint and format (including markdownlint), type checks, build, and a dependency audit (`npm audit --omit=dev --audit-level=high`). Coverage thresholds (beyond the single Button component threshold) and secret scanning are not enforced.
 
 ### 4.5 Deployment Gates
 
@@ -519,6 +527,8 @@ Every request entering the system is assigned a unique correlation ID at the edg
 This ID propagates through every service-to-service call, every database query, every external API call, and every log entry.
 A single correlation ID must be sufficient to reconstruct the complete request path across all services.
 
+> **Local demo note**: Not yet implemented as specified. The `correlationId` middleware reads the `x-correlation-id` request header (or generates a UUID), sets it on the response header, and the error handler returns it as `correlation_id`. Request logs from `pino-http` and audit rows do not yet carry it, and the frontend does not send one.
+
 ### 6.3 Health Checks
 
 Every service exposes a health check endpoint that reports:
@@ -528,6 +538,8 @@ Every service exposes a health check endpoint that reports:
 
 Health checks are the one exception to the "every endpoint requires authentication" rule.
 They must be accessible to the orchestration layer without credentials.
+
+> **Local demo note**: Not implemented — the demo server has no health check endpoints.
 
 ### 6.4 Metrics
 

@@ -11,7 +11,9 @@
 
 ## Purpose
 
-> **Local demo scope**: All technology choices in this document are **real** and used in the local demo. Cloud infrastructure (ECS Fargate, CloudFront, ECR, Terraform Cloud) is replaced by Docker Compose for local development. The local demo uses the same languages, frameworks, and libraries listed here.
+> **Local demo scope**: The runtime, frontend (except PostHog), backend (except PostHog), validation, authentication, linting, data access, local development, and testing choices (except MSW) are **real** — they are installed and used in the local demo.
+> PostHog, Stripe, Veriff, AWS SES, AWS S3, AWS Secrets Manager, Aurora, CloudWatch, ECS/ECR/CloudFront/EventBridge, Terraform, and the deployment pipeline are **production design only** — they are not installed or configured in the demo.
+> Sections describing them are labelled below. The local demo uses Docker Compose for PostgreSQL and environment variables for secrets.
 
 This document enumerates the technology choices for the Mars Mission Fund platform.
 It serves as the single source of truth for languages, frameworks, libraries, infrastructure, and tooling.
@@ -36,8 +38,8 @@ It serves as the single source of truth for languages, frameworks, libraries, in
 | Vite                         | Latest stable | Build tool and dev server                                                                                                                                                                                                                                     |
 | TanStack Query (React Query) | v5            | Server state management (data fetching, caching, mutations)                                                                                                                                                                                                   |
 | React Router                 | v7            | Client-side routing                                                                                                                                                                                                                                           |
-| Tailwind CSS                 | v4            | CSS reset and global normalisation layer; Tailwind v4 is used for CSS reset and normalisation only — component-level styling is done via inline `React.CSSProperties` objects with `var()` references on Tier 2 semantic tokens, not Tailwind utility classes |
-| PostHog (posthog-js)         | Latest stable | Feature flags, product analytics, and web analytics                                                                                                                                                                                                           |
+| Tailwind CSS                 | v4            | CSS reset and global normalisation layer; Tailwind v4 is used for CSS reset and normalisation only — component-level styling is mostly done via inline `React.CSSProperties` objects with `var()` references on Tier 2 semantic tokens; Tailwind utility classes are used sparingly (e.g. responsive grid layouts) |
+| PostHog (posthog-js)         | Latest stable | Feature flags, product analytics, and web analytics (production design only — not installed in the demo)                                                                                                                                                     |
 
 ---
 
@@ -49,11 +51,13 @@ It serves as the single source of truth for languages, frameworks, libraries, in
 | Pino                   | Latest stable | Structured JSON logging                               |
 | pino-http              | Latest stable | HTTP request logging middleware                       |
 | pino-pretty            | Latest stable | Human-readable log output (development only)          |
-| PostHog (posthog-node) | Latest stable | Server-side feature flag evaluation and event capture |
+| PostHog (posthog-node) | Latest stable | Server-side feature flag evaluation and event capture (production design only — not installed in the demo) |
 
 ---
 
 ## Feature Flags & Product Operations
+
+> **Local demo note**: Production design only — not present in the local demo.
 
 | Technology   | Purpose                                                                           |
 | ------------ | --------------------------------------------------------------------------------- |
@@ -77,13 +81,15 @@ Pino handles structured application logging (see Backend section).
 CloudWatch provides infrastructure-level metrics, centralised log storage, and alerting.
 Together they form the developer observability stack, complementing PostHog's product analytics.
 
+> **Local demo note**: The demo uses Pino (via `pino-http` and a Pino logger in the audit helper) writing to stdout; CloudWatch is production design only.
+
 ---
 
 ## Validation
 
 | Technology | Purpose                                                        |
 | ---------- | -------------------------------------------------------------- |
-| Zod        | Runtime schema validation, shared between frontend and backend |
+| Zod        | Runtime schema validation; shared schemas live in `packages/shared` and are used by the server and client |
 
 ---
 
@@ -98,6 +104,8 @@ Together they form the developer observability stack, complementing PostHog's pr
 
 ## Payments
 
+> **Local demo note**: Production design only — no Stripe package is installed. Payment actions are console-logged stubs (see [ADR-0003](../adrs/0003-stubbed-integrations.md)).
+
 | Technology        | Purpose                                                                  |
 | ----------------- | ------------------------------------------------------------------------ |
 | Stripe            | Payment gateway — tokenisation, authorisation, capture, refunds, payouts |
@@ -110,11 +118,13 @@ Together they form the developer observability stack, complementing PostHog's pr
 
 | Technology | Purpose                                                                    |
 | ---------- | -------------------------------------------------------------------------- |
-| Veriff     | Third-party identity verification provider (stubbed/mocked for local demo) |
+| Veriff     | Third-party identity verification provider (production design only — the demo hard-codes KYC as verified) |
 
 ---
 
 ## Email
+
+> **Local demo note**: Production design only — the demo sends no email; notifications are rows in the `notifications` table shown in the app.
 
 | Technology | Purpose                                       |
 | ---------- | --------------------------------------------- |
@@ -127,6 +137,8 @@ Together they form the developer observability stack, complementing PostHog's pr
 Campaign discovery search is served by **PostgreSQL full-text search** over CQRS read models.
 No external search provider is required.
 
+> **Local demo note**: The demo has no full-text search or read models; campaign search is a case-insensitive `ILIKE` match on title and summary in `packages/server/src/campaigns/queries.ts`.
+
 ---
 
 ## API Documentation
@@ -137,18 +149,22 @@ No external search provider is required.
 | swagger-jsdoc      | Generate OpenAPI spec from JSDoc annotations |
 | swagger-ui-express | Serve interactive API docs                   |
 
+> **Local demo note**: `swagger-jsdoc` and `swagger-ui-express` are installed in `packages/server` but not wired up; the demo serves no API docs.
+
 ---
 
 ## Secrets Management
 
 | Technology            | Purpose                                              |
 | --------------------- | ---------------------------------------------------- |
-| AWS Secrets Manager   | Secret storage, injection, and rotation (production) |
+| AWS Secrets Manager   | Secret storage, injection, and rotation (production design only) |
 | Environment variables | Secret injection for local development               |
 
 ---
 
 ## Object Storage
+
+> **Local demo note**: Production design only — not present in the local demo.
 
 | Technology | Purpose                                                                                              |
 | ---------- | ---------------------------------------------------------------------------------------------------- |
@@ -170,7 +186,7 @@ No external search provider is required.
 
 | Technology            | Purpose                                   |
 | --------------------- | ----------------------------------------- |
-| AWS Aurora PostgreSQL | Primary relational database               |
+| AWS Aurora PostgreSQL | Primary relational database (production); PostgreSQL 16 via Docker Compose in the demo |
 | pg                    | Database driver (raw SQL queries, no ORM) |
 | DBMate                | SQL schema migrations                     |
 
@@ -212,11 +228,19 @@ npm run dev:server
 
 ```text
 packages/server/
+├── db/
+│   ├── migrations/    # DBMate SQL migrations (schema and seed data)
+│   └── schema.sql     # Schema dump maintained by DBMate
 └── src/
-    ├── campaigns/     # Campaign domain handlers and routes
-    ├── db/            # Database client, migration helpers, migrations/
-    ├── middleware/     # Express middleware (logging, error handling)
-    └── __tests__/     # Integration and unit tests
+    ├── app.ts         # Express app factory (middleware and routers)
+    ├── index.ts       # Server entry point
+    ├── auth/          # Login, logout, and current-user routes
+    ├── campaigns/     # Campaign routes, SQL queries, audit helper
+    ├── db/            # PostgreSQL connection pool
+    ├── middleware/    # Auth, role checks, correlation ID, request logging, error handling
+    ├── notifications/ # In-app notification routes
+    ├── users/         # User profile and admin user routes
+    └── __tests__/     # Integration tests (Vitest + SuperTest)
 ```
 
 ---
@@ -228,7 +252,7 @@ packages/server/
 | Vitest                    | Latest stable | Unit and integration test runner                 |
 | SuperTest                 | Latest stable | HTTP assertion library for API tests             |
 | @testing-library/react    | Latest stable | React component testing utilities                |
-| MSW (Mock Service Worker) | Latest stable | API mocking for frontend tests                   |
+| MSW (Mock Service Worker) | Latest stable | API mocking for frontend tests (target — not installed in the demo) |
 | Playwright                | Latest stable | End-to-end browser tests (root `e2e/` directory) |
 
 ### Playwright CI Requirements
@@ -237,12 +261,13 @@ The Playwright E2E suite requires the following CI environment setup (introduced
 
 - A `postgres:16-alpine` service must be running before the suite starts.
 - DBMate migrations must run against the CI database before the test suite executes.
-- A seed SQL script must be applied to the CI database before E2E tests run.
-- Playwright configuration lives at `e2e/playwright.config.ts`; tests live at `e2e/*.spec.ts`.
+- Seed data is applied by the same DBMate migrations (seed files are migrations in `packages/server/db/migrations/`).
+- The Express server must be started (`npm run dev:server` with `DATABASE_URL`, `JWT_SECRET`, and `PORT=3001`) before the suite runs.
+- Playwright configuration lives at the repo root in `playwright.config.ts`; tests live at `e2e/*.spec.ts`.
 
 ### Quality Gates
 
-- Unit test coverage: 90%+ for business logic / domain
+- Unit test coverage: 90%+ for business logic / domain (target — not enforced in the demo; the only enforced coverage threshold is 80% on `src/components/ui/Button.tsx` in `packages/client/vite.config.ts`)
 - Integration tests must pass
 - E2E tests must pass
 
@@ -252,9 +277,13 @@ The Playwright E2E suite requires the following CI environment setup (introduced
 
 **Hexagonal Architecture** (Ports and Adapters) for clean separation between domain logic and infrastructure concerns.
 
+> **Local demo note**: Production design only. The demo server is organised by feature folder; route handlers call SQL query functions directly, with no ports/adapters layer.
+
 ---
 
 ## Compute & Hosting
+
+> **Local demo note**: Production design only, except the Local Development row. The CI workflow pulls the DBMate image from GHCR; no application images are built or pushed.
 
 | Component                   | Technology                          | Notes                                                            |
 | --------------------------- | ----------------------------------- | ---------------------------------------------------------------- |
@@ -268,6 +297,8 @@ The Playwright E2E suite requires the following CI environment setup (introduced
 ---
 
 ## Infrastructure as Code
+
+> **Local demo note**: Production design only — not present in the local demo.
 
 | Technology      | Version   | Purpose                                    |
 | --------------- | --------- | ------------------------------------------ |
@@ -284,6 +315,8 @@ The Playwright E2E suite requires the following CI environment setup (introduced
 
 ### Deployment Strategy
 
+> **Local demo note**: Production design only. The demo has a single GitHub Actions workflow (`.github/workflows/ci.yml`) that type-checks, lints, builds, and tests; there is no deployment.
+
 - Automated infrastructure deployment via Terraform
 - Docker image build and push to ECR
 - ECS service updates with rolling deployment
@@ -291,7 +324,7 @@ The Playwright E2E suite requires the following CI environment setup (introduced
 
 ### Environments
 
-- Separate workflows for development and production
+- Separate workflows for development and production (production design only)
 
 ---
 
