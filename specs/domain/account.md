@@ -11,9 +11,11 @@
 
 ## Purpose
 
-> **Local demo scope**: Registration and authentication in the local demo use a **JWT stub** (not Clerk): email/password login issues a signed JWT stored in `localStorage`; tokens are stateless with no refresh or revocation; passwords are bcrypt hashes of known demo values.
-> Role assignment and profile management are implemented.
-> Session elevation, MFA enforcement, account deactivation with GDPR erasure, data portability, and SSO provider integration are theatre (not implemented).
+> **Local demo scope**: Authentication in the local demo is a **JWT stub** (not Clerk): email/password login issues a signed JWT (8-hour expiry) stored in `localStorage`; tokens are stateless with no refresh or revocation; passwords are bcrypt hashes of known demo values.
+> The only auth endpoints are `POST /v1/auth/login`, `POST /v1/auth/logout`, and `GET /v1/auth/me`. There is **no** registration, email verification, password reset, or SSO endpoint — accounts come from seed migrations.
+> Each account has a single `role` column (Backer, Creator, Reviewer, Administrator, or SuperAdministrator) set by seed data; there is no role assignment endpoint.
+> Profile management is limited to `GET /v1/users/:id` and `PATCH /v1/users/:id` (display name and bio), plus an Administrator-only `GET /v1/users` list.
+> Registration, onboarding, email verification, password policies and reset, session elevation, MFA enforcement, account deactivation with GDPR erasure, data portability, and SSO provider integration are production design only (not implemented).
 
 This spec governs the full account lifecycle for Mars Mission Fund: registration, onboarding, email verification, password policies, SSO integration, profile management, role assignment and management, session management, notification preferences, account recovery, account deactivation, and data portability.
 

@@ -82,12 +82,6 @@ export interface LaunchResult {
   launchedAt: Date
 }
 
-export interface PostUpdateResult {
-  id: string
-  body: string
-  postedAt: Date
-}
-
 export interface ContributeResult {
   currentAmountUsd: number
   contributorCount: number
@@ -236,17 +230,6 @@ export async function getCampaignById(pool: Pool, id: string): Promise<CampaignD
     [id]
   )
 
-  const updatesResult = await pool.query(
-    `SELECT
-      id,
-      body,
-      posted_at AS "postedAt"
-    FROM campaign_updates
-    WHERE campaign_id = $1
-    ORDER BY posted_at DESC`,
-    [id]
-  )
-
   const stretchGoals = stretchGoalsResult.rows.map((goal) => ({
     ...goal,
     unlocked: goal.targetAmount <= campaign.raisedAmount,
@@ -257,7 +240,6 @@ export async function getCampaignById(pool: Pool, id: string): Promise<CampaignD
     milestones: milestonesResult.rows,
     stretchGoals,
     teamMembers: teamMembersResult.rows,
-    updates: updatesResult.rows,
   }
 
   return detail
@@ -784,20 +766,6 @@ export async function launchCampaign(pool: Pool, id: string): Promise<LaunchResu
      WHERE id = $1
      RETURNING id, status, launched_at AS "launchedAt"`,
     [id]
-  )
-  return result.rows[0]!
-}
-
-export async function postCampaignUpdate(
-  pool: Pool,
-  campaignId: string,
-  body: string
-): Promise<PostUpdateResult> {
-  const result = await pool.query<PostUpdateResult>(
-    `INSERT INTO campaign_updates (campaign_id, body)
-     VALUES ($1, $2)
-     RETURNING id, body, posted_at AS "postedAt"`,
-    [campaignId, body]
   )
   return result.rows[0]!
 }

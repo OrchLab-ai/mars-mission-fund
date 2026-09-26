@@ -1,4 +1,5 @@
-# Autonomous agent: Claude Code + Playwright MCP in Docker
+# Agent container: Claude Code + Playwright MCP + the app's toolchain, in Docker.
+# The workshop's claude-container is built from this image.
 # Base includes browser deps + Node.js (Ubuntu Noble)
 FROM mcr.microsoft.com/playwright:v1.58.2-noble
 
@@ -51,11 +52,7 @@ USER agent
 # Placed before COPY steps so script/prompt edits don't bust this cache layer.
 RUN node /usr/lib/node_modules/@playwright/mcp/node_modules/playwright-core/cli.js install chromium
 
-# Copy scripts (after Chromium install so edits here don't trigger re-download)
-COPY --chown=agent:agent entrypoint.sh agent-loop.sh resolve-conflicts-entrypoint.sh /usr/local/bin/
-RUN chmod +x /usr/local/bin/entrypoint.sh /usr/local/bin/agent-loop.sh /usr/local/bin/resolve-conflicts-entrypoint.sh
-
-# Copy prompts into container
-COPY --chown=agent:agent prompts/ /usr/local/share/prompts/
-
-ENTRYPOINT ["entrypoint.sh"]
+# No entrypoint of its own. The workshop stack runs its own start script in this
+# image (see docker-compose.workshop.yml in the workshop repository); on its own the
+# container simply stays up so a shell can be opened in it.
+CMD ["sleep", "infinity"]

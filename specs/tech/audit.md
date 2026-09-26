@@ -11,9 +11,13 @@
 
 ## 1. Purpose
 
-> **Local demo scope**: The audit event schema, event categories, logging trigger rules, and the PostgreSQL event store integration are **real** — audit events are written as part of the CQRS/Event Sourcing pattern in the local demo. Tamper detection (hash chains), tiered storage, anomaly detection, regulatory reporting processes, and the access grant workflow are theatre. The local demo writes audit events to PostgreSQL with no archival or detection pipeline.
+> **Local demo scope**: The audit event categories and logging trigger rules are **real** — they guide which actions the local demo records.
+> The demo has **no** event store and no CQRS/Event Sourcing: audit rows are plain `INSERT` statements into PostgreSQL audit tables, issued by route handlers after the state change (not in the same transaction).
+> Only `writeAuditEvent` (→ `audit_events`) is best-effort (it logs and swallows insert errors); the other helpers let errors propagate.
+> No API endpoint or UI reads the audit tables.
+> Tamper detection (hash chains), tiered storage, anomaly detection, regulatory reporting processes, and the access grant workflow are production design only.
 >
-> The demo uses three audit tables added incrementally during the Campaign Lifecycle milestone: `audit_log` (legacy JSONB append-only, used for settlement and milestone events), `campaign_audit_events` (structured events with previous/new state, used for workflow transitions), and `audit_events` (spec-aligned table matching L3-006 schema, used for campaign lifecycle events). Hash chaining (SHA-256), batch tamper verification, hot/warm/cold retention tier enforcement, and anomaly-detection rules are production requirements not implemented in the demo. See [ADR-0002](../adrs/0002-audit-log-demo-simplification.md) for the full architectural decision record.
+> The demo writes to three audit tables added incrementally: `audit_log` (JSONB payload, used for settlement and milestone events), `campaign_audit_events` (text previous/new state, used for review workflow transitions), and `audit_events` (the table closest to the Section 3 schema, used for campaign lifecycle events). A fourth table, `campaign_audit_log`, exists in the schema but is not written by current code. See [ADR-0002](../adrs/0002-audit-log-demo-simplification.md) for the columns and the full architectural decision record.
 
 This spec governs the audit logging architecture for Mars Mission Fund: what gets logged, how audit events are structured, how they are stored immutably, who can access them, how long they are retained, and how they support regulatory compliance and anomaly detection.
 
@@ -136,6 +140,8 @@ Their integrity is non-negotiable.
 - The storage layer must enforce append-only semantics at the infrastructure level, not just at the application level.
 
 **Storage technology: Immutable event stream in PostgreSQL (Aurora).** Audit events are stored as append-only rows in the same PostgreSQL event store used by the CQRS/Event Sourcing infrastructure ([Architecture](L3-001), Section 6.2). Delete and update operations are prevented by database-level row security policies and the application data access layer. This reuses existing infrastructure, keeps the stack simple, and provides full SQL query capabilities over audit data.
+
+> **Local demo note**: Production design only. The demo audit tables are ordinary PostgreSQL tables with no event store, row security policies, or database-level append-only enforcement.
 
 ### 5.2 Tamper Detection
 

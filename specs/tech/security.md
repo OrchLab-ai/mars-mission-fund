@@ -11,7 +11,10 @@
 
 ## 1. Purpose
 
-> **Local demo scope**: RBAC model, authentication via a custom stateless JWT/bcrypt stub (stateless, no refresh tokens, no revocation, JWT stored in localStorage), input validation, CSP headers, and the STRIDE threat model structure are **real** — they inform the local demo's auth implementation. Penetration testing, incident response procedures, breach notification workflows, certificate management, and compliance audit cadences are theatre. Session timeouts and lockout thresholds will use sensible defaults without formal review.
+> **Local demo scope**: The RBAC model (enforced per route with `requireRole`), input validation (Zod at route boundaries), security headers including CSP (`helmet` defaults), and the STRIDE threat model structure are **real** — they inform the local demo's implementation.
+> Authentication is a custom stateless JWT/bcrypt stub: `POST /v1/auth/login` issues a JWT signed with `JWT_SECRET` (the `jsonwebtoken` default HS256) that expires after **8 hours**; the client stores it in `localStorage` and sends it as a `Bearer` header.
+> There are no refresh tokens, no revocation, no HttpOnly cookies, no idle timeout, no account lockout, no rate limiting, and no API gateway — the token lifetimes, timeouts, lockout thresholds, and rate limits in this spec are the production design.
+> Penetration testing, incident response procedures, breach notification workflows, certificate management, and compliance audit cadences are also production design only.
 
 This spec defines the security architecture for Mars Mission Fund: threat model, control matrix, authentication and authorisation architecture, encryption standards, compliance mapping, session management, and incident response.
 It implements the "Security as Foundation" principle from the [Product Vision & Mission](L1-001) and the security invariants defined in the [Engineering Standard](L2-002), Section 1.

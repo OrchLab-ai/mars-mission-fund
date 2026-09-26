@@ -8,12 +8,11 @@ import { Button } from '../components/ui/Button'
 import { FundingProgressSection } from '../components/campaigns/FundingProgressSection'
 import { MilestonesSection } from '../components/campaigns/MilestonesSection'
 import { StretchGoalsSection } from '../components/campaigns/StretchGoalsSection'
-import { CampaignUpdatesSection } from '../components/campaigns/CampaignUpdatesSection'
 import { TeamSection } from '../components/campaigns/TeamSection'
 import { ReviewActionsPanel } from '../components/campaigns/ReviewActionsPanel'
 import { AdminActionsPanel } from '../components/campaigns/AdminActionsPanel'
 import { useAuthContext } from '../context/AuthContext'
-import { postCampaignUpdate, submitMilestoneEvidence } from '../api/campaigns'
+import { submitMilestoneEvidence } from '../api/campaigns'
 import type { CampaignStatus, Milestone } from '@mmf/shared'
 
 type BadgeVariant = 'funded' | 'active' | 'new'
@@ -230,58 +229,6 @@ const milestoneTitleStyle: React.CSSProperties = {
   margin: '0 0 var(--space-1)',
 }
 
-function PostUpdatePanel({ campaignId }: { campaignId: string }) {
-  const queryClient = useQueryClient()
-  const [body, setBody] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  const { mutate, isPending } = useMutation({
-    mutationFn: () => postCampaignUpdate(campaignId, body),
-    onSuccess: () => {
-      setBody('')
-      void queryClient.invalidateQueries({ queryKey: ['campaign', campaignId] })
-    },
-    onError: () => {
-      setError('Failed to post update. Please try again.')
-    },
-  })
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setError(null)
-    mutate()
-  }
-
-  return (
-    <div style={creatorPanelStyle} aria-label="Post update">
-      <h2 style={creatorPanelHeadingStyle}>Post an Update</h2>
-      <form
-        onSubmit={handleSubmit}
-        style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)' }}
-      >
-        <label style={creatorPanelLabelStyle}>
-          Update
-          <textarea
-            style={creatorPanelTextareaStyle}
-            value={body}
-            onChange={(e) => setBody(e.target.value)}
-            placeholder="Share news with your backers…"
-            required
-          />
-        </label>
-        {error && (
-          <span role="alert" style={creatorPanelErrorStyle}>
-            {error}
-          </span>
-        )}
-        <Button type="submit" variant="primary" disabled={isPending || body.trim() === ''}>
-          {isPending ? 'Posting…' : 'Post Update'}
-        </Button>
-      </form>
-    </div>
-  )
-}
-
 function MilestoneEvidenceForm({
   campaignId,
   milestone,
@@ -482,10 +429,6 @@ export function CampaignDetailPage() {
               </div>
 
               <div style={sectionSpacingStyle}>
-                <CampaignUpdatesSection updates={campaign.updates} />
-              </div>
-
-              <div style={sectionSpacingStyle}>
                 <ReviewActionsPanel campaign={campaign} user={user} />
               </div>
 
@@ -494,13 +437,6 @@ export function CampaignDetailPage() {
                   <AdminActionsPanel campaign={campaign} user={user} />
                 </div>
               )}
-
-              {user?.id === campaign.creatorId &&
-                (campaign.status === 'Live' || campaign.status === 'Funded') && (
-                  <div style={sectionSpacingStyle}>
-                    <PostUpdatePanel campaignId={campaign.id} />
-                  </div>
-                )}
 
               {user?.id === campaign.creatorId && campaign.status === 'Settlement' && (
                 <div style={sectionSpacingStyle}>

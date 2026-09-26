@@ -55,13 +55,6 @@ const mockCampaign: CampaignDetail = {
       sortOrder: 1,
     },
   ],
-  updates: [
-    {
-      id: 'u1',
-      postedAt: new Date('2024-01-15T00:00:00.000Z'),
-      body: 'Things are going well.',
-    },
-  ],
   creatorId: null,
   reviewerId: null,
   cancellationRequestedAt: null,

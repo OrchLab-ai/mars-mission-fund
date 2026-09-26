@@ -11,7 +11,10 @@
 
 ## 1. Purpose
 
-> **Local demo scope**: The payment gateway abstraction layer, contribution state machine, and escrow ledger design are **real** — they demonstrate the architectural pattern in the local demo. The actual payment gateway is **stubbed** (no real money moves). Multi-approval disbursement workflow, daily reconciliation, and refund processing are theatre. The local demo simulates payment success/failure without a live gateway.
+> **Local demo scope**: Almost all of this spec is production design. The local demo has **no** payment gateway, gateway abstraction layer, contribution records, contribution state machine, or escrow ledger — no real or simulated money moves.
+> A contribution is a single `UPDATE` that increments the campaign's `current_amount_usd` and `contributor_count` (see [Donor](L4-003)).
+> Disbursement and refunds are console-logged `[STUB]` messages at the points where they would occur (see [ADR-0003](../adrs/0003-stubbed-integrations.md)).
+> Multi-approval disbursement workflow, daily reconciliation, refund processing, and tax receipts are production design only.
 >
 > The demo stub replaces live gateway calls with `console.log('[STUB] ...')` log lines at three points: fund disbursement (milestone verification), refund processing (settlement cancellation), and admin notification (evidence submission). No Stripe API keys, escrow accounts, or webhook handling are required. See [ADR-0003](../adrs/0003-stubbed-integrations.md) for the full rationale and what a production integration would require.
 
@@ -186,8 +189,8 @@ Each campaign has its own dedicated escrow account.
 Contributed funds are held in the campaign's segregated account until milestones are verified and disbursement is approved.
 This provides clear legal separation, simplifies per-campaign accounting, and eliminates cross-campaign fund commingling risk.
 
-> **Workshop note**: Segregated accounts are the architectural design.
-> In the local demo, this may be represented as logical separation within a single data store rather than actual separate bank accounts.
+> **Local demo note**: Segregated accounts are the production design.
+> The local demo has no escrow representation; a campaign's raised total is the `current_amount_usd` column on the `campaigns` table.
 
 ### 6.2 Escrow Ledger
 

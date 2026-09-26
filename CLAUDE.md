@@ -19,13 +19,27 @@ Mars Mission Fund (MMF) — a crowdfunding platform. npm workspaces monorepo wit
   - Any command structure that obscures what's actually being run
   Use separate Bash tool calls for each command instead.
 
+## Where You Are Running
+
+In the workshop you run inside `claude-container`, and the app is **already running**:
+the frontend on port 5173, the API on port 3001, PostgreSQL at the `db` host
+(`DATABASE_URL` is set). Do not start a second copy of either server, and do not
+use Docker — there is no Docker inside the container.
+
+```bash
+start-app.sh --restart          # Restart both dev servers (also reinstalls deps if the lockfile changed)
+tail -n 50 /workspace/logs/server.log   # API log; vite.log alongside it
+dbmate -d packages/server/db/migrations up   # Apply new migrations to the running database
+```
+
+Save Playwright MCP screenshots to `/screenshots` — that folder is shared with the host.
+
 ## Common Commands
 
-### Development
+### Development (outside the workshop container)
 
 ```bash
 ./scripts/run-local.sh          # Start full local env (Docker Postgres + migrations + both dev servers)
-./scripts/run-docker.sh         # Same as above but entirely in Docker (only requires Docker)
 npm run dev                     # Frontend dev server only (port 5173)
 npm run dev:server              # Backend dev server only (port 3001)
 ```
@@ -33,8 +47,9 @@ npm run dev:server              # Backend dev server only (port 3001)
 ### CI Checks (run before pushing)
 
 ```bash
-./scripts/ci-check.sh           # Mirrors CI pipeline locally — run this before pushing
-./scripts/e2e-check-docker.sh   # Full CI checks + E2E tests, entirely in Docker (only requires Docker)
+./scripts/ci-check.sh           # Mirrors CI pipeline locally — run this before committing
+./scripts/run-e2e.sh            # Playwright E2E against its own throwaway database (works in the container)
+./scripts/e2e-check-docker.sh   # Full CI checks + E2E tests, entirely in Docker (host only)
 ```
 
 Individual checks from that script:
@@ -56,7 +71,7 @@ npm run test:coverage                     # With coverage (80% threshold enforce
 npx vitest run packages/client/src/components/Button.test.tsx  # Single test file
 npx vitest run --reporter=verbose -w packages/client            # All client tests verbose
 npm run test:e2e                          # Playwright E2E (auto-starts frontend; backend must be running)
-./scripts/e2e-check.sh                    # Full E2E flow: starts DB, backend, runs Playwright, tears down
+./scripts/run-e2e.sh                      # Full E2E flow on an isolated database: migrates, starts backend, runs Playwright, drops it
 ```
 
 - Client tests: Vitest + Testing Library + jsdom (`packages/client/src/**/*.test.tsx`)
@@ -65,19 +80,17 @@ npm run test:e2e                          # Playwright E2E (auto-starts frontend
 
 ### Database
 
-```bash
-docker compose -f docker-compose.dev.yml up -d   # Start local PostgreSQL
-export DATABASE_URL="postgresql://mmf:mmf@localhost:5432/mmf?sslmode=disable"
-docker run --rm --network host -e DATABASE_URL="${DATABASE_URL}" -v "$(pwd)/packages/server/db:/db" ghcr.io/amacneil/dbmate up  # Run migrations
-```
+In the workshop container the database is already up and migrated; apply new migrations with
+`dbmate -d packages/server/db/migrations up`. Outside it, `./scripts/run-local.sh` starts
+PostgreSQL from `docker-compose.dev.yml` and migrates it.
 
 Migrations: `packages/server/db/migrations/` (managed by dbmate)
 Schema: `packages/server/db/schema.sql`
 
 ## Architecture
 
-- **Hexagonal architecture** (Ports & Adapters) on the backend with repository pattern
-- **CQRS / Event Sourcing** for campaign management and audit trails
+- **Simple layered server**: Express routes call SQL query functions directly (no CQRS, event store or ports/adapters — the specs describe those as the production design, not what is built)
+- **Audit trail**: plain `INSERT`s into audit tables from route handlers
 - **JWT authentication** with bcrypt password hashing; role-based access (Backer, Creator, Admin)
 - Frontend proxies `/v1` requests to backend (Vite proxy config)
 - API routes: `/v1/auth/*`, `/v1/users/*`, `/v1/campaigns/*`

@@ -231,38 +231,7 @@ INSERT INTO campaign_stretch_goals (id, campaign_id, target_usd, description, de
   ('20000000-0005-0002-0000-000000000005', '00000000-0005-0000-0000-000000000005', 750000000, 'Aquaponics Integration', 'Integrate a tilapia aquaponics loop for protein production, using fish waste as fertiliser for the hydroponic beds.', 2)
 ON CONFLICT DO NOTHING;
 
--- Campaign updates for campaigns 2, 4, and 8
-INSERT INTO campaign_updates (id, campaign_id, body, posted_at) VALUES
-  ('30000000-0002-0001-0000-000000000002', '00000000-0002-0000-0000-000000000002',
-   'Arc-jet testing is complete! All five TPS material candidates survived Mars-entry heat flux levels. We have selected the PICA-X derivative for the flight article based on mass efficiency and manufacturability. Subscale shell fabrication begins next week.',
-   '2025-11-15 14:00:00+00'),
-  ('30000000-0002-0002-0000-000000000002', '00000000-0002-0000-0000-000000000002',
-   'Wind-tunnel campaign wrapped up at AEDC Tunnel 9. The 4 m subscale aeroshell matched CFD predictions within 6% on drag coefficient — well within our 8% tolerance. We are now fabricating the full 16 m flight article for the orbital demo.',
-   '2026-01-20 10:00:00+00'),
-  ('30000000-0004-0001-0000-000000000004', '00000000-0004-0000-0000-000000000004',
-   'The habitat shell passed its burst-margin test with flying colours — held 150 kPa for 72 hours with zero measurable leak rate. The Vectran restraint layers performed exactly as modelled. Interior fit-out begins next month.',
-   '2025-09-05 09:00:00+00'),
-  ('30000000-0004-0002-0000-000000000004', '00000000-0004-0000-0000-000000000004',
-   'Our six-person crew has completed the 60-day analog mission in Utah! Crew morale remained high throughout, and the habitat systems operated nominally. We are now analysing the human-factors data and will publish the full report by end of January.',
-   '2026-01-07 11:00:00+00'),
-  ('30000000-0008-0001-0000-000000000008', '00000000-0008-0000-0000-000000000008',
-   'First criticality achieved on our HTS coil assembly. The cryocooler stabilised at 38 K and the coils reached the design field of 5 T with margin. The Brookhaven beam test is scheduled for July — we are on track.',
-   '2025-05-10 08:00:00+00'),
-  ('30000000-0008-0002-0000-000000000008', '00000000-0008-0000-0000-000000000008',
-   'Particle-beam tests at Brookhaven confirmed a dose-reduction factor of 12x for 100 MeV protons — exceeding our 10x target. The flight-qualifiable module has passed design review and is now in final assembly. Thank you to every contributor who made this breakthrough possible.',
-   '2025-11-01 12:00:00+00')
-ON CONFLICT DO NOTHING;
-
 -- migrate:down
-
-DELETE FROM campaign_updates WHERE id IN (
-  '30000000-0002-0001-0000-000000000002',
-  '30000000-0002-0002-0000-000000000002',
-  '30000000-0004-0001-0000-000000000004',
-  '30000000-0004-0002-0000-000000000004',
-  '30000000-0008-0001-0000-000000000008',
-  '30000000-0008-0002-0000-000000000008'
-);
 
 DELETE FROM campaign_stretch_goals WHERE id IN (
   '20000000-0001-0001-0000-000000000001',

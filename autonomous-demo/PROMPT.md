@@ -5,37 +5,41 @@
 > Orchestration"). Replace it with your own — keep it concrete: what the user
 > should be able to do, where it lives, and how to tell it works.
 >
-> The default below is **Exercise 03 — Trending Missions**: a full-stack feature
-> that spans database → server → shared types → client → UI → tests, so the
-> planner produces a multi-step `tasks.md` the loop executes one task at a time.
+> The default is **Mission Updates**, the feature built by hand earlier in the day.
+> It spans database → server → shared types → client → UI → tests, so the planner
+> produces a multi-step `tasks.md` the loop executes one task at a time.
 
-## Trending Missions
+## Mission Updates
 
-Add a **"Trending Missions"** section to the Explore page. It shows the 3 most
-popular live campaigns by contributor count, displayed as a horizontal row above
-the main campaign grid.
+The owner of a proposal can post short updates to it, and backers read them on the
+proposal's page. (The funding entity is called a proposal in this codebase — it was
+named Campaign until the rename challenge; use whichever name the code uses now.)
+
+If a spec for this feature exists in `specs/` (for example
+`specs/mission-updates.spec.md`), it is the source of truth: build what it says and
+satisfy its acceptance criteria. Otherwise, build the following.
 
 ### What to build
 
-- **Database**: a query against the `campaigns` table, filtered to `Live`
-  status, ordered by `contributor_count` descending, limited to 3.
-- **Server**: a new endpoint `GET /v1/campaigns/trending` that returns the top 3
-  as campaign summaries. Follow the existing route/query conventions.
-- **Shared types**: a type for the trending response (or reuse `CampaignSummary`).
-- **Client API**: a new fetch function in `packages/client/src/api/campaigns.ts`,
-  following the existing pattern.
-- **UI**: a new section at the top of the Explore page
-  (`packages/client/src/pages/ExplorePage.tsx`), using existing component
-  primitives and design tokens.
-- **Tests**: server and client tests for the new endpoint and component, plus a
-  Playwright E2E test for the Explore page.
+- **Database**: a migration adding an updates table — title, body, created
+  timestamp, and a foreign key to the owning proposal.
+- **Server**: endpoints to create an update (owner only) and to list a proposal's
+  updates, newest first. Follow the existing route/query conventions in the
+  proposal feature folder.
+- **Shared types**: Zod schemas and types for the request and response.
+- **Client API**: fetch functions following the existing pattern in
+  `packages/client/src/api/`.
+- **UI**: an updates section on the proposal detail page, plus a form for the owner
+  to post one, using existing component primitives and design tokens.
+- **Tests**: server and client tests for the endpoints and components, plus a
+  Playwright E2E test for posting and reading an update.
 
 ### Done when
 
 - `./scripts/ci-check.sh` passes (type-check, lint, format, build, unit tests).
-- Visiting `/explore` shows a **Trending Missions** row above the main grid.
-- `GET /v1/campaigns/trending` returns the top 3 live campaigns by contributor
-  count.
+- An owner can post an update, and it appears first in the list on the proposal
+  page for everyone.
+- Someone who is not the owner cannot post one.
 - The change spans server, shared, and client packages.
 
 <!--
@@ -50,19 +54,10 @@ Other ready-made options — paste one in place of the section above:
     verification. Done when ci-check passes and the footer is visible at
     http://localhost:5173.
 
-  • UPGRADE / MIGRATION (best for showing Plan-First Orchestration — breaking
-    changes, affected files, migration steps, verification criteria):
-    Migrate the domain term "Campaign" to "Proposal" across the entire codebase
-    — TypeScript types, SQL tables/columns, API routes (/v1/campaigns ->
-    /v1/proposals), React components, and the spec at specs/domain/campaign.md.
-    Write a proper SQL migration respecting FK constraints. Done when ci-check
-    passes, the E2E/UI still works, and GET /v1/proposals returns the data.
-    (This is workshop Exercise 01 — see ../01-exercise-rename.md.)
-
-  • CROSS-CUTTING / BACKEND-ONLY (no screenshots):
-    Add structured HTTP request logging to the server. Every request logs
-    method, path, status code, response time (ms), and correlation ID as JSON
-    using the existing pino logger. The middleware must sit AFTER the
-    correlationId middleware in app.ts. Add tests asserting the log fields.
-    (Workshop Exercise 02 — see ../02-exercise-olly.md.)
+  • FULL-STACK READ-ONLY (a new query, endpoint and section, no forms):
+    Add a "Trending Missions" section to the Explore page showing the 3 most
+    popular live missions by contributor count, as a horizontal row above the
+    main grid: a query, a GET endpoint following the existing conventions, a
+    client fetch function, the section itself, and server, client and E2E
+    tests. Done when ci-check passes and /explore shows the row.
 -->

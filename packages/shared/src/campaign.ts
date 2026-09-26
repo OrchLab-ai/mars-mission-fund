@@ -62,12 +62,6 @@ export const TeamMemberSchema = z.object({
   sortOrder: z.number().int(),
 })
 
-export const CampaignUpdateSchema = z.object({
-  id: z.string().uuid(),
-  body: z.string(),
-  postedAt: z.coerce.date(),
-})
-
 // Summary shape returned by the list endpoint
 export const CampaignSummarySchema = z.object({
   id: z.string().uuid(),
@@ -100,7 +94,6 @@ export const CampaignDetailSchema = CampaignSummarySchema.extend({
   milestones: z.array(MilestoneSchema),
   stretchGoals: z.array(StretchGoalSchema),
   teamMembers: z.array(TeamMemberSchema),
-  updates: z.array(CampaignUpdateSchema),
 })
 
 export const AuditLogEntrySchema = z.object({
@@ -182,7 +175,6 @@ export type MilestoneStatus = z.infer<typeof MilestoneStatusSchema>
 export type Milestone = z.infer<typeof MilestoneSchema>
 export type StretchGoal = z.infer<typeof StretchGoalSchema>
 export type TeamMember = z.infer<typeof TeamMemberSchema>
-export type CampaignUpdate = z.infer<typeof CampaignUpdateSchema>
 export type CampaignSummary = z.infer<typeof CampaignSummarySchema>
 export type CampaignDetail = z.infer<typeof CampaignDetailSchema>
 export type AuditLogEntry = z.infer<typeof AuditLogEntrySchema>

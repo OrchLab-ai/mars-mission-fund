@@ -11,13 +11,18 @@
 Mars Mission Fund is a **sample application for a coding workshop** — a fictional product used to teach software engineering practices.
 These specifications are written to production standard as a deliberate part of the exercise: participants learn to work with real-world specification patterns, architectural trade-offs, and cross-cutting concerns.
 
+> **Rule for agents**: These specs mix what the local demo implements with the production design it stands in for.
+> Each spec's **Local demo scope** line says which is which.
+> Where a spec and the code disagree about what the demo does, the code is the truth — do not build production infrastructure described here (event stores, health endpoints, analytics, payment or KYC providers, coverage gates) unless a task asks for it.
+
 **What is real (impacts the local demo)**:
 
-- Tech stack choices, architecture patterns, and CQRS/Event Sourcing (L3-001, L3-008).
+- Tech stack choices listed as present in the demo: npm workspaces monorepo, React + Vite client, Express + PostgreSQL server, DBMate migrations (L3-008).
+- A simple layered server: Express routes call SQL query functions directly (L3-001) — no CQRS, event store, or ports/adapters.
 - Frontend standards, component architecture, and brand tokens (L2-001, L3-005).
-- Domain workflows and acceptance criteria that drive implementation (L4 specs).
-- Code quality gates, testing standards, and linting (L2-002, L3-007).
-- Audit event schema and event store design (L3-006).
+- Domain workflows and acceptance criteria that drive implementation (L4 specs), within each spec's local demo scope.
+- The CI checks in `.github/workflows/ci.yml`: type-check, ESLint, Prettier, markdownlint, build, unit tests, E2E tests, and `npm audit` (L2-002, L3-007).
+- Audit events written as plain inserts into PostgreSQL audit tables (L3-006, ADR-0002) — not an event store.
 
 **What is theatre (production-realistic but not implemented locally)**:
 
@@ -28,6 +33,8 @@ These specifications are written to production standard as a deliberate part of 
 - Data residency, cross-border transfers, and tiered storage automation (L3-004, L3-006).
 - External provider integrations (KYC, payment gateway, email, search) — stubbed or mocked.
 - Secrets management service, certificate management — environment variables for local dev.
+- CQRS/Event Sourcing, read-model projections, API gateway, feature flag framework, and product analytics (L3-001, L3-008).
+- Coverage thresholds, secret scanning, and other quality gates not listed in `.github/workflows/ci.yml` (L2-002).
 
 The specifications are intentionally production-grade.
 They serve as working documentation for the demo and as templates demonstrating how real-world specs should be structured.
@@ -39,7 +46,7 @@ Each spec includes a **Local demo scope** note identifying what matters for the 
 
 1. **Before any implementation task**, read this index to identify governing specs.
 1. **Read specs top-down**: L1 → L2 → relevant L3 → relevant L4. Higher layers take precedence.
-1. **Never contradict a higher-layer spec.** If a lower-layer spec conflicts with a higher one, flag it as a blocking issue and reference both documents.
+1. **Do not contradict a higher-layer spec.** If a lower-layer spec conflicts with a higher one, flag the conflict and reference both documents. This applies to design intent; for what the local demo actually does, the code is the truth (see the rule above).
 1. **Cross-reference dependencies.** Each spec lists what it depends on and what depends on it. Follow these links to ensure changes don't break downstream specs.
 1. **Check rate of change.** Specs with a slow rate of change require change request approval before modification. Specs with a fast rate of change can be updated with standard review.
 
@@ -99,16 +106,14 @@ Each spec includes a **Local demo scope** note identifying what matters for the 
 
 ---
 
-### Tooling
+### Architecture Decision Records
 
-Operational references and CLI cheat-sheets.
+Records of technology and structural choices, including the deliberate simplifications the local demo makes.
 These are not numbered specs and do not participate in the L1–L4 dependency hierarchy.
 
 | Document            | Purpose                                                                 |
 | ------------------- | ----------------------------------------------------------------------- |
 | `adrs/`             | Architecture Decision Records capturing technology and structural choices. ADR-0001: npm workspaces monorepo; ADR-0002: audit log demo simplification; ADR-0003: stubbed integrations. |
-| `tooling/github.md` | CLI reference for managing GitHub milestones, issues, and PRs via `gh`. |
-| `learnings.md`      | Accumulated gotchas, environment quirks, and workarounds discovered during implementation; updated by agents at milestone close. |
 
 ---
 
@@ -176,7 +181,6 @@ specs/
 │   ├── 0001-npm-workspaces-monorepo.md          ← ADR-0001
 │   ├── 0002-audit-log-demo-simplification.md    ← ADR-0002
 │   └── 0003-stubbed-integrations.md             ← ADR-0003
-├── learnings.md                       ← Accumulated implementation gotchas
 ├── product-vision-and-mission.md      ← L1
 ├── standards/
 │   ├── brand.md                       ← L2-001
@@ -190,8 +194,6 @@ specs/
 │   ├── audit.md                       ← L3-006
 │   ├── markdown.md                    ← L3-007
 │   └── tech-stack.md                  ← L3-008
-├── tooling/
-│   └── github.md                      ← GitHub CLI reference
 └── domain/
     ├── account.md                     ← L4-001
     ├── campaign.md                    ← L4-002

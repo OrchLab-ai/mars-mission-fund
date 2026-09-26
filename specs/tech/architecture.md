@@ -11,7 +11,11 @@
 
 ## 1. Purpose
 
-> **Local demo scope**: Service boundaries, CQRS/Event Sourcing pattern, REST API design, feature flag framework, and the hexagonal architecture pattern are **real** — they drive the local demo's implementation. Multi-environment deployment, infrastructure topology diagrams, and service discovery are theatre. The local demo uses `docker-compose.dev.yml` to start the PostgreSQL database only; the Express server (`packages/server/`) is run separately with `npm run dev:server` from the repo root (or `npm run dev` inside `packages/server/`) — it is not part of the Docker Compose stack.
+> **Local demo scope**: REST API design (URL-path versioning under `/v1`, the `{ "data": ... }` success envelope, and the error response format) is **real** — the local demo implements it.
+> The local demo is a single Express app (`packages/server/`) organised by feature folder (`auth/`, `campaigns/`, `users/`, `notifications/`); route handlers validate input with Zod and call SQL query functions (`queries.ts`) directly against PostgreSQL via `pg`.
+> There is **no** CQRS, event store, read models, process managers, ports/adapters (hexagonal) layer, API gateway, or feature flag framework (no PostHog) in the demo — those sections describe the production design.
+> Multi-environment deployment, infrastructure topology diagrams, and service discovery are also production design only.
+> The local demo uses `docker-compose.dev.yml` to start the PostgreSQL database only; the Express server is run separately with `npm run dev:server` from the repo root (or `npm run dev` inside `packages/server/`) — it is not part of the Docker Compose stack.
 
 This spec defines the system architecture for Mars Mission Fund: service boundaries, data model overview, inter-service communication patterns, infrastructure topology, deployment strategy, and cross-cutting technical frameworks (ADRs, feature flags, linting).
 
@@ -84,6 +88,10 @@ Each service owns its data, exposes a well-defined API, and communicates with ot
 | Feature Flag & Analytics Service (PostHog) | Feature flags, product analytics, and web analytics — see Section 9                                                                                                 |
 | Secrets Management Service                 | Secret storage, injection, and rotation — see Section 8                                                                                                             |
 
+> **Local demo note**: None of these platform services exist as separate components in the demo.
+> Express middleware handles what the demo needs: `helmet`, `cors`, JSON parsing, a correlation ID header (`x-correlation-id`), `pino-http` request logging, and JWT verification per route.
+> Search is a `ILIKE` match on campaign title and summary, not full-text search over read models.
+
 ### 3.3 External Integration Adapters
 
 Per [Engineering Standard](L2-002), Section 2.4, every external dependency is accessed through an internal adapter interface.
@@ -91,12 +99,14 @@ Per [Engineering Standard](L2-002), Section 2.4, every external dependency is ac
 | Adapter                 | External Provider                                                                           | Consuming Services            |
 | ----------------------- | ------------------------------------------------------------------------------------------- | ----------------------------- |
 | Payment Gateway Adapter | Stripe (per L3-008)                                                                         | Payment Service               |
-| KYC Provider Adapter    | Veriff (stubbed/mocked for local demo)                                                      | KYC Service                   |
+| KYC Provider Adapter    | Veriff (not integrated in the demo — KYC is hard-coded as verified)                            | KYC Service                   |
 | Email Delivery Adapter  | AWS SES                                                                                     | Notification Service          |
 | Object Storage Adapter  | AWS S3 (per L3-008 — S3 used for frontend assets, audit cold storage, and document uploads) | KYC Service, Campaign Service |
 
 Each adapter exposes an internal interface contract.
 The concrete provider implementation is swappable without changes to consuming code.
+
+> **Local demo note**: The demo has no adapter interfaces. Payment, KYC, and refund behaviour are inline stubs marked `DEMO STUB` in the route and query code, and email is not sent (see [ADR-0003](../adrs/0003-stubbed-integrations.md)).
 
 ---
 
@@ -161,7 +171,7 @@ The CI/CD platform is recorded in the Technology Selection Registry (Section 8).
 ### 5.4 Container & Orchestration Strategy
 
 - **Containerisation**: Single Docker container deployed to AWS ECS Fargate.
-- **Deployment unit**: All domain services run within one deployment unit (monolithic deployment, modular internal architecture via hexagonal architecture per [Tech Stack](L3-008)).
+- **Deployment unit**: All domain services run within one deployment unit (monolithic deployment, modular internal architecture via hexagonal architecture per [Tech Stack](L3-008)). The local demo is a modular monolith organised by feature folder without a hexagonal ports/adapters layer.
 - **Load balancing**: Behind an Application Load Balancer (ALB) for health checks, TLS termination, and request routing.
 - **Frontend**: Served via CloudFront CDN with S3 origin (per [Tech Stack](L3-008)).
 
@@ -240,6 +250,8 @@ Asynchronous (event-driven) communication is used when:
 - Temporal decoupling improves system resilience.
 
 #### CQRS & Event Sourcing
+
+> **Local demo note**: Production design only. The demo has no event store, read models, populators, or process managers; routes write current state directly to PostgreSQL tables and record audit rows as plain inserts (see [ADR-0002](../adrs/0002-audit-log-demo-simplification.md)).
 
 - **Pattern**: Commands mutate state by appending events to the event store. Queries read from materialised read models. This separation allows independent scaling and optimisation of write and read paths.
 - **Event Store**: PostgreSQL (Aurora) — events are append-only rows in a dedicated events table per aggregate. No separate message broker is required.
@@ -340,7 +352,7 @@ New entries require a vendor evaluation per [Engineering Standard](L2-002), Sect
 | Feature flag service       | PostHog                                                                  | —   | Feature flags, product analytics, and web analytics. Runtime-configurable without deployment per [Engineering Standard](L2-002), Section 7.2                               |
 | Monitoring / observability | PostHog (product analytics), CloudWatch + Pino (developer observability) | —   | PostHog for user-facing analytics; CloudWatch for infrastructure metrics and alerts; Pino for structured application logging per [Engineering Standard](L2-002), Section 6 |
 | Payment gateway            | Stripe                                                                   | —   | Per L3-008. See [Payments](L4-004)                                                                                                                                         |
-| KYC provider               | Veriff (stubbed/mocked for local demo)                                   | —   | See [KYC](L4-005)                                                                                                                                                          |
+| KYC provider               | Veriff (not integrated in the demo — KYC hard-coded as verified)         | —   | See [KYC](L4-005)                                                                                                                                                          |
 | Email delivery             | AWS SES                                                                  | —   | Transactional and notification emails                                                                                                                                      |
 | Search engine              | PostgreSQL full-text search (via CQRS read models)                       | —   | No external provider — search served by dedicated read models                                                                                                              |
 | Object storage             | AWS S3                                                                   | —   | Per L3-008 (CloudFront S3 origin, audit cold storage)                                                                                                                      |
@@ -355,6 +367,8 @@ Per [Engineering Standard](L2-002), Sections 4.5 and 7.2:
 - Feature flags are the default deployment mechanism for user-facing changes.
 - Feature flags are runtime-configurable without deployment.
 - Feature flags are managed through PostHog (not environment variables).
+
+> **Local demo note**: Production design only. The demo has no feature flag service, no PostHog integration, and no flags.
 
 ### 9.1 Flag Lifecycle
 

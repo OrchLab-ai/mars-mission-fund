@@ -11,7 +11,9 @@
 
 ## Purpose
 
-> **Local demo scope**: Data classification scheme, data access layer patterns, schema migration strategy, and the right-to-erasure workflow design are **real** — they inform the local demo's data model. Retention enforcement automation, tiered storage, backup verification, data residency, and cross-border transfer mechanisms are theatre. The local demo uses a single PostgreSQL instance with no archival pipeline.
+> **Local demo scope**: The data classification scheme and schema migration strategy are **real** — the demo uses DBMate SQL migrations in `packages/server/db/migrations/` and parameterised SQL via `pg` in per-feature `queries.ts` files.
+> The right-to-erasure workflow is design only (no erasure endpoint exists), and the data access layer does not add logging or access control beyond the route-level auth checks.
+> Retention enforcement automation, tiered storage, backup verification, data residency, and cross-border transfer mechanisms are production design only. The local demo uses a single PostgreSQL instance with no archival pipeline.
 
 This spec governs how data is classified, stored, accessed, retained, archived, anonymised, backed up, recovered, and migrated across the Mars Mission Fund platform.
 
@@ -108,7 +110,7 @@ Retention periods are driven by regulatory requirements, business needs, and the
 - Data past its retention period must be either deleted or anonymised, depending on the data type (see Section 4).
 - Retention enforcement must produce an audit record of what was deleted or anonymised, when, and by which process.
 
-> **Local demo note**: Retention enforcement jobs are not active in the local demo environment. Retention behaviour can be demonstrated manually via admin tooling.
+> **Local demo note**: Retention enforcement jobs are not implemented in the local demo environment, and there is no admin tooling for retention.
 
 ### 2.3 Legal Hold
 

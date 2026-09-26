@@ -310,10 +310,8 @@ All review actions are audit-logged per [Audit](L3-006): reviewer identity, acti
 
 **AC-CAMP-020**: Given a live campaign, when a creator requests a deadline extension that would exceed the 90-day cumulative limit, then the extension request is rejected with an explanation.
 
-### 7.5 Campaign Updates
+### 7.5 Post-Launch Changes
 
-- Creators may post updates to their live campaign (text and media).
-- Updates are visible on the campaign page and trigger notifications to contributors.
 - Creators may NOT modify the minimum funding target or maximum funding cap after going live.
 
 #### Milestone Change Requests
@@ -469,10 +467,10 @@ The event schema and transport mechanism are defined in [Architecture](L3-001).
 
 | Role               | Campaign Permissions                                                                                                                                                                               |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Creator**        | Create drafts, edit drafts, submit proposals, launch approved campaigns, post updates, submit milestone evidence, request cancellation, request deadline extensions, request milestone changes     |
+| **Creator**        | Create drafts, edit drafts, submit proposals, launch approved campaigns, submit milestone evidence, request cancellation, request deadline extensions, request milestone changes                   |
 | **Reviewer**       | View and claim submitted proposals from review queue, approve/reject proposals, request clarification, recuse from review                                                                          |
 | **Admin**          | Reassign reviewers, approve cancellations, verify milestones, handle appeals, approve/reject deadline extensions, approve/reject milestone changes, manage suspended campaigns (restore or cancel) |
-| **Backer** (Donor) | View live campaigns, contribute (via [Payments](L4-004)), view updates and milestone progress                                                                                                      |
+| **Backer** (Donor) | View live campaigns, contribute (via [Payments](L4-004)), view milestone progress                                                                                                                  |
 
 Role definitions and assignment are governed by [Account](L4-001).
 Campaign enforces permissions based on the authenticated user's role.

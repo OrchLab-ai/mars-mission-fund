@@ -48,10 +48,6 @@ export const ListQuerySchema = z.object({
   createdBy: z.literal('me').optional(),
 })
 
-export const PostUpdateBodySchema = z.object({
-  body: z.string().min(1).max(10000),
-})
-
 export const ContributeBodySchema = z.object({
   amountUsd: z.number().int().positive(),
 })
@@ -69,7 +65,6 @@ export type RouteParams = z.infer<typeof RouteParamsSchema>
 export type SubmitRouteParams = z.infer<typeof SubmitRouteParamsSchema>
 export type MilestoneRouteParams = z.infer<typeof MilestoneRouteParamsSchema>
 export type ListQuery = z.infer<typeof ListQuerySchema>
-export type PostUpdateBody = z.infer<typeof PostUpdateBodySchema>
 export type ContributeBody = z.infer<typeof ContributeBodySchema>
 export type SubmitEvidenceBody = z.infer<typeof SubmitEvidenceBodySchema>
 export type ReturnMilestoneBody = z.infer<typeof ReturnMilestoneBodySchema>

@@ -1,15 +1,15 @@
 # Autonomous Agent in Docker — Demo
 
-A **self-contained** demo of an autonomous coding agent. Drop a feature request
-into `PROMPT.md`, run `docker compose up`, and watch Claude Code plan the work,
-break it into tasks, implement them one at a time, test and verify each change,
-and capture screenshots — all inside a throwaway container.
+An autonomous coding agent in a container. Put a feature request in `PROMPT.md`,
+start the agent, and watch Claude Code plan the work, break it into tasks,
+implement them one at a time, test and verify each change, and capture
+screenshots — all inside a throwaway container.
 
-No GitHub account, fork, or tokens required. The only credential you need is a
-Claude token. The repo is **bind-mounted** into the container, so the agent edits
-your real files on a throwaway demo branch — every change shows up live in your
-editor (VS Code). Only the `node_modules` are container-only, so your host install
-is never touched.
+This is Level 4 of the workshop. It runs as the `autonomous-agent` service of the
+workshop stack (`docker-compose.workshop.yml` in the workshop repository), which
+bind-mounts this repository as `app/`. The agent edits your real files on a
+throwaway demo branch, so every change shows up live in your editor. Only
+`node_modules` are container-only.
 
 ---
 
@@ -20,9 +20,9 @@ is never touched.
 
 | # | Pillar | Where it lives here |
 |---|--------|---------------------|
-| 01 | **Containerise** — codebase + test suite + Playwright in one image | `Dockerfile`, `docker-compose.yml` |
+| 01 | **Containerise** — codebase + test suite + Playwright in one image | `Dockerfile`, the `autonomous-agent` service |
 | 02 | **Agent Loop** — analyse → change → test → verify → repeat | `demo-loop.sh` + `prompts/` |
-| 03 | **Guardrails** — token/cost cap, iteration cap, rollback on test failure | env vars in `.env`, enforced in `demo-loop.sh` |
+| 03 | **Guardrails** — token/cost cap, iteration cap, rollback on test failure | env vars on the service, enforced in `demo-loop.sh` |
 | 04 | **Observe** — watch where it gets stuck and where it succeeds | streamed logs + `logs/` + `screenshots/` |
 
 > Some runs will hit the **"Loop of Death"** — the agent thrashing on a task it
@@ -32,66 +32,47 @@ is never touched.
 
 ---
 
-## Prerequisites
+## Running it
 
-- **Docker** and Docker Compose. Nothing else — no Node, no Postgres on the host.
-- A **Claude credential**: either a Claude Code OAuth token or an Anthropic API key.
-
-Generate an OAuth token on a machine that has the Claude CLI:
+From the root of the workshop repository — the stack from the start of the day
+must already be set up, and its `.env` holds the same Claude credential the
+rest of the day uses:
 
 ```bash
-claude setup-token
+# 1. Edit the feature request (Mission Updates is the default)
+#    open app/autonomous-demo/PROMPT.md
+
+# 2. Build the image, start the agent, watch the loop
+docker compose -f docker-compose.workshop.yml --profile l4 up --build autonomous-agent
 ```
 
----
-
-## Quick start
-
-All commands run from this `autonomous-demo/` directory.
+When it finishes, inspect the results (paths from the workshop root):
 
 ```bash
-# 1. Configure credentials + guardrails
-cp .env.example .env
-#    then edit .env and paste your CLAUDE_CODE_OAUTH_TOKEN
-
-# 2. Edit the feature request (an example is already provided)
-#    open PROMPT.md and describe what you want built
-
-# 3. Run it — build the image, start Postgres, run the agent loop
-docker compose up --build
-```
-
-Then watch the loop work. When it finishes, inspect the results:
-
-```bash
-cat logs/SUMMARY.md        # commits, files changed, screenshots
-open screenshots/          # visual proof the feature works (macOS)
-less logs/changes.diff     # the full diff the agent produced
+cat app/autonomous-demo/logs/SUMMARY.md     # commits, files changed, screenshots
+less app/autonomous-demo/logs/changes.diff  # the full diff the agent produced
+ls screenshots/                             # visual proof the feature works
 ```
 
 ### Watch it work in your editor
 
-Because the repo is bind-mounted, the agent's edits land in your real working
-tree as it goes. Open the folder in VS Code and watch files change live, or open
-**Source Control** to see the running diff on the demo branch. The branch name is
-printed near the top of the run (`>>> Working on branch: demo/<timestamp>`).
+Because the repository is bind-mounted, the agent's edits land in your working
+tree as it goes. Open **Source Control** in your editor to see the running diff
+on the demo branch. The branch name is printed near the top of the run
+(`>>> Working on branch: demo/<timestamp>`).
 
 ### Reset after a run
 
-The agent commits its work to a **demo branch in your repo**. Once you've
-reviewed the diff, return to your previous branch and clean up:
+The agent commits its work to a **demo branch** cut from wherever you started.
+Once you've reviewed the diff, go back to your own branch and delete the demo
+one (from `app/`):
 
 ```bash
-git checkout main                  # or whatever branch you started on
+git checkout -                     # the branch you were on before the run
 git branch -D demo/<timestamp>     # the demo branch from the run output
 ```
 
-To reset the container side (fresh container, DB, node_modules, outputs):
-
-```bash
-docker compose down -v             # also removes the container-only node_modules volumes
-rm -rf logs screenshots
-```
+Or jump to any checkpoint with `./checkpoint.sh <n>` from the workshop root.
 
 ---
 
@@ -117,20 +98,18 @@ better the agent's plan:
 - <observable behaviour, e.g. "visiting /explore shows a Trending row">
 ```
 
-### Ready-made examples (workshop exercises)
+### Ready-made examples
 
-`PROMPT.md` ships with **Exercise 03 — Trending Missions** because it spans the
-full stack and therefore produces a multi-step plan. You can paste any of these
-instead (see the commented block at the bottom of `PROMPT.md`):
+`PROMPT.md` ships with **Mission Updates** — the feature built by hand earlier in
+the day — because it spans the full stack and therefore produces a multi-step
+plan, and you can compare the agent's result with your own. You can paste either
+of these instead (see the commented block at the bottom of `PROMPT.md`):
 
-| Exercise | What it does | Good for showing |
-|----------|--------------|------------------|
-| **03 — Trending Missions** (default) | New full-stack feature on the Explore page | A long `tasks.md`, UI screenshots, E2E tests |
-| **01 — Refactor-Rename** | Rename `Campaign` → `Proposal` across the codebase + a SQL migration | Large, mechanical, cross-cutting edits |
-| **02 — Observability** | Add structured request logging middleware | A focused backend-only change (no screenshots) |
-
-The full exercise descriptions live in the repo root: `../01-exercise-rename.md`,
-`../02-exercise-olly.md`, `../03-exercise-new-feature.md`.
+| Request | What it does | Good for showing |
+|---------|--------------|------------------|
+| **Mission Updates** (default) | Owners post updates; backers read them on the proposal page | A long `tasks.md`, UI screenshots, E2E tests |
+| **Site footer** | One small UI component | A fast run that ends in a screenshot |
+| **Trending Missions** | A read-only row on the Explore page | Full stack without forms |
 
 ---
 
@@ -192,8 +171,8 @@ container) and the Playwright MCP server for browser-driven verification.
 
 ## Guardrails (Pillar 03)
 
-All configurable in `.env`. These are the safety boundary — tune them live to
-show their effect.
+Set them in the workshop's `.env` (the `autonomous-agent` service passes them
+through). These are the safety boundary — tune them live to show their effect.
 
 | Variable | Default | What it caps |
 |----------|---------|--------------|
@@ -231,17 +210,17 @@ Good questions for the audience:
 Everything is persisted on the host for review after the run:
 
 ```text
-autonomous-demo/
+app/autonomous-demo/
 ├── logs/
 │   ├── SUMMARY.md            # commits, files changed, screenshots, rollback count
-│   ├── changes.diff          # full diff vs main
+│   ├── changes.diff          # full diff vs where the run started
 │   ├── tasks.md              # the plan the agent generated
 │   ├── demo-<state>-*.log    # raw Claude output per state
 │   ├── ci-check-*.log        # CI runs
 │   └── gate-*.log            # verify-gate runs (rollback decisions)
-└── screenshots/
-    ├── TASK-01.png ...        # per-task visual checks
-    └── VERIFY-*.png           # final feature confirmation
+screenshots/                  # in the workshop root
+├── TASK-01.png ...           # per-task visual checks
+└── VERIFY-*.png              # final feature confirmation
 ```
 
 ---
@@ -252,13 +231,11 @@ autonomous-demo/
 autonomous-demo/
 ├── README.md            # this file
 ├── Dockerfile           # Pillar 01: Claude Code + Playwright MCP + dbmate + repo deps
-├── docker-compose.yml   # Pillar 01: agent + Postgres, volume mounts
 ├── entrypoint.sh        # use mounted repo, install deps, migrate DB, run the loop
 ├── demo-loop.sh         # Pillars 02/03/04: the state machine + guardrails
 ├── prompts/             # one prompt per state
 ├── PROMPT.md            # ← YOUR feature request (the only input)
-├── .env.example         # credentials + guardrail config
-├── .gitignore           # ignores .env, logs/, screenshots/
+├── .gitignore           # ignores logs/
 └── .dockerignore
 ```
 
@@ -268,12 +245,12 @@ autonomous-demo/
 
 | Symptom | Fix |
 |---------|-----|
-| `No Claude credentials` on start | Set `CLAUDE_CODE_OAUTH_TOKEN` (or `ANTHROPIC_API_KEY`) in `.env`. |
+| `No Claude credentials` on start | Set `CLAUDE_CODE_OAUTH_TOKEN` (or `ANTHROPIC_API_KEY`) in the workshop's `.env` — `./verify-setup.sh` checks it. |
 | `PROMPT.md is missing or empty` | Put your feature request in `PROMPT.md`. |
 | Agent stops with **"stuck"** | Expected for hard prompts — that's the guardrails working. Read `logs/` to see where; simplify `PROMPT.md` or raise `MAX_ITERATIONS` / `MAX_ROLLBACKS`. |
 | Slow first run | The image downloads Chromium and runs `npm ci`. Subsequent runs reuse the build cache. |
-| Want to re-run cleanly | `docker compose down -v && rm -rf logs screenshots`. |
-| Out of memory | The agent has a 4 GB limit in `docker-compose.yml`; raise `mem_limit` if your machine allows. |
+| Want to re-run cleanly | Delete the demo branch (see "Reset after a run") and `rm -rf app/autonomous-demo/logs`. |
+| Out of memory | The agent has a 4 GB limit in `docker-compose.workshop.yml`; raise `mem_limit` if your machine allows. |
 
 > **Cost note:** an autonomous run makes many model calls. `MAX_TURNS`,
 > `MAX_ITERATIONS`, and `TIMEOUT_SECONDS` bound the spend — keep them modest for

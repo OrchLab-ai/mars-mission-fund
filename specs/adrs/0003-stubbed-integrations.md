@@ -39,12 +39,11 @@ regardless of their actual verification status. No external API call is made.
 to the console instead of calling Stripe:
 
 - **Fund disbursement** — when an admin verifies a milestone and marks it complete, a
-  `console.log('[STUB] Disburse funds for milestone ...')` records the intended action.
-- **Backer refund** — when a settlement is cancelled (campaign failed or creator cancels with
-  existing contributions), a `console.log('[STUB] Refund backers for campaign ...')` records
-  the intended refund.
+  `console.log('[STUB] Disbursement: funds released for milestone ...')` records the intended action.
+- **Backer refund** — when a campaign in Settlement is cancelled, a
+  `console.log('[STUB] Refund initiated for campaign ...')` records the intended refund.
 - **Admin notification** — when a creator submits milestone evidence, a
-  `console.log('[STUB] Notify admin of evidence submission ...')` records the event.
+  `console.log('[STUB] Admin notification: evidence submitted for milestone ...')` records the event.
 
 ## Rationale
 

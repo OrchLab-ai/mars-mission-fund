@@ -6,7 +6,6 @@ import { Card } from '../components/ui/Card'
 import { FundingProgressSection } from '../components/campaigns/FundingProgressSection'
 import { MilestonesSection } from '../components/campaigns/MilestonesSection'
 import { StretchGoalsSection } from '../components/campaigns/StretchGoalsSection'
-import { CampaignUpdatesSection } from '../components/campaigns/CampaignUpdatesSection'
 import { TeamSection } from '../components/campaigns/TeamSection'
 import { ReviewActionsPanel } from '../components/campaigns/ReviewActionsPanel'
 import type { CampaignStatus } from '@mmf/shared'
@@ -182,10 +181,6 @@ export function ReviewDetailPage() {
 
               <div style={sectionSpacingStyle}>
                 <StretchGoalsSection stretchGoals={campaign.stretchGoals} />
-              </div>
-
-              <div style={sectionSpacingStyle}>
-                <CampaignUpdatesSection updates={campaign.updates} />
               </div>
 
               <div style={sectionSpacingStyle}>
