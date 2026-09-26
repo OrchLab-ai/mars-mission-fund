@@ -44,6 +44,12 @@ run_claude() {
   local turn_flag=()
   [ -n "$MAX_TURNS" ] && turn_flag=(--max-turns "$MAX_TURNS")  # Pillar 03: cost cap
 
+  # Use the demo MCP config (Playwright with --output-dir /screenshots) so
+  # screenshots land in the mounted /screenshots dir, not the repo working tree.
+  # --strict-mcp-config ignores the repo's shared .mcp.json (no git pollution).
+  local mcp_flag=()
+  [ -f /workspace/mcp.json ] && mcp_flag=(--mcp-config /workspace/mcp.json --strict-mcp-config)
+
   local max_api_retries=3 attempt=0 backoff=60
   while [ "$attempt" -lt "$max_api_retries" ]; do
     timeout "$TIMEOUT" claude \
@@ -51,6 +57,7 @@ run_claude() {
       --print \
       --verbose \
       "${turn_flag[@]}" \
+      "${mcp_flag[@]}" \
       "$@" \
       2>&1 | tee "$LOG_FILE" || true
 

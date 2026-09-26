@@ -147,4 +147,25 @@ fi
 
 echo ""
 echo "=== Demo run finished (branch: ${BRANCH}) ==="
+echo "=== Diff + summary in autonomous-demo/logs/, screenshots in autonomous-demo/screenshots/ ==="
+
+# ── Serve the built app so you can browse the changes (Pillar 04: Observe) ────
+# Build the production client (the `web` nginx service serves packages/client/dist
+# and proxies /v1 here), then run the backend in the foreground to stay up.
+if [ "${SERVE_AFTER:-true}" = "true" ]; then
+  echo ""
+  echo ">>> Building the client so you can browse it (npm run build)"
+  npm run build || echo "!!! build failed — nginx serves the last successful build, if any"
+
+  echo ""
+  echo "════════════════════════════════════════════════════"
+  echo "  Browse the app the agent just built:"
+  echo "    → http://localhost:${WEB_PORT:-8080}"
+  echo "  Changes are on branch ${BRANCH}. Press Ctrl-C to stop."
+  echo "════════════════════════════════════════════════════"
+
+  # Foreground backend keeps the container (and the served site) alive.
+  exec npx tsx packages/server/src/index.ts
+fi
+
 echo "=== Inspect results in autonomous-demo/logs/ and autonomous-demo/screenshots/ ==="

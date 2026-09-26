@@ -21,6 +21,10 @@ services:
       - MAX_ITERATIONS=${MAX_ITERATIONS:-30}
       - COOLDOWN_SECONDS=${COOLDOWN_SECONDS:-3}
       - TIMEOUT_SECONDS=${TIMEOUT_SECONDS:-1800}
+      # After the loop, build the client + run the backend and stay up so the
+      # `web` service can serve the result. Set SERVE_AFTER=false to exit instead.
+      - SERVE_AFTER=${SERVE_AFTER:-true}
+      - WEB_PORT=${WEB_PORT:-8080}
     volumes:
       # Bind-mount the actual repo so the agent edits REAL files — every change
       # shows up live in your editor (VS Code) on a throwaway demo branch.
@@ -34,6 +38,9 @@ services:
       - demo_shared_node_modules:/workspace/repo/packages/shared/node_modules
       # The feature request the agent will build.
       - ./PROMPT.md:/workspace/PROMPT.md:ro
+      # Demo MCP config: Playwright with --output-dir /screenshots (kept outside
+      # the repo so the shared .mcp.json and git stay untouched).
+      - ./mcp.json:/workspace/mcp.json:ro
       # Outputs land on the host for inspection after the run.
       - ./logs:/workspace/logs
       - ./screenshots:/screenshots
@@ -42,6 +49,20 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  # Browse the result: nginx serves the production client build the agent
+  # produces and reverse-proxies /v1 to the backend in the agent container.
+  # Open http://localhost:${WEB_PORT:-8080} once the run prints "Browse the app".
+  web:
+    image: nginx:alpine
+    container_name: ${CONTAINER_NAME:-autonomous-demo}-web
+    ports:
+      - '${WEB_PORT:-8080}:80'
+    volumes:
+      - ../packages/client/dist:/usr/share/nginx/html:ro
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - agent
 
 volumes:
   demo_node_modules:
