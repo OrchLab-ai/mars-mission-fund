@@ -11,13 +11,13 @@ const mainStyle: React.CSSProperties = {
 const routeTitles: Record<string, string> = {
   '/': 'Home — Mars Mission Fund',
   '/about': 'About — Mars Mission Fund',
-  '/campaigns': 'Explore Missions — Mars Mission Fund',
+  '/proposals': 'Explore Missions — Mars Mission Fund',
   '/contact': 'Contact — Mars Mission Fund',
   '/login': 'Log In — Mars Mission Fund',
   '/profile': 'Profile — Mars Mission Fund',
   '/admin/users': 'Users — Mars Mission Fund',
   '/dashboard': 'Creator Dashboard — Mars Mission Fund',
-  '/campaigns/new': 'New Campaign — Mars Mission Fund',
+  '/proposals/new': 'New Proposal — Mars Mission Fund',
 }
 
 export function Layout() {

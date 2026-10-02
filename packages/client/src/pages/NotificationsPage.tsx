@@ -105,7 +105,7 @@ const markReadButtonStyle: CSSProperties = {
   flexShrink: 0,
 }
 
-const campaignLinkStyle: CSSProperties = {
+const proposalLinkStyle: CSSProperties = {
   color: 'var(--color-accent-primary)',
   textDecoration: 'none',
   fontSize: 'var(--type-body-small-size)',
@@ -136,11 +136,11 @@ function NotificationRow({ notification }: { notification: Notification }) {
         <p style={messageStyle}>{notification.message}</p>
         <p style={metaStyle}>
           {dateFormatter.format(notification.createdAt)}
-          {notification.campaignId && (
+          {notification.proposalId && (
             <>
               {' · '}
-              <Link to={`/campaigns/${notification.campaignId}`} style={campaignLinkStyle}>
-                View campaign
+              <Link to={`/proposals/${notification.proposalId}`} style={proposalLinkStyle}>
+                View proposal
               </Link>
             </>
           )}

@@ -190,7 +190,7 @@ const navLinks = [
   { to: '/', label: 'Home', end: true },
   { to: '/about', label: 'About', end: false },
   { to: '/contact', label: 'Contact', end: false },
-  { to: '/campaigns', label: 'Explore Missions', end: false },
+  { to: '/proposals', label: 'Explore Missions', end: false },
 ]
 
 export function Header() {

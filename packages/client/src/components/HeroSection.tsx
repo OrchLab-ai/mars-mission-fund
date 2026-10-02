@@ -107,7 +107,7 @@ export function HeroSection() {
           Mars Mission Fund connects visionary space projects with the backers who believe in
           humanity&apos;s multiplanetary future. Every pledge moves the launch window closer.
         </p>
-        <Button variant="primary" href="/campaigns">
+        <Button variant="primary" href="/proposals">
           Explore Missions
         </Button>
       </div>

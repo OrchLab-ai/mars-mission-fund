@@ -134,10 +134,10 @@ Together they form the developer observability stack, complementing PostHog's pr
 
 ## Search
 
-Campaign discovery search is served by **PostgreSQL full-text search** over CQRS read models.
+Proposal discovery search is served by **PostgreSQL full-text search** over CQRS read models.
 No external search provider is required.
 
-> **Local demo note**: The demo has no full-text search or read models; campaign search is a case-insensitive `ILIKE` match on title and summary in `packages/server/src/campaigns/queries.ts`.
+> **Local demo note**: The demo has no full-text search or read models; proposal search is a case-insensitive `ILIKE` match on title and summary in `packages/server/src/proposals/queries.ts`.
 
 ---
 
@@ -168,7 +168,7 @@ No external search provider is required.
 
 | Technology | Purpose                                                                                              |
 | ---------- | ---------------------------------------------------------------------------------------------------- |
-| AWS S3     | Frontend static assets (CloudFront origin), audit cold storage, KYC document uploads, campaign media |
+| AWS S3     | Frontend static assets (CloudFront origin), audit cold storage, KYC document uploads, proposal media |
 
 ---
 
@@ -214,7 +214,7 @@ No external search provider is required.
   ```
 
 - Migration file naming convention: `YYYYMMDDHHMMSS_<snake_case_description>.sql`
-  (e.g. `20260301120000_create_campaigns.sql`).
+  (e.g. `20260301120000_create_proposals.sql`).
 
 ### Express Server
 
@@ -235,7 +235,7 @@ packages/server/
     ├── app.ts         # Express app factory (middleware and routers)
     ├── index.ts       # Server entry point
     ├── auth/          # Login, logout, and current-user routes
-    ├── campaigns/     # Campaign routes, SQL queries, audit helper
+    ├── proposals/     # Proposal routes, SQL queries, audit helper
     ├── db/            # PostgreSQL connection pool
     ├── middleware/    # Auth, role checks, correlation ID, request logging, error handling
     ├── notifications/ # In-app notification routes

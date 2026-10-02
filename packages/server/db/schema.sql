@@ -80,7 +80,7 @@ CREATE TABLE public.audit_events (
 CREATE TABLE public.audit_log (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     event_type text NOT NULL,
-    campaign_id uuid,
+    proposal_id uuid,
     milestone_id uuid,
     actor_id text NOT NULL,
     payload jsonb DEFAULT '{}'::jsonb NOT NULL,
@@ -89,12 +89,12 @@ CREATE TABLE public.audit_log (
 
 
 --
--- Name: campaign_audit_events; Type: TABLE; Schema: public; Owner: -
+-- Name: proposal_audit_events; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.campaign_audit_events (
+CREATE TABLE public.proposal_audit_events (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    campaign_id uuid NOT NULL,
+    proposal_id uuid NOT NULL,
     event_type text NOT NULL,
     actor_id uuid,
     previous_state text,
@@ -105,12 +105,12 @@ CREATE TABLE public.campaign_audit_events (
 
 
 --
--- Name: campaign_audit_log; Type: TABLE; Schema: public; Owner: -
+-- Name: proposal_audit_log; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.campaign_audit_log (
+CREATE TABLE public.proposal_audit_log (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    campaign_id uuid NOT NULL,
+    proposal_id uuid NOT NULL,
     previous_state text,
     new_state text NOT NULL,
     actor_id uuid NOT NULL,
@@ -120,12 +120,12 @@ CREATE TABLE public.campaign_audit_log (
 
 
 --
--- Name: campaign_milestones; Type: TABLE; Schema: public; Owner: -
+-- Name: proposal_milestones; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.campaign_milestones (
+CREATE TABLE public.proposal_milestones (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    campaign_id uuid NOT NULL,
+    proposal_id uuid NOT NULL,
     title text NOT NULL,
     description text NOT NULL,
     target_date date,
@@ -141,12 +141,12 @@ CREATE TABLE public.campaign_milestones (
 
 
 --
--- Name: campaign_stretch_goals; Type: TABLE; Schema: public; Owner: -
+-- Name: proposal_stretch_goals; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.campaign_stretch_goals (
+CREATE TABLE public.proposal_stretch_goals (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    campaign_id uuid NOT NULL,
+    proposal_id uuid NOT NULL,
     target_usd bigint NOT NULL,
     description text NOT NULL,
     deliverables text NOT NULL,
@@ -155,12 +155,12 @@ CREATE TABLE public.campaign_stretch_goals (
 
 
 --
--- Name: campaign_team_members; Type: TABLE; Schema: public; Owner: -
+-- Name: proposal_team_members; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.campaign_team_members (
+CREATE TABLE public.proposal_team_members (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    campaign_id uuid NOT NULL,
+    proposal_id uuid NOT NULL,
     name text NOT NULL,
     role text NOT NULL,
     bio text NOT NULL,
@@ -169,10 +169,10 @@ CREATE TABLE public.campaign_team_members (
 
 
 --
--- Name: campaigns; Type: TABLE; Schema: public; Owner: -
+-- Name: proposals; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.campaigns (
+CREATE TABLE public.proposals (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     slug text NOT NULL,
     title text NOT NULL,
@@ -209,7 +209,7 @@ CREATE TABLE public.campaigns (
 CREATE TABLE public.milestone_evidence (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     milestone_id uuid NOT NULL,
-    campaign_id uuid NOT NULL,
+    proposal_id uuid NOT NULL,
     submitted_by uuid NOT NULL,
     evidence_type text NOT NULL,
     evidence_url text NOT NULL,
@@ -228,7 +228,7 @@ CREATE TABLE public.notifications (
     type text NOT NULL,
     title text NOT NULL,
     message text NOT NULL,
-    campaign_id uuid,
+    proposal_id uuid,
     read boolean DEFAULT false NOT NULL,
     created_at timestamp with time zone DEFAULT now() NOT NULL
 );
@@ -276,59 +276,59 @@ ALTER TABLE ONLY public.audit_log
 
 
 --
--- Name: campaign_audit_events campaign_audit_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_audit_events proposal_audit_events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaign_audit_events
-    ADD CONSTRAINT campaign_audit_events_pkey PRIMARY KEY (id);
-
-
---
--- Name: campaign_audit_log campaign_audit_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaign_audit_log
-    ADD CONSTRAINT campaign_audit_log_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.proposal_audit_events
+    ADD CONSTRAINT proposal_audit_events_pkey PRIMARY KEY (id);
 
 
 --
--- Name: campaign_milestones campaign_milestones_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_audit_log proposal_audit_log_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaign_milestones
-    ADD CONSTRAINT campaign_milestones_pkey PRIMARY KEY (id);
-
-
---
--- Name: campaign_stretch_goals campaign_stretch_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaign_stretch_goals
-    ADD CONSTRAINT campaign_stretch_goals_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.proposal_audit_log
+    ADD CONSTRAINT proposal_audit_log_pkey PRIMARY KEY (id);
 
 
 --
--- Name: campaign_team_members campaign_team_members_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_milestones proposal_milestones_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaign_team_members
-    ADD CONSTRAINT campaign_team_members_pkey PRIMARY KEY (id);
-
-
---
--- Name: campaigns campaigns_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaigns
-    ADD CONSTRAINT campaigns_pkey PRIMARY KEY (id);
+ALTER TABLE ONLY public.proposal_milestones
+    ADD CONSTRAINT proposal_milestones_pkey PRIMARY KEY (id);
 
 
 --
--- Name: campaigns campaigns_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_stretch_goals proposal_stretch_goals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaigns
-    ADD CONSTRAINT campaigns_slug_key UNIQUE (slug);
+ALTER TABLE ONLY public.proposal_stretch_goals
+    ADD CONSTRAINT proposal_stretch_goals_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: proposal_team_members proposal_team_members_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_team_members
+    ADD CONSTRAINT proposal_team_members_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: proposals proposals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT proposals_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: proposals proposals_slug_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT proposals_slug_key UNIQUE (slug);
 
 
 --
@@ -356,10 +356,10 @@ ALTER TABLE ONLY public.schema_migrations
 
 
 --
--- Name: idx_campaign_audit_log_campaign_id; Type: INDEX; Schema: public; Owner: -
+-- Name: idx_proposal_audit_log_proposal_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX idx_campaign_audit_log_campaign_id ON public.campaign_audit_log USING btree (campaign_id);
+CREATE INDEX idx_proposal_audit_log_proposal_id ON public.proposal_audit_log USING btree (proposal_id);
 
 
 --
@@ -377,11 +377,11 @@ CREATE INDEX idx_notifications_user_id ON public.notifications USING btree (user
 
 
 --
--- Name: audit_log audit_log_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: audit_log audit_log_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.audit_log
-    ADD CONSTRAINT audit_log_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id);
+    ADD CONSTRAINT audit_log_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id);
 
 
 --
@@ -389,95 +389,95 @@ ALTER TABLE ONLY public.audit_log
 --
 
 ALTER TABLE ONLY public.audit_log
-    ADD CONSTRAINT audit_log_milestone_id_fkey FOREIGN KEY (milestone_id) REFERENCES public.campaign_milestones(id);
+    ADD CONSTRAINT audit_log_milestone_id_fkey FOREIGN KEY (milestone_id) REFERENCES public.proposal_milestones(id);
 
 
 --
--- Name: campaign_audit_events campaign_audit_events_actor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_audit_events proposal_audit_events_actor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaign_audit_events
-    ADD CONSTRAINT campaign_audit_events_actor_id_fkey FOREIGN KEY (actor_id) REFERENCES public.accounts(id);
-
-
---
--- Name: campaign_audit_events campaign_audit_events_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaign_audit_events
-    ADD CONSTRAINT campaign_audit_events_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.proposal_audit_events
+    ADD CONSTRAINT proposal_audit_events_actor_id_fkey FOREIGN KEY (actor_id) REFERENCES public.accounts(id);
 
 
 --
--- Name: campaign_audit_log campaign_audit_log_actor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_audit_events proposal_audit_events_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaign_audit_log
-    ADD CONSTRAINT campaign_audit_log_actor_id_fkey FOREIGN KEY (actor_id) REFERENCES public.accounts(id);
-
-
---
--- Name: campaign_audit_log campaign_audit_log_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaign_audit_log
-    ADD CONSTRAINT campaign_audit_log_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id);
+ALTER TABLE ONLY public.proposal_audit_events
+    ADD CONSTRAINT proposal_audit_events_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
 
 
 --
--- Name: campaign_milestones campaign_milestones_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_audit_log proposal_audit_log_actor_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaign_milestones
-    ADD CONSTRAINT campaign_milestones_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id) ON DELETE CASCADE;
-
-
---
--- Name: campaign_stretch_goals campaign_stretch_goals_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaign_stretch_goals
-    ADD CONSTRAINT campaign_stretch_goals_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id) ON DELETE CASCADE;
+ALTER TABLE ONLY public.proposal_audit_log
+    ADD CONSTRAINT proposal_audit_log_actor_id_fkey FOREIGN KEY (actor_id) REFERENCES public.accounts(id);
 
 
 --
--- Name: campaign_team_members campaign_team_members_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_audit_log proposal_audit_log_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaign_team_members
-    ADD CONSTRAINT campaign_team_members_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id) ON DELETE CASCADE;
-
-
---
--- Name: campaigns campaigns_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaigns
-    ADD CONSTRAINT campaigns_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.accounts(id);
+ALTER TABLE ONLY public.proposal_audit_log
+    ADD CONSTRAINT proposal_audit_log_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id);
 
 
 --
--- Name: campaigns campaigns_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_milestones proposal_milestones_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.campaigns
-    ADD CONSTRAINT campaigns_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.accounts(id);
-
-
---
--- Name: campaigns campaigns_reviewer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.campaigns
-    ADD CONSTRAINT campaigns_reviewer_id_fkey FOREIGN KEY (reviewer_id) REFERENCES public.accounts(id);
+ALTER TABLE ONLY public.proposal_milestones
+    ADD CONSTRAINT proposal_milestones_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
 
 
 --
--- Name: milestone_evidence milestone_evidence_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: proposal_stretch_goals proposal_stretch_goals_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_stretch_goals
+    ADD CONSTRAINT proposal_stretch_goals_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
+
+
+--
+-- Name: proposal_team_members proposal_team_members_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_team_members
+    ADD CONSTRAINT proposal_team_members_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
+
+
+--
+-- Name: proposals proposals_created_by_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT proposals_created_by_fkey FOREIGN KEY (created_by) REFERENCES public.accounts(id);
+
+
+--
+-- Name: proposals proposals_creator_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT proposals_creator_id_fkey FOREIGN KEY (creator_id) REFERENCES public.accounts(id);
+
+
+--
+-- Name: proposals proposals_reviewer_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposals
+    ADD CONSTRAINT proposals_reviewer_id_fkey FOREIGN KEY (reviewer_id) REFERENCES public.accounts(id);
+
+
+--
+-- Name: milestone_evidence milestone_evidence_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.milestone_evidence
-    ADD CONSTRAINT milestone_evidence_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id);
+    ADD CONSTRAINT milestone_evidence_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id);
 
 
 --
@@ -485,7 +485,7 @@ ALTER TABLE ONLY public.milestone_evidence
 --
 
 ALTER TABLE ONLY public.milestone_evidence
-    ADD CONSTRAINT milestone_evidence_milestone_id_fkey FOREIGN KEY (milestone_id) REFERENCES public.campaign_milestones(id);
+    ADD CONSTRAINT milestone_evidence_milestone_id_fkey FOREIGN KEY (milestone_id) REFERENCES public.proposal_milestones(id);
 
 
 --
@@ -497,11 +497,11 @@ ALTER TABLE ONLY public.milestone_evidence
 
 
 --
--- Name: notifications notifications_campaign_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: notifications notifications_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.notifications
-    ADD CONSTRAINT notifications_campaign_id_fkey FOREIGN KEY (campaign_id) REFERENCES public.campaigns(id);
+    ADD CONSTRAINT notifications_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id);
 
 
 --
@@ -545,4 +545,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260311000014'),
     ('20260311000015'),
     ('20260311000016'),
-    ('20260315000001');
+    ('20260315000001'),
+    ('20260322000001'),
+    ('20260401000001');
