@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import type { Pool } from 'pg'
 import { authenticate } from '../middleware/authenticate.js'
-import { getNotificationsForUser, markNotificationRead } from '../campaigns/queries.js'
+import { getNotificationsForUser, markNotificationRead } from '../proposals/queries.js'
 
 export function createNotificationsRouter(pool: Pool): Router {
   const router = Router()

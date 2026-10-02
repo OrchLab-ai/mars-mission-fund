@@ -12,7 +12,7 @@ The original feature request is appended at the end of this prompt.
 1. If the feature has a **user-visible surface** (any change under
    `packages/client/src/`):
    - Start the backend if needed: `npm run dev:server &` (poll until
-     `curl -sf http://localhost:3001/v1/campaigns` succeeds).
+     `curl -sf http://localhost:3001/v1/proposals` succeeds).
    - Start the frontend: `npm run dev &`
    - Use the Playwright MCP to navigate to the relevant page(s) at
      `http://localhost:5173` and confirm the feature behaves as the request

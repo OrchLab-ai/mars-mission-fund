@@ -5,14 +5,14 @@
 > **Status**: Approved
 > **Rate of Change**: Sprint-level / tech decisions
 > **Depends On**: L1-001 (Product Vision & Mission), L2-002 (Engineering Standard), L3-008 (Tech Stack)
-> **Depended On By**: L3-002 (tech/security.md), L3-003 (tech/reliability.md), L3-004 (tech/data-management.md), L3-005 (tech/frontend.md), L3-006 (tech/audit.md), L4-002 (domain/campaign.md), L4-004 (domain/payments.md)
+> **Depended On By**: L3-002 (tech/security.md), L3-003 (tech/reliability.md), L3-004 (tech/data-management.md), L3-005 (tech/frontend.md), L3-006 (tech/audit.md), L4-002 (domain/proposal.md), L4-004 (domain/payments.md)
 
 ---
 
 ## 1. Purpose
 
 > **Local demo scope**: REST API design (URL-path versioning under `/v1`, the `{ "data": ... }` success envelope, and the error response format) is **real** — the local demo implements it.
-> The local demo is a single Express app (`packages/server/`) organised by feature folder (`auth/`, `campaigns/`, `users/`, `notifications/`); route handlers validate input with Zod and call SQL query functions (`queries.ts`) directly against PostgreSQL via `pg`.
+> The local demo is a single Express app (`packages/server/`) organised by feature folder (`auth/`, `proposals/`, `users/`, `notifications/`); route handlers validate input with Zod and call SQL query functions (`queries.ts`) directly against PostgreSQL via `pg`.
 > There is **no** CQRS, event store, read models, process managers, ports/adapters (hexagonal) layer, API gateway, or feature flag framework (no PostHog) in the demo — those sections describe the production design.
 > Multi-environment deployment, infrastructure topology diagrams, and service discovery are also production design only.
 > The local demo uses `docker-compose.dev.yml` to start the PostgreSQL database only; the Express server is run separately with `npm run dev:server` from the repo root (or `npm run dev` inside `packages/server/`) — it is not part of the Docker Compose stack.
@@ -72,7 +72,7 @@ Each service owns its data, exposes a well-defined API, and communicates with ot
 | Service          | Governing Spec     | Responsibilities                                                                                                     |
 | ---------------- | ------------------ | -------------------------------------------------------------------------------------------------------------------- |
 | Account Service  | [Account](L4-001)  | User registration, authentication, profile management, role assignment, session management, account recovery         |
-| Campaign Service | [Campaign](L4-002) | Project submission, review pipeline, campaign lifecycle, milestone tracking, deadline enforcement, fund settlement   |
+| Proposal Service | [Proposal](L4-002) | Project submission, review pipeline, proposal lifecycle, milestone tracking, deadline enforcement, fund settlement   |
 | Donor Service    | [Donor](L4-003)    | Project discovery, recommendations, contribution flow orchestration, impact reporting, donor relationship management |
 | Payment Service  | [Payments](L4-004) | Payment gateway integration, tokenisation, escrow, disbursement, refunds, reconciliation, tax receipts               |
 | KYC Service      | [KYC](L4-005)      | Identity verification, document handling, sanctions screening, verification lifecycle                                |
@@ -84,13 +84,13 @@ Each service owns its data, exposes a well-defined API, and communicates with ot
 | API Gateway                                | Request routing, rate limiting, authentication token validation, correlation ID injection, TLS termination                                                          |
 | Notification Service                       | Email, push, and in-app notification delivery; template management; delivery tracking                                                                               |
 | Audit Service                              | Append-only event ingestion, storage, and query — see [Audit](L3-006). Event sourcing provides a natural audit trail; the Audit Service reads from the event store. |
-| Search Service                             | Full-text search over campaigns, projects, and public profiles — backed by PostgreSQL full-text search over CQRS read models. No external search provider required. |
+| Search Service                             | Full-text search over proposals, projects, and public profiles — backed by PostgreSQL full-text search over CQRS read models. No external search provider required. |
 | Feature Flag & Analytics Service (PostHog) | Feature flags, product analytics, and web analytics — see Section 9                                                                                                 |
 | Secrets Management Service                 | Secret storage, injection, and rotation — see Section 8                                                                                                             |
 
 > **Local demo note**: None of these platform services exist as separate components in the demo.
 > Express middleware handles what the demo needs: `helmet`, `cors`, JSON parsing, a correlation ID header (`x-correlation-id`), `pino-http` request logging, and JWT verification per route.
-> Search is a `ILIKE` match on campaign title and summary, not full-text search over read models.
+> Search is a `ILIKE` match on proposal title and summary, not full-text search over read models.
 
 ### 3.3 External Integration Adapters
 
@@ -101,7 +101,7 @@ Per [Engineering Standard](L2-002), Section 2.4, every external dependency is ac
 | Payment Gateway Adapter | Stripe (per L3-008)                                                                         | Payment Service               |
 | KYC Provider Adapter    | Veriff (not integrated in the demo — KYC is hard-coded as verified)                            | KYC Service                   |
 | Email Delivery Adapter  | AWS SES                                                                                     | Notification Service          |
-| Object Storage Adapter  | AWS S3 (per L3-008 — S3 used for frontend assets, audit cold storage, and document uploads) | KYC Service, Campaign Service |
+| Object Storage Adapter  | AWS S3 (per L3-008 — S3 used for frontend assets, audit cold storage, and document uploads) | KYC Service, Proposal Service |
 
 Each adapter exposes an internal interface contract.
 The concrete provider implementation is swappable without changes to consuming code.
@@ -211,7 +211,7 @@ All successful API responses are wrapped in a `data` envelope:
 { "data": [ { "id": "...", "title": "..." }, { "id": "...", "title": "..." } ] }
 ```
 
-This envelope is implemented in `packages/server/src/campaigns/routes.ts` (`res.json({ data: ... })`).
+This envelope is implemented in `packages/server/src/proposals/routes.ts` (`res.json({ data: ... })`).
 
 #### Field Naming Convention
 
@@ -236,7 +236,7 @@ Per [Engineering Standard](L2-002), Section 5.3, all APIs use a consistent error
 }
 ```
 
-- `code`: A stable, machine-readable identifier (e.g., `CAMPAIGN_NOT_FOUND`, `INSUFFICIENT_FUNDS`). Not an HTTP status code.
+- `code`: A stable, machine-readable identifier (e.g., `PROPOSAL_NOT_FOUND`, `INSUFFICIENT_FUNDS`). Not an HTTP status code.
 - `message`: Follows voice-in-product patterns from [Brand Standard](L2-001).
 - `correlation_id`: The correlation ID assigned at the edge per [Engineering Standard](L2-002), Section 6.2.
 - `details`: Optional structured context to help the caller understand and resolve the error. Must never contain internal implementation details or sensitive data.
@@ -384,7 +384,7 @@ Per [Engineering Standard](L2-002), Sections 4.5 and 7.2:
 
 Flags use kebab-case keys following the pattern `<domain>-<feature>`:
 
-- `campaign-milestone-tracking`
+- `proposal-milestone-tracking`
 - `donor-impact-dashboard`
 - `payment-crypto-support`
 
