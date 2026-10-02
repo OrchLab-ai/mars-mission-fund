@@ -47,7 +47,7 @@ SERVER_PID=$!
 
 # Wait for backend to accept connections
 echo "Waiting for backend…"
-until curl -sf http://localhost:3001/v1/campaigns > /dev/null 2>&1; do
+until curl -sf http://localhost:3001/v1/proposals > /dev/null 2>&1; do
   sleep 1
 done
 echo "Backend is ready."
