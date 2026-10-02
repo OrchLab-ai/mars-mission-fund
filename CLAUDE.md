@@ -32,6 +32,12 @@ tail -n 50 /workspace/logs/server.log   # API log; vite.log alongside it
 dbmate -d packages/server/db/migrations up   # Apply new migrations to the running database
 ```
 
+**Never stop, kill or start anything on the dev ports** — 3001 (API) and 5173 (site, or
+`$WORKSHOP_PORT` if the attendee moved it). That is the attendee's running app. To restart
+it, use `start-app.sh --restart`. For E2E, use `./scripts/run-e2e.sh`: it runs its own API
+and site on spare ports (3101 and 5273) against its own database, so it never needs the dev
+ports freed. If it says a port is taken, that is a leftover E2E run, not the dev servers.
+
 Save Playwright MCP screenshots to `/screenshots` — that folder is shared with the host.
 
 ## Common Commands
@@ -48,7 +54,7 @@ npm run dev:server              # Backend dev server only (port 3001)
 
 ```bash
 ./scripts/ci-check.sh           # Mirrors CI pipeline locally — run this before committing
-./scripts/run-e2e.sh            # Playwright E2E against its own throwaway database (works in the container)
+./scripts/run-e2e.sh            # Playwright E2E on its own database and ports (works in the container)
 ./scripts/e2e-check-docker.sh   # Full CI checks + E2E tests, entirely in Docker (host only)
 ```
 
@@ -70,8 +76,8 @@ npm run test                              # All unit tests
 npm run test:coverage                     # With coverage (80% threshold enforced)
 npx vitest run packages/client/src/components/Button.test.tsx  # Single test file
 npx vitest run --reporter=verbose -w packages/client            # All client tests verbose
-npm run test:e2e                          # Playwright E2E (auto-starts frontend; backend must be running)
-./scripts/run-e2e.sh                      # Full E2E flow on an isolated database: migrates, starts backend, runs Playwright, drops it
+npm run test:e2e                          # Playwright E2E on 5173/3001 (not in the workshop container — use run-e2e.sh)
+./scripts/run-e2e.sh                      # Full E2E flow on its own database and ports (3101/5273): migrates, starts backend, runs Playwright, drops it
 ```
 
 - Client tests: Vitest + Testing Library + jsdom (`packages/client/src/**/*.test.tsx`)
@@ -122,4 +128,6 @@ All implementation must align with the layered spec system in `specs/`. Read `sp
 | `DATABASE_URL` | PostgreSQL connection string | (required) |
 | `JWT_SECRET` | JWT signing key | (required) |
 | `PORT` | Server port | 3001 |
+| `API_PROXY_TARGET` | Where Vite forwards `/v1` | `http://localhost:3001` |
+| `E2E_API_PORT` / `E2E_WEB_PORT` | Ports `run-e2e.sh` uses for its API and site | 3101 / 5273 |
 | `NODE_ENV` | Environment | development |

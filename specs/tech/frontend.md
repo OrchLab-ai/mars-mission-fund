@@ -207,13 +207,13 @@ src/
     CampaignDetail.tsx # imports useCampaign(), never fetchCampaign()
 ```
 
-**Vite dev-server proxy**: `vite.config.ts` includes a `server.proxy` entry that forwards all `/v1` requests to `http://localhost:3001` during local development. This allows the frontend to call `/v1/campaigns` without CORS issues while the Express API server runs on port 3001.
+**Vite dev-server proxy**: `vite.config.ts` includes a `server.proxy` entry that forwards all `/v1` requests to `http://localhost:3001` during local development. This allows the frontend to call `/v1/campaigns` without CORS issues while the Express API server runs on port 3001. The target can be overridden with `API_PROXY_TARGET`; `scripts/run-e2e.sh` uses it to point an E2E Vite at the E2E API on its own port.
 
 ```ts
 // vite.config.ts (relevant excerpt)
 server: {
   proxy: {
-    '/v1': 'http://localhost:3001',
+    '/v1': process.env['API_PROXY_TARGET'] ?? 'http://localhost:3001',
   },
 },
 ```

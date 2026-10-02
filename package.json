@@ -26,7 +26,7 @@
     "eslint": "^9",
     "eslint-plugin-react": "^7",
     "eslint-plugin-react-hooks": "^5",
-    "markdownlint-cli2": "^0.21.0",
+    "markdownlint-cli2": "^0.23.3",
     "prettier": "^3",
     "typescript-eslint": "^8"
   }
