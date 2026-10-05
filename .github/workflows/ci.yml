@@ -88,7 +88,6 @@ jobs:
 
       - name: Audit
         # Fail only on high/critical advisories in production dependencies.
-        # Dev-only tools (vitest, markdownlint-cli2 -> markdown-it/yaml) and an
-        # unfixable moderate in a prod transitive (js-yaml via swagger-jsdoc, no
-        # patched release exists) don't block CI; prod high/critical still do.
+        # Dev-only tools (vitest, markdownlint-cli2 -> markdown-it/yaml) don't
+        # block CI; prod high/critical still do.
         run: npm audit --omit=dev --audit-level=high
