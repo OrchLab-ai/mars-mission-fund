@@ -128,6 +128,21 @@ export const MilestoneEvidenceSchema = z.object({
   submittedAt: z.coerce.date(),
 })
 
+// A creator's progress post on a proposal, as returned by the updates endpoints
+export const ProposalUpdateSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  body: z.string(),
+  authorName: z.string().nullable(),
+  createdAt: z.coerce.date(),
+})
+
+// Trimmed before the length checks, so whitespace-only input counts as empty
+export const CreateProposalUpdateRequestSchema = z.object({
+  title: z.string().trim().min(1).max(120),
+  body: z.string().trim().min(1).max(5000),
+})
+
 export const CreateMilestoneRequestSchema = z.object({
   title: z.string().min(1),
   description: z.string(),
@@ -164,6 +179,8 @@ export const UpdateProposalRequestSchema = CreateProposalRequestSchema.partial()
   .omit({ category: true })
   .extend({ category: ProposalCategorySchema.optional() })
 
+export type ProposalUpdate = z.infer<typeof ProposalUpdateSchema>
+export type CreateProposalUpdateRequest = z.infer<typeof CreateProposalUpdateRequestSchema>
 export type CreateMilestoneRequest = z.infer<typeof CreateMilestoneRequestSchema>
 export type CreateTeamMemberRequest = z.infer<typeof CreateTeamMemberRequestSchema>
 export type CreateProposalRequest = z.infer<typeof CreateProposalRequestSchema>

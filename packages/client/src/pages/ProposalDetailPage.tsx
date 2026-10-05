@@ -9,6 +9,7 @@ import { FundingProgressSection } from '../components/proposals/FundingProgressS
 import { MilestonesSection } from '../components/proposals/MilestonesSection'
 import { StretchGoalsSection } from '../components/proposals/StretchGoalsSection'
 import { TeamSection } from '../components/proposals/TeamSection'
+import { UpdatesSection } from '../components/proposals/UpdatesSection'
 import { ReviewActionsPanel } from '../components/proposals/ReviewActionsPanel'
 import { AdminActionsPanel } from '../components/proposals/AdminActionsPanel'
 import { useAuthContext } from '../context/AuthContext'
@@ -415,6 +416,14 @@ export function ProposalDetailPage() {
                   dangerouslySetInnerHTML={{ __html: proposal.description }}
                 />
               </Card>
+
+              <div style={sectionSpacingStyle}>
+                <UpdatesSection
+                  proposalId={proposal.id}
+                  creatorId={proposal.creatorId}
+                  user={user}
+                />
+              </div>
 
               <div style={sectionSpacingStyle}>
                 <TeamSection teamMembers={proposal.teamMembers} />

@@ -6,6 +6,7 @@ import {
   ProposalDetailSchema,
   CreateProposalRequestSchema,
   UpdateProposalRequestSchema,
+  CreateProposalUpdateRequestSchema,
 } from '@mmf/shared'
 
 export {
@@ -15,6 +16,7 @@ export {
   ProposalDetailSchema,
   CreateProposalRequestSchema,
   UpdateProposalRequestSchema,
+  CreateProposalUpdateRequestSchema,
 }
 export type {
   ProposalStatus,
@@ -23,6 +25,8 @@ export type {
   ProposalDetail,
   CreateProposalRequest,
   UpdateProposalRequest,
+  ProposalUpdate,
+  CreateProposalUpdateRequest,
 } from '@mmf/shared'
 
 export const RouteParamsSchema = z.object({
