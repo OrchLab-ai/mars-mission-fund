@@ -149,7 +149,7 @@ No external search provider is required.
 | swagger-jsdoc      | Generate OpenAPI spec from JSDoc annotations |
 | swagger-ui-express | Serve interactive API docs                   |
 
-> **Local demo note**: `swagger-jsdoc` and `swagger-ui-express` are installed in `packages/server` but not wired up; the demo serves no API docs.
+> **Local demo note**: the demo serves no API docs, so neither package is installed. They were removed unused: `swagger-jsdoc` pulled in a deprecated `glob` that warned on every install.
 
 ---
 
