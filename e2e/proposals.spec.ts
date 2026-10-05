@@ -10,7 +10,8 @@ test.describe('Proposal list', () => {
     await expect(grid).toBeVisible()
     const links = grid.locator('a')
     await expect(links.first()).toBeVisible()
-    await expect(page.getByText(SEEDED_PROPOSAL_TITLE)).toBeVisible()
+    // In the grid, not the page: it can also appear in Trending Missions above it.
+    await expect(grid.getByText(SEEDED_PROPOSAL_TITLE)).toBeVisible()
   })
 
   test('server error — shows alert, no proposal grid', async ({ page }) => {
@@ -73,7 +74,9 @@ test.describe('Proposal filters', () => {
     await page.waitForTimeout(600)
 
     await expect(page.getByText('1 mission found')).toBeVisible()
-    await expect(page.getByText(SEEDED_PROPOSAL_TITLE)).toBeVisible()
+    await expect(
+      page.getByLabel('Proposal listings').getByText(SEEDED_PROPOSAL_TITLE)
+    ).toBeVisible()
   })
 
   test('clicking a category pill narrows the list and sets URL param', async ({ page }) => {
@@ -90,7 +93,9 @@ test.describe('Proposal filters', () => {
     expect(page.url()).toContain('categories=Propulsion')
 
     // Proposal 1 is in Propulsion; it should be visible
-    await expect(page.getByText(SEEDED_PROPOSAL_TITLE)).toBeVisible()
+    await expect(
+      page.getByLabel('Proposal listings').getByText(SEEDED_PROPOSAL_TITLE)
+    ).toBeVisible()
   })
 
   test('clear filters restores full list and removes URL params', async ({ page }) => {

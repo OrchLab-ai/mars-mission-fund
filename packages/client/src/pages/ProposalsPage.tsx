@@ -3,6 +3,7 @@ import { useProposals } from '../hooks/useProposals'
 import type { ProposalFilterParams } from '../api/proposals'
 import { ProposalCard } from '../components/proposals/ProposalCard'
 import { ProposalFilters } from '../components/proposals/ProposalFilters'
+import { TrendingMissions } from '../components/proposals/TrendingMissions'
 
 const pageStyle: React.CSSProperties = {
   maxWidth: '1280px',
@@ -85,6 +86,7 @@ export function ProposalsPage() {
   ensureProposalsStyle()
   const [searchParams, setSearchParams] = useSearchParams()
   const filters = filtersFromParams(searchParams)
+  const hasActiveFilters = Boolean(filters.search) || Boolean(filters.categories)
   const { data: proposals, isLoading, isError } = useProposals(filters)
 
   function handleFiltersChange(f: ProposalFilterParams) {
@@ -98,6 +100,8 @@ export function ProposalsPage() {
     <section style={pageStyle}>
       <h1 style={headingStyle}>Explore Missions</h1>
       <p style={subheadingStyle}>Support the missions driving humanity toward Mars.</p>
+
+      {!hasActiveFilters && <TrendingMissions />}
 
       <ProposalFilters filters={filters} onFiltersChange={handleFiltersChange} />
 

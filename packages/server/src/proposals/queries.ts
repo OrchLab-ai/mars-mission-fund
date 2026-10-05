@@ -125,6 +125,15 @@ export async function listProposals(
 
   const where = conditions.length > 0 ? `WHERE ${conditions.join(' AND ')}` : ''
 
+  const orderBy =
+    filters.sort === 'contributors' ? 'contributor_count DESC, created_at DESC' : 'created_at DESC'
+
+  let limitClause = ''
+  if (filters.limit !== undefined) {
+    params.push(filters.limit)
+    limitClause = `LIMIT $${params.length}`
+  }
+
   const sql = `
     SELECT
       id,
@@ -141,7 +150,8 @@ export async function listProposals(
       created_by AS "createdBy"
     FROM proposals
     ${where}
-    ORDER BY created_at DESC
+    ORDER BY ${orderBy}
+    ${limitClause}
   `
 
   const result = await pool.query<ProposalSummary>(sql, params)

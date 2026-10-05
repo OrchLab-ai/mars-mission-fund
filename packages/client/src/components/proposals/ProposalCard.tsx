@@ -59,9 +59,10 @@ function truncateSummary(summary: string, maxLength = 120): string {
 
 interface ProposalCardProps {
   proposal: ProposalSummary
+  showContributors?: boolean
 }
 
-export function ProposalCard({ proposal }: ProposalCardProps) {
+export function ProposalCard({ proposal, showContributors = false }: ProposalCardProps) {
   const excerpt = truncateSummary(proposal.summary)
   const raised = formatUSD(proposal.raisedAmount)
   const goal = formatUSD(proposal.goalAmount)
@@ -81,6 +82,12 @@ export function ProposalCard({ proposal }: ProposalCardProps) {
       <p style={fundingStatusStyle}>
         Raised {raised} of {goal}
       </p>
+      {showContributors && (
+        <p style={timeRemainingStyle}>
+          {proposal.contributorCount.toLocaleString('en-US')}{' '}
+          {proposal.contributorCount === 1 ? 'contributor' : 'contributors'}
+        </p>
+      )}
       <p style={timeRemainingStyle}>{timeRemaining}</p>
       <Button variant="ghost" href={`/proposals/${proposal.id}`}>
         View Mission
