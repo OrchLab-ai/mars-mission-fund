@@ -1,7 +1,9 @@
-import { ProposalSummarySchema, ProposalDetailSchema } from '@mmf/shared'
+import { ProposalSummarySchema, ProposalDetailSchema, ProposalUpdateSchema } from '@mmf/shared'
 import type {
   ProposalSummary,
   ProposalDetail,
+  ProposalUpdate,
+  CreateProposalUpdateRequest,
   Milestone,
   StretchGoal,
   TeamMember,
@@ -13,6 +15,8 @@ import { authedFetch } from './client'
 export type {
   ProposalSummary,
   ProposalDetail,
+  ProposalUpdate,
+  CreateProposalUpdateRequest,
   Milestone,
   StretchGoal,
   TeamMember,
@@ -56,6 +60,26 @@ export async function fetchProposal(id: string): Promise<ProposalDetail> {
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   const json = await response.json()
   return ProposalDetailSchema.parse(json.data)
+}
+
+export async function fetchProposalUpdates(id: string): Promise<ProposalUpdate[]> {
+  const response = await fetch(`/v1/proposals/${id}/updates`)
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const json = await response.json()
+  return (json.data as unknown[]).map((item) => ProposalUpdateSchema.parse(item))
+}
+
+export async function postProposalUpdate(
+  id: string,
+  data: CreateProposalUpdateRequest
+): Promise<ProposalUpdate> {
+  const response = await authedFetch(`/v1/proposals/${id}/updates`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const json = await response.json()
+  return ProposalUpdateSchema.parse(json.data)
 }
 
 export async function fetchReviewQueue(): Promise<ProposalSummary[]> {

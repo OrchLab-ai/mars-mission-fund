@@ -169,6 +169,20 @@ CREATE TABLE public.proposal_team_members (
 
 
 --
+-- Name: proposal_updates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.proposal_updates (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    proposal_id uuid NOT NULL,
+    author_id uuid NOT NULL,
+    title text NOT NULL,
+    body text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
 -- Name: proposals; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -316,6 +330,14 @@ ALTER TABLE ONLY public.proposal_team_members
 
 
 --
+-- Name: proposal_updates proposal_updates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_updates
+    ADD CONSTRAINT proposal_updates_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: proposals proposals_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -374,6 +396,13 @@ CREATE INDEX idx_milestone_evidence_milestone_id ON public.milestone_evidence US
 --
 
 CREATE INDEX idx_notifications_user_id ON public.notifications USING btree (user_id);
+
+
+--
+-- Name: idx_proposal_updates_proposal_id_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_proposal_updates_proposal_id_created_at ON public.proposal_updates USING btree (proposal_id, created_at DESC);
 
 
 --
@@ -446,6 +475,22 @@ ALTER TABLE ONLY public.proposal_stretch_goals
 
 ALTER TABLE ONLY public.proposal_team_members
     ADD CONSTRAINT proposal_team_members_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
+
+
+--
+-- Name: proposal_updates proposal_updates_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_updates
+    ADD CONSTRAINT proposal_updates_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.accounts(id);
+
+
+--
+-- Name: proposal_updates proposal_updates_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_updates
+    ADD CONSTRAINT proposal_updates_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
 
 
 --
@@ -547,4 +592,5 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260311000016'),
     ('20260315000001'),
     ('20260322000001'),
-    ('20260401000001');
+    ('20260401000001'),
+    ('20260405000001');

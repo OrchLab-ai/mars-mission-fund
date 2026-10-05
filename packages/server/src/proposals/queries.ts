@@ -8,6 +8,8 @@ import {
   CreateProposalRequest,
   UpdateProposalRequest,
   SubmitEvidenceBody,
+  ProposalUpdate,
+  CreateProposalUpdateRequest,
 } from './types.js'
 
 function slugify(text: string): string {
@@ -253,6 +255,71 @@ export async function getProposalById(pool: Pool, id: string): Promise<ProposalD
   }
 
   return detail
+}
+
+// Returns null when the proposal does not exist, so the route can answer 404
+export async function listProposalUpdates(
+  pool: Pool,
+  proposalId: string
+): Promise<ProposalUpdate[] | null> {
+  const exists = await pool.query(`SELECT id FROM proposals WHERE id = $1`, [proposalId])
+  if (exists.rowCount === 0) {
+    return null
+  }
+
+  const result = await pool.query<ProposalUpdate>(
+    `SELECT
+      u.id,
+      u.title,
+      u.body,
+      a.display_name AS "authorName",
+      u.created_at AS "createdAt"
+    FROM proposal_updates u
+    JOIN accounts a ON a.id = u.author_id
+    WHERE u.proposal_id = $1
+    ORDER BY u.created_at DESC, u.id DESC`,
+    [proposalId]
+  )
+  return result.rows
+}
+
+type CreateUpdateResult = {
+  update: ProposalUpdate | null
+  reason: 'not_found' | 'forbidden' | null
+}
+
+export async function createProposalUpdate(
+  pool: Pool,
+  proposalId: string,
+  authorId: string,
+  data: CreateProposalUpdateRequest
+): Promise<CreateUpdateResult> {
+  const check = await pool.query(`SELECT id, creator_id FROM proposals WHERE id = $1`, [proposalId])
+
+  if (check.rowCount === 0) {
+    return { update: null, reason: 'not_found' }
+  }
+  if (check.rows[0].creator_id !== authorId) {
+    return { update: null, reason: 'forbidden' }
+  }
+
+  const result = await pool.query<ProposalUpdate>(
+    `WITH inserted AS (
+      INSERT INTO proposal_updates (proposal_id, author_id, title, body)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, author_id, title, body, created_at
+    )
+    SELECT
+      i.id,
+      i.title,
+      i.body,
+      a.display_name AS "authorName",
+      i.created_at AS "createdAt"
+    FROM inserted i
+    JOIN accounts a ON a.id = i.author_id`,
+    [proposalId, authorId, data.title, data.body]
+  )
+  return { update: result.rows[0]!, reason: null }
 }
 
 export async function createProposal(

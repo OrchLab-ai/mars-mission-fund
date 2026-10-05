@@ -7,6 +7,7 @@ import {
   SubmitRouteParamsSchema,
   CreateProposalRequestSchema,
   UpdateProposalRequestSchema,
+  CreateProposalUpdateRequestSchema,
   ApproveBodySchema,
   RejectBodySchema,
   ContributeBodySchema,
@@ -21,6 +22,8 @@ import {
   updateProposal,
   deleteProposal,
   submitProposal,
+  listProposalUpdates,
+  createProposalUpdate,
   getReviewQueue,
   claimProposal,
   approveProposal,
@@ -325,6 +328,97 @@ export function createProposalRouter(pool: Pool): Router {
         return next(err)
       }
       res.json({ data: proposal })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.get('/:id/updates', async (req, res, next) => {
+    const parsed = RouteParamsSchema.safeParse(req.params)
+    if (!parsed.success) {
+      const err = Object.assign(new Error('Invalid proposal ID'), {
+        status: 400,
+        code: 'INVALID_PROPOSAL_ID',
+        details: parsed.error.flatten(),
+      })
+      return next(err)
+    }
+
+    try {
+      const updates = await listProposalUpdates(pool, parsed.data.id)
+      if (updates === null) {
+        const err = Object.assign(new Error('Proposal not found'), {
+          status: 404,
+          code: 'PROPOSAL_NOT_FOUND',
+          details: {},
+        })
+        return next(err)
+      }
+      res.json({ data: updates })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.post('/:id/updates', authenticate, requireRole('Creator'), async (req, res, next) => {
+    const paramsParsed = RouteParamsSchema.safeParse(req.params)
+    if (!paramsParsed.success) {
+      const err = Object.assign(new Error('Invalid proposal ID'), {
+        status: 400,
+        code: 'INVALID_PROPOSAL_ID',
+        details: paramsParsed.error.flatten(),
+      })
+      return next(err)
+    }
+
+    const bodyParsed = CreateProposalUpdateRequestSchema.safeParse(req.body)
+    if (!bodyParsed.success) {
+      const err = Object.assign(new Error('Invalid request body'), {
+        status: 400,
+        code: 'INVALID_REQUEST_BODY',
+        details: bodyParsed.error.flatten(),
+      })
+      return next(err)
+    }
+
+    const user = res.locals['user'] as { id: string }
+
+    try {
+      const result = await createProposalUpdate(
+        pool,
+        paramsParsed.data.id,
+        user.id,
+        bodyParsed.data
+      )
+
+      if (result.reason === 'not_found') {
+        const err = Object.assign(new Error('Proposal not found'), {
+          status: 404,
+          code: 'PROPOSAL_NOT_FOUND',
+          details: {},
+        })
+        return next(err)
+      }
+      if (result.reason === 'forbidden') {
+        const err = Object.assign(new Error('Forbidden'), {
+          status: 403,
+          code: 'FORBIDDEN',
+          details: {},
+        })
+        return next(err)
+      }
+
+      await writeAuditEvent(pool, {
+        action: 'proposal.update_posted',
+        actorId: user.id,
+        actorType: 'Creator',
+        resourceType: 'proposal',
+        resourceId: paramsParsed.data.id,
+        outcome: 'success',
+        newState: { updateId: result.update!.id },
+      })
+
+      res.status(201).json({ data: result.update })
     } catch (err) {
       next(err)
     }
