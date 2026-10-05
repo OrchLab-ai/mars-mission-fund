@@ -46,6 +46,8 @@ export const ListQuerySchema = z.object({
     .optional(),
   search: z.string().max(200).optional(),
   createdBy: z.literal('me').optional(),
+  sort: z.enum(['newest', 'contributors']).optional(),
+  limit: z.coerce.number().int().min(1).max(50).optional(),
 })
 
 export const ContributeBodySchema = z.object({

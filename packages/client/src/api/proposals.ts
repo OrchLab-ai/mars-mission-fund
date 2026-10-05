@@ -37,6 +37,20 @@ export async function fetchProposals(filters?: ProposalFilterParams): Promise<Pr
   return (json.data as unknown[]).map((item) => ProposalSummarySchema.parse(item))
 }
 
+export const TRENDING_LIMIT = 3
+
+export async function fetchTrendingProposals(): Promise<ProposalSummary[]> {
+  const params = new URLSearchParams({
+    status: 'Live',
+    sort: 'contributors',
+    limit: String(TRENDING_LIMIT),
+  })
+  const response = await fetch(`/v1/proposals?${params.toString()}`)
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const json = await response.json()
+  return (json.data as unknown[]).map((item) => ProposalSummarySchema.parse(item))
+}
+
 export async function fetchProposal(id: string): Promise<ProposalDetail> {
   const response = await fetch(`/v1/proposals/${id}`)
   if (!response.ok) throw new Error(`HTTP ${response.status}`)

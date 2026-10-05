@@ -255,6 +255,43 @@ describe('Proposal Routes', () => {
       expect(res.body.data).toHaveLength(1)
     })
 
+    it('orders by contributor count and applies a limit when sort=contributors&limit=3', async () => {
+      mockQuery.mockResolvedValueOnce({ rows: [mockProposalSummary], rowCount: 1 })
+
+      const res = await request(app).get('/v1/proposals?status=Live&sort=contributors&limit=3')
+
+      expect(res.status).toBe(200)
+      const [sql, params] = mockQuery.mock.calls[0] as [string, unknown[]]
+      expect(sql).toMatch(/ORDER BY contributor_count DESC, created_at DESC/)
+      expect(sql).toMatch(/LIMIT \$2/)
+      expect(params).toEqual(['Live', 3])
+    })
+
+    it('defaults to newest-first with no limit when sort and limit are omitted', async () => {
+      mockQuery.mockResolvedValueOnce({ rows: [mockProposalSummary], rowCount: 1 })
+
+      await request(app).get('/v1/proposals')
+
+      const [sql] = mockQuery.mock.calls[0] as [string, unknown[]]
+      expect(sql).toMatch(/ORDER BY created_at DESC/)
+      expect(sql).not.toMatch(/LIMIT/)
+    })
+
+    it('returns 400 INVALID_QUERY_PARAMS for an unknown sort value', async () => {
+      const res = await request(app).get('/v1/proposals?sort=popularity')
+
+      expect(res.status).toBe(400)
+      expect(res.body.error.code).toBe('INVALID_QUERY_PARAMS')
+    })
+
+    it('returns 400 INVALID_QUERY_PARAMS when limit is out of range', async () => {
+      const zero = await request(app).get('/v1/proposals?limit=0')
+      const huge = await request(app).get('/v1/proposals?limit=1000')
+
+      expect(zero.status).toBe(400)
+      expect(huge.status).toBe(400)
+    })
+
     it('returns 200 with empty array when filters match no proposals', async () => {
       mockQuery.mockResolvedValueOnce({ rows: [], rowCount: 0 })
 
