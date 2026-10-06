@@ -20,9 +20,6 @@ test-results
 .[Pp]laywright
 .[Pp]laywright-mcp
 
-# Autonomous agent (not needed for app/CI)
-autonomous
-
 # Logs
 *.log
 .logs
