@@ -27,11 +27,24 @@ fi
 # stderr goes to the terminal and run.log so claude's own errors are not lost.
 # stdout (the event stream) is kept whole in events.jsonl, outside the worktree.
 cd "$work"
+
+# The settings file is read from the original checkout, not the worktree, so the agent
+# cannot edit its own rules. --setting-sources local keeps the project's
+# .claude/settings.json (which allows curl and git push) out; dontAsk refuses anything
+# not allowed instead of waiting for an answer nobody gives.
+if [ "${HARNESS_YOLO:-}" = 1 ]; then
+  echo "permissions: OFF (HARNESS_YOLO=1)"
+  perm_args=(--dangerously-skip-permissions)
+else
+  echo "permissions: harness/settings.json"
+  perm_args=(--settings "$repo/harness/settings.json" --setting-sources local --permission-mode dontAsk)
+fi
+
 timeout "${TIMEOUT_SECONDS:-900}" claude -p "$(cat "$task_file")" \
   --output-format stream-json --verbose \
   --max-turns "${MAX_TURNS:-25}" \
   --model "${HARNESS_MODEL:-sonnet}" \
-  --dangerously-skip-permissions \
+  "${perm_args[@]}" \
   </dev/null 2> >(tee -a "$log" >&2) |
   tee "$run/events.jsonl" |
   # One line per tool call: its name and the command or path it works on.
