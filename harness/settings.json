@@ -40,7 +40,15 @@
       "Read(//etc/**)",
       "Read(//proc/**)",
       "Read(//tmp/**)",
-      "Edit(//tmp/**)"
+      "Edit(//tmp/**)",
+      "Agent",
+      "mcp__playwright__*",
+      "Bash(node -e:*)",
+      "Bash(node -p:*)",
+      "Bash(node --eval:*)",
+      "Bash(node --print:*)",
+      "Bash(python -c:*)",
+      "Bash(python3 -c:*)"
     ]
   }
 }
