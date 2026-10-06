@@ -52,4 +52,10 @@ echo "branch: $branch"
 jq -r 'select(.type == "result")
   | "model:  \(.modelUsage // {} | keys | join(", "))\nturns:  \(.num_turns)"
     + (if .total_cost_usd then "\ncost:   $\(.total_cost_usd)" else "" end)' "$run/events.jsonl"
+
+# The agent's own closing message - its answer to the task - kept with the record.
+# -R/fromjson? so a half-written last line after a timeout cannot stop it.
+echo "--- result (also in $run/result.md)"
+jq -R -r 'fromjson? | select(.type == "result") | .result // empty' "$run/events.jsonl" |
+  tee "$run/result.md"
 exit "$status"
