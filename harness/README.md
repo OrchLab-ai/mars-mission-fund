@@ -66,3 +66,28 @@ directly. Rules on paths cover Claude's file tools and the Bash commands it can 
 **Switch:** `HARNESS_YOLO=1 harness/run-task.sh <task>` restores
 `--dangerously-skip-permissions` and prints `permissions: OFF (HARNESS_YOLO=1)`. Use it only
 here, in the container.
+
+The deny list also covers starting another `claude`, the Agent tool (subagents), the
+Playwright MCP browser tools, and inline interpreters (`node -e`, `node -p`, `python -c`,
+`python3 -c`).
+
+## What this does not stop
+
+`harness/settings.json` filters the tool calls Claude Code makes. It does not confine the
+processes those calls start. A deny list only names what someone thought of, so each route
+below stays open. The container is the real boundary; this file is a seat belt inside it.
+
+| Route a deny list cannot close | Why | Container-level control |
+|---|---|---|
+| **Any allowed command that runs code the agent can edit**: `npm test`, `npx vitest`, `npm run build`, `npm run lint` | The agent writes a test, a config or an npm script, then runs it. That code runs as the same user with the same network and environment, and can fetch URLs, read variables, write outside the worktree or start `claude`. The probe's probe 5 is this route. | An egress allow-list, a read-only filesystem outside the worktree and a non-root user, below. Nothing in this file helps: the command is allowed. |
+| Reaching the network by any other program or script (other binaries, `/dev/tcp`, a language runtime, a package install script) | Denying `curl` and `wget` blocks two names, not the capability. | An egress allow-list so only the model API is reachable. |
+| Reading the credential (`/proc/<pid>/environ`, a child process, a config file under a path that is not denied) | The key must be in the process that runs `claude`, and its children inherit it. Denied paths and `env` cover a few reads of it. | Keep the credential out of the agent's environment: a proxy or sidecar outside the agent's process tree adds it to model requests. |
+| Writing outside the worktree from allowed code (`/tmp`, your original checkout, `$HOME`) | Path rules apply to Claude's file tools and the Bash commands it can parse, not to what a test does at runtime. | A read-only filesystem outside the worktree, with only the worktree and a scratch directory writable. |
+| Privilege: `sudo` is denied, but setuid binaries, a root-owned socket or running as root make that moot | The rule blocks a command name, not a privilege. | Run as a non-root user with no sudo, no extra capabilities and `no-new-privileges`. |
+| Running Claude Code again from inside allowed code (a test that runs `claude -p`, or `npx` fetching another agent) | `Bash(claude:*)` and the Agent deny match tool calls and command names only. | An egress allow-list, and a non-root user with no credential in its environment: a second process then has no key and no route out. |
+| Names nobody listed: `bash -c`, `sh -c`, `perl -e`, `npx tsx -e`, a renamed binary | Deny rules match command patterns, and inline interpreters have many spellings. | The same controls; they limit what any process can do, whatever it is called. |
+
+So a non-root user, a credential kept out of the agent's environment, an egress allow-list
+and a read-only filesystem outside the worktree each close a route the deny list cannot.
+Until they are in place, treat a harness run as able to do anything the container user can
+do, and keep `HARNESS_YOLO=1` for work you would run by hand anyway.
