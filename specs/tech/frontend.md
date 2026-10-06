@@ -487,11 +487,11 @@ There is no user-togglable light mode for the main application.
 
 The brand typography defined in [Brand Application Standard](L2-001) Section 1.3 requires loading three web fonts:
 
-| Font       | Identity Token   | Usage                                    |
-| ---------- | ---------------- | ---------------------------------------- |
-| Bebas Neue | `--font-display` | Display headings, hero text, stat values |
-| DM Sans    | `--font-body`    | Body text, buttons, card titles          |
-| Space Mono | `--font-data`    | Labels, data values, mission codes       |
+| Font          | Identity Token   | Usage                                                           |
+| ------------- | ---------------- | --------------------------------------------------------------- |
+| Archivo       | `--font-display` | Display headings, hero text, stat values (expanded width, bold) |
+| IBM Plex Sans | `--font-body`    | Body text, buttons, card titles                                 |
+| IBM Plex Mono | `--font-data`    | Labels, data values, mission codes                              |
 
 Font loading implementation:
 
@@ -502,11 +502,13 @@ Rationale: self-hosting avoids a third-party font CDN dependency and keeps the f
 
 `font-display` strategy per font:
 
-- `font-display: swap` for DM Sans (body font) — prevents invisible text while the font loads.
-- `font-display: optional` for Bebas Neue (display font) on slow connections — a fallback is acceptable for display headings.
-- `font-display: swap` for Space Mono (data font).
+- `font-display: swap` for IBM Plex Sans (body font) — prevents invisible text while the font loads.
+- `font-display: swap` for Archivo (display font) — the headline carries the brand's sense of scale, so it is not left on a fallback.
+- `font-display: swap` for IBM Plex Mono (data font).
 
-Font preload hint (`<link rel="preload">` in `packages/client/index.html`) is applied to DM Sans 400 as the critical path font for body text rendering.
+Archivo is one variable WOFF2 file with a width axis. Its `@font-face` declares `font-weight: 700` and `font-stretch: 125%` as single values, which pins the face to expanded bold.
+
+Font preload hint (`<link rel="preload">` in `packages/client/index.html`) is applied to IBM Plex Sans 400 as the critical path font for body text rendering.
 
 ### 9.2 Image Optimisation
 

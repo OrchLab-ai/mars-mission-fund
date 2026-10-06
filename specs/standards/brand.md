@@ -1,559 +1,313 @@
 # Brand Application Standard
 
 > **Spec ID**: L2-001
-> **Version**: 1.3
-> **Status**: Approved
+> **Version**: 2.0 (rebrand)
+> **Status**: Draft — awaiting approval
 > **Rate of Change**: Monthly / standard reviews
-> **Depends On**: L1-001 (Product Vision & Mission), Brand Guidelines (mars-mission-fund-brand.html)
+> **Depends On**: L1-001 (Product Vision & Mission)
 > **Depended On By**: L3-005 (tech/frontend.md), L4-001 (domain/account.md), L4-002 (domain/proposal.md), L4-003 (domain/donor.md)
 
 ---
 
 ## Purpose
 
-> **Local demo scope**: The token architecture, semantic mappings, and component specifications are **real** — they drive the local demo's UI implementation. Voice-in-product patterns guide all user-facing copy. Accessibility requirements apply fully. Logo placement and dark mode exception contexts (email, PDF) are theatre.
+This document is the brand source of truth for Mars Mission Fund and defines how it becomes design tokens. Version 2.0 is a rebrand from a blank page, produced by interview. It **replaces** the Launchfire / Bebas Neue / DM Sans identity of v1.3 and the `mars-mission-fund-brand.html` specimen, which is now out of date.
 
-This document defines how the Mars Mission Fund brand system is applied within the product. It translates the brand guidelines (the source of truth for visual identity) into actionable rules for product design and implementation.
-
-**This document does not duplicate the brand guidelines.** It specifies the two-tier token architecture, component-to-token mappings, voice-in-product patterns, and accessibility requirements. For design token values, logo usage rules, and visual specimens, reference the brand guidelines directly.
-
-**Source of truth for brand identity**: `mars-mission-fund-brand.html`
-
----
-
-## Token Architecture
-
-The product uses a **two-tier token system**. This is the most important architectural decision in this spec.
-
-**Tier 1 — Identity Tokens**: Named for the brand vocabulary. Defined in the brand guidelines. These are the raw palette — colours, fonts, timing curves. They are **never referenced directly in component code**.
-
-**Tier 2 — Semantic Tokens**: Named for purpose and intent. Defined in this spec. These map to identity tokens and are the **only layer components are allowed to consume**.
+The token architecture is unchanged: **Tier 1 identity tokens** hold raw values and are never used in component code. **Tier 2 semantic tokens** map to them and are the only layer components may reference.
 
 ```text
 Component code → Semantic token → Identity token → Raw value
 
-Button background → --color-action-primary → --launchfire → #FF5C1A
+Pledge button background → --color-action-primary → --amber → #F5A524
 ```
 
-**Why two tiers?**
+---
 
-- If the brand evolves and "primary action" shifts from Launchfire to a different colour, one mapping changes — not every component.
-- Agents building UI reach for the semantic name matching their intent, not the brand vocabulary.
-- Misuse becomes structurally impossible: components cannot reference `--launchfire` directly, so a developer cannot accidentally use the primary action colour for an error state.
+## 1. Audience and Feeling
 
-**Rule**: Component code, stylesheets, and UI implementations must **only** reference Tier 2 semantic tokens. Direct references to Tier 1 identity tokens in component code are a spec violation.
+**Audience.** Priya, 34, a software engineer who follows every Starship test and arrives from a post about a team that needs funding. She is technical and skeptical, has about $50 and two minutes, and is deciding whether the project is real, whether it is progressing, and whether her money moves it forward. If the site looks like hype or a generic crowdfunding page, she closes the tab.
+
+### Feelings, in priority order
+
+| Feeling    | Reference                                                     | Expressed through                                  |
+| ---------- | ------------------------------------------------------------- | -------------------------------------------------- |
+| Awe        | Standing under the Saturn V at Kennedy Space Center           | Scale: large headlines, real photography           |
+| Competence | A mission-control livestream: telemetry, calm, precise        | Mono data, instrument-like cards, restrained motion |
+| Belonging  | A name on the list sent to Mars aboard Perseverance           | Backer counts and names, the pledge moment         |
+
+**Test for every decision:** it should feel like joining a mission, not buying a product. What this site has that generic crowdfunding does not is engineering progress you can watch, so milestones, test results and team updates are the hero content.
 
 ---
 
-## 1. Tier 1 — Identity Tokens (Brand Reference)
+## 2. Tier 1 — Identity Tokens
 
-These tokens are defined in the brand guidelines and reproduced here as a reference for the semantic mapping in Section 2. They form the brand's visual vocabulary. Do not reference these in component code.
+Do not reference these in component code.
 
-### 1.1 Colour Identity Tokens
+### 2.1 Colour
 
-#### Deep Space — Foundation
+The base is a deep blue-black, like the sky in the hour after sunset, never pure black. Neutrals lean cool blue so the page reads as one night sky with the amber glowing out of it.
 
-| Identity Token | Value     | Brand Role                          |
-| -------------- | --------- | ----------------------------------- |
-| `--void`       | `#060A14` | Deepest space, maximum contrast     |
-| `--deep-space` | `#0B1628` | Dark foundation, secondary depth    |
-| `--nebula`     | `#0E2040` | Elevated dark, atmospheric depth    |
-| `--orbit`      | `#1A3A6E` | Mid-depth blue, structural emphasis |
+| Identity Token   | Value     | Role                                                              |
+| ---------------- | --------- | ----------------------------------------------------------------- |
+| `--night`        | `#0B1220` | Page base                                                         |
+| `--console`      | `#121B2D` | Card surface, one step lighter                                    |
+| `--console-high` | `#1A2540` | Raised surface (hover, dropdowns)                                 |
+| `--hairline`     | `#2A3750` | Faint 1px edge, only where two surfaces need a clear edge         |
+| `--slate-edge`   | `#5A6B88` | Interactive control borders (meets 3:1 non-text contrast)         |
+| `--starlight`    | `#E8EDF5` | Primary text                                                      |
+| `--blue-grey`    | `#9AA8BF` | Secondary text, labels                                            |
+| `--amber`        | `#F5A524` | Hue ~38. Things in motion and the main action                     |
+| `--amber-bright` | `#FFB84D` | Amber hover state                                                 |
+| `--amber-deep`   | `#D98A0F` | Amber pressed state                                               |
+| `--teal`         | `#2BBFA4` | Done and verified, a calm "go" light                              |
+| `--brick`        | `#E0735A` | Muted rust red. Stop: errors and destructive actions only         |
 
-#### Launch Fire — Energy
+No decorative gradients and no glow effects are defined. Surfaces and fills are flat colour.
 
-| Identity Token | Value     | Brand Role                           |
-| -------------- | --------- | ------------------------------------ |
-| `--launchfire` | `#FF5C1A` | Primary brand energy, ignition point |
-| `--ignition`   | `#FF8C42` | Secondary warmth, sustained energy   |
-| `--afterburn`  | `#FFB347` | Trailing warmth, gradient endpoint   |
-| `--red-planet` | `#C1440E` | Mars surface, deep warmth            |
+### 2.2 Typography
 
-#### Metallic Silver — Trust & Finish
+| Identity Token   | Value                                                                | Role                          |
+| ---------------- | -------------------------------------------------------------------- | ----------------------------- |
+| `--font-display` | `'Archivo', sans-serif` at `font-stretch: 125%` (expanded), wght 700 | Monumental but engineered     |
+| `--font-body`    | `'IBM Plex Sans', sans-serif`                                        | Calm, readable at length      |
+| `--font-data`    | `'IBM Plex Mono', monospace`                                         | Telemetry-style numbers only  |
 
-| Identity Token | Value     | Brand Role                        |
-| -------------- | --------- | --------------------------------- |
-| `--chrome`     | `#E8EDF5` | Brightest metallic, primary light |
-| `--silver`     | `#C8D0DC` | Mid metallic, secondary light     |
-| `--stardust`   | `#8A96A8` | Muted metallic, tertiary light    |
-| `--white`      | `#F5F8FF` | Near-white, maximum light         |
+All three are free on Google Fonts. Load Archivo as the variable font with the width axis (`wdth` 62–125) so the expanded width is available; fall back to Archivo Expanded static cuts if the axis is unavailable.
 
-#### Mission Outcomes
+### 2.3 Shape, Motion
 
-| Identity Token   | Value     | Brand Role                            |
-| ---------------- | --------- | ------------------------------------- |
-| `--success`      | `#2FE8A2` | Mission complete green                |
-| `--success-deep` | `#1AB878` | Deep success green, gradient endpoint |
-| `--signal-blue`  | `#5B8FD8` | Communication indicator blue          |
+| Identity Token      | Value                     |
+| ------------------- | ------------------------- |
+| `--radius-panel`    | 4px                       |
+| `--hairline-width`  | 1px                       |
+| `--duration-fast`   | 150ms                     |
+| `--duration-base`   | 300ms                     |
+| `--duration-fill`   | 500ms                     |
+| `--easing-out`      | `cubic-bezier(0.25, 1, 0.5, 1)` |
 
-### 1.2 Gradient Identity Tokens
-
-| Identity Token           | Value                                                                         |
-| ------------------------ | ----------------------------------------------------------------------------- |
-| `--grad-launch-sequence` | `linear-gradient(135deg, #FF5C1A, #FF8C42, #FFB347)`                          |
-| `--grad-deep-field`      | `linear-gradient(135deg, #060A14, #0E2040, #1A3A6E)`                          |
-| `--grad-metallic-sheen`  | `linear-gradient(135deg, #E8EDF5, #C8D0DC, #8A96A8)`                          |
-| `--grad-mars-atmosphere` | `linear-gradient(135deg, #C1440E, #FF5C1A, #FF8C42)`                          |
-| `--grad-night-launch`    | `linear-gradient(135deg, #060A14 0%, #0B1628 50%, rgba(255,92,26,0.15) 100%)` |
-| `--grad-mission-success` | `linear-gradient(135deg, #0B1628, rgba(47,232,162,0.2), #0B1628)`             |
-
-### 1.3 Typography Identity Tokens
-
-| Identity Token   | Value                  | Brand Role                  |
-| ---------------- | ---------------------- | --------------------------- |
-| `--font-display` | Bebas Neue, sans-serif | Commanding display presence |
-| `--font-body`    | DM Sans, sans-serif    | Intelligent readability     |
-| `--font-data`    | Space Mono, monospace  | Technical precision         |
-
-### 1.4 Motion Identity Tokens
-
-| Identity Token      | Value                               |
-| ------------------- | ----------------------------------- |
-| `--duration-fast`   | 150ms                               |
-| `--duration-base`   | 300ms                               |
-| `--duration-medium` | 500ms                               |
-| `--duration-slow`   | 800ms                               |
-| `--easing-out`      | `cubic-bezier(0.25, 1, 0.5, 1)`     |
-| `--easing-spring`   | `cubic-bezier(0.34, 1.56, 0.64, 1)` |
-
-### 1.5 Radius Identity Tokens
-
-| Identity Token  | Value |
-| --------------- | ----- |
-| `--radius-sm`   | 8px   |
-| `--radius-md`   | 12px  |
-| `--radius-lg`   | 16px  |
-| `--radius-xl`   | 20px  |
-| `--radius-2xl`  | 24px  |
-| `--radius-full` | 100px |
+There is no spring easing. Nothing bounces.
 
 ---
 
-## 2. Tier 2 — Semantic Tokens (Component Consumption Layer)
+## 3. Tier 2 — Semantic Tokens
 
-These are the only tokens components may reference. Each maps to a Tier 1 identity token. When the brand evolves, these mappings change — component code does not.
+### 3.1 Colour — Actions
 
-**Opacity convention**: Where a semantic token derives from an identity token at reduced opacity, it is written as `{identity-token} / {opacity%}` (e.g., `--launchfire / 35%`). At build time this resolves to the corresponding `rgba()` value.
+| Semantic Token                  | Maps To           | Usage                                              |
+| ------------------------------- | ----------------- | -------------------------------------------------- |
+| `--color-action-primary`        | `--amber`         | Pledge and primary CTA backgrounds, links          |
+| `--color-action-primary-hover`  | `--amber-bright`  | Hover on primary actions                           |
+| `--color-action-primary-active` | `--amber-deep`    | Pressed                                            |
+| `--color-action-primary-text`   | `--night`         | Text on amber (9.2:1)                              |
+| `--color-action-secondary-text` | `--starlight`     | Secondary button text                              |
+| `--color-action-secondary-border` | `--slate-edge`  | Secondary button border                            |
+| `--color-action-disabled`       | `--blue-grey / 40%` | Inactive controls                                |
+| `--color-focus-ring`            | `--amber`         | 2px outline, 2px offset, on every focusable element |
 
-### 2.1 Colour — Actions
+### 3.2 Colour — Status
 
-| Semantic Token                    | Maps To                     | Usage                                      |
-| --------------------------------- | --------------------------- | ------------------------------------------ |
-| `--color-action-primary`          | `--launchfire`              | Primary CTA backgrounds, interactive links |
-| `--color-action-primary-hover`    | `--ignition`                | Hover/focus state on primary actions       |
-| `--color-action-primary-text`     | `--white`                   | Text on primary action backgrounds         |
-| `--color-action-primary-shadow`   | `--launchfire / 35%`        | Drop shadow on primary CTAs                |
-| `--color-action-secondary-bg`     | `--white / 6%`              | Secondary button background                |
-| `--color-action-secondary-text`   | `--silver`                  | Secondary button text                      |
-| `--color-action-secondary-border` | `--white / 12%`             | Secondary button border                    |
-| `--color-action-ghost-text`       | `--ignition`                | Ghost button text                          |
-| `--color-action-ghost-border`     | `--launchfire / 30%`        | Ghost button border                        |
-| `--color-action-disabled`         | `--stardust` at 50% opacity | Inactive buttons, disabled inputs          |
+| Semantic Token            | Maps To        | Usage                                                              |
+| ------------------------- | -------------- | ------------------------------------------------------------------ |
+| `--color-status-active`   | `--amber`      | In motion: live proposal, funding in progress                      |
+| `--color-status-verified` | `--teal`       | Done: milestone verified, test passed, proposal funded             |
+| `--color-status-error`    | `--brick`      | Errors and destructive actions. Always with an icon and a label    |
+| `--color-status-warning`  | `--blue-grey`  | Warnings are outlined with an icon and a label. Never amber-filled |
 
-### 2.2 Colour — Status
+### 3.3 Colour — Surfaces, Text, Borders
 
-| Semantic Token                  | Maps To              | Usage                                                    |
-| ------------------------------- | -------------------- | -------------------------------------------------------- |
-| `--color-status-success`        | `--success`          | Funded, milestone complete, transaction confirmed        |
-| `--color-status-success-bg`     | `--success / 12%`    | Success badge/card background                            |
-| `--color-status-success-border` | `--success / 20%`    | Success badge/card border                                |
-| `--color-status-error`          | `--red-planet`       | Validation errors, failed transactions, proposal failure |
-| `--color-status-warning`        | `--afterburn`        | Deadline approaching, proposal ending soon               |
-| `--color-status-info`           | `--orbit`            | Neutral informational badges, help text                  |
-| `--color-status-active`         | `--launchfire`       | Live proposal indicator dot                              |
-| `--color-status-active-bg`      | `--launchfire / 12%` | Active badge background                                  |
-| `--color-status-active-border`  | `--launchfire / 20%` | Active badge border                                      |
-| `--color-status-new`            | `--signal-blue`      | New mission indicator dot                                |
-| `--color-status-new-bg`         | `--orbit / 40%`      | New mission badge background                             |
-| `--color-status-new-border`     | `--orbit / 60%`      | New mission badge border                                 |
+| Semantic Token           | Maps To          | Usage                                         |
+| ------------------------ | ---------------- | --------------------------------------------- |
+| `--color-bg-page`        | `--night`        | Page background                               |
+| `--color-bg-surface`     | `--console`      | Cards, panels, modals                         |
+| `--color-bg-elevated`    | `--console-high` | Hover on cards, dropdowns                     |
+| `--color-text-primary`   | `--starlight`    | Headlines and primary content                 |
+| `--color-text-secondary` | `--blue-grey`    | Secondary text, small quiet labels            |
+| `--color-text-data`      | `--starlight`    | Mono figures                                  |
+| `--color-border-subtle`  | `--hairline`     | Card edges, dividers                          |
+| `--color-border-input`   | `--slate-edge`   | Form input borders                            |
 
-### 2.3 Colour — Surfaces
+### 3.4 Colour — Progress
 
-| Semantic Token        | Maps To        | Usage                                               |
-| --------------------- | -------------- | --------------------------------------------------- |
-| `--color-bg-page`     | `--void`       | Primary page background                             |
-| `--color-bg-surface`  | `--deep-space` | Cards, modals, secondary panels                     |
-| `--color-bg-elevated` | `--nebula`     | Hover states on cards, dropdowns, elevated surfaces |
-| `--color-bg-overlay`  | `--void / 90%` | Modal overlays, navigation backdrop                 |
-| `--color-bg-input`    | `--white / 4%` | Form input backgrounds                              |
-| `--color-bg-accent`   | `--orbit`      | Table headers, emphasis blocks                      |
+| Semantic Token              | Maps To      | Usage                                           |
+| --------------------------- | ------------ | ----------------------------------------------- |
+| `--color-progress-fill`     | `--amber`    | In-progress bar. Same colour as the pledge button, because the button is how you move the bar |
+| `--color-progress-complete` | `--teal`     | Verified or complete                            |
+| `--color-progress-track`    | `--hairline` | Bar track                                       |
 
-### 2.4 Colour — Text
+### 3.5 Typography
 
-| Semantic Token           | Maps To        | Usage                                                                   |
-| ------------------------ | -------------- | ----------------------------------------------------------------------- |
-| `--color-text-primary`   | `--chrome`     | Headlines, primary content on dark backgrounds                          |
-| `--color-text-secondary` | `--silver`     | Body text, descriptions, secondary content                              |
-| `--color-text-tertiary`  | `--stardust`   | Metadata, timestamps, placeholders, labels                              |
-| `--color-text-accent`    | `--launchfire` | Section labels, highlighted links (large text only — see Accessibility) |
-| `--color-text-on-action` | `--white`      | Text on primary action backgrounds                                      |
-| `--color-text-success`   | `--success`    | Positive financial indicators, funded text                              |
-| `--color-text-error`     | `--red-planet` | Error messages, failed transaction text                                 |
-| `--color-text-warning`   | `--afterburn`  | Urgency indicators, deadline text                                       |
+Each entry expands into `-size`, `-weight`, `-leading`, `-spacing` and `-family` CSS variables.
 
-**Rule**: Text hierarchy must follow `--color-text-primary` then `--color-text-secondary` then `--color-text-tertiary`. Never use tertiary for primary content or primary for metadata.
+| Semantic Token           | Family           | Size            | Weight | Notes                                                        |
+| ------------------------ | ---------------- | --------------- | ------ | ------------------------------------------------------------ |
+| `--type-hero`            | `--font-display` | 72px (32px mobile) | 700 | Uppercase or tight title case. Landing hero only. Use sparingly |
+| `--type-page-title`      | `--font-display` | 48px            | 700    | Uppercase or tight title case                                |
+| `--type-section-heading` | `--font-display` | 32px            | 700    | Uppercase or tight title case                                |
+| `--type-card-title`      | `--font-body`    | 20px            | 600    |                                                              |
+| `--type-body`            | `--font-body`    | 16px            | 400    | line-height 1.7, sentence case                               |
+| `--type-body-small`      | `--font-body`    | 14px            | 400    | line-height 1.6                                              |
+| `--type-button`          | `--font-body`    | 14px            | 600    | Sentence case                                                |
+| `--type-label`           | `--font-body`    | 12px            | 500    | Small and quiet, sentence case                               |
+| `--type-data`            | `--font-data`    | 14px            | 400    | Funding totals, backer counts, timestamps, countdowns, percentages |
+| `--type-data-large`      | `--font-data`    | 32px            | 500    | The headline figure in a card                                |
 
-### 2.5 Colour — Borders & Dividers
+#### Typography rules
 
-| Semantic Token            | Maps To         | Usage                                       |
-| ------------------------- | --------------- | ------------------------------------------- |
-| `--color-border-subtle`   | `--white / 6%`  | Card borders, section dividers              |
-| `--color-border-emphasis` | `--orbit`       | Table borders, form input borders on focus  |
-| `--color-border-input`    | `--white / 10%` | Default form input borders                  |
-| `--color-border-accent`   | `--launchfire`  | Top accent bars on cards, active navigation |
+- The type scale is a closed set. Add a size here before using it.
+- Mono is for data only. Body copy uses proportional figures.
+- Banned: all-caps body text, letter-spaced "futuristic" headings, gradient text, and any sci-fi display face (Orbitron, Eurostile imitations, cut corners, glowing outlines).
 
-### 2.6 Colour — Progress & Data Visualisation
+### 3.6 Motion
 
-| Semantic Token               | Maps To                                             | Usage                         |
-| ---------------------------- | --------------------------------------------------- | ----------------------------- |
-| `--color-progress-fill`      | `linear-gradient(90deg, --launchfire, --afterburn)` | In-progress proposal bar fill |
-| `--color-progress-complete`  | `linear-gradient(90deg, --success, --success-deep)` | Completed proposal bar fill   |
-| `--color-progress-track`     | `--white / 6%`                                      | Progress bar background track |
-| `--color-progress-indicator` | `--afterburn`                                       | Endpoint dot on progress bars |
-| `--color-data-positive`      | `--success`                                         | Upward trend, gain indicators |
-| `--color-data-neutral`       | `--stardust`                                        | Stable/neutral data points    |
+| Semantic Token    | Duration           | Easing         | Usage                                               |
+| ----------------- | ------------------ | -------------- | --------------------------------------------------- |
+| `--motion-hover`  | `--duration-fast`  | `--easing-out` | Hover brightening, amber focus outline              |
+| `--motion-status` | `--duration-base`  | `--easing-out` | Verified milestone fades to teal                    |
+| `--motion-fill`   | `--duration-fill`  | `--easing-out` | Progress bar fills once on first view or when the total changes |
+| `--motion-count`  | `--duration-fill`  | `--easing-out` | Totals and backer counts tick up once when they change |
 
-### 2.7 Gradients — Semantic
+#### Motion rules
 
-| Semantic Token              | Maps To                                           | Usage                             |
-| --------------------------- | ------------------------------------------------- | --------------------------------- |
-| `--gradient-action-primary` | `--grad-launch-sequence`                          | Primary CTA button backgrounds    |
-| `--gradient-surface-card`   | `--grad-deep-field`                               | Card gradient backgrounds         |
-| `--gradient-surface-stat`   | `linear-gradient(135deg, --nebula, --deep-space)` | Stat card backgrounds             |
-| `--gradient-hero`           | `--grad-night-launch`                             | Landing page hero sections        |
-| `--gradient-proposal-hero`  | `--grad-mars-atmosphere`                          | Proposal hero backgrounds         |
-| `--gradient-celebration`    | `--grad-mission-success`                          | Funded proposal celebration state |
-| `--gradient-achievement`    | `--grad-metallic-sheen`                           | Achievement badges, coin renders  |
+- Motion is functional only. Nothing bounces, pulses, glows or loops.
+- No parallax, no animated hero video, no confetti, no ambient or urgency animation.
+- Under `prefers-reduced-motion: reduce`, bars and counters show their final values immediately, and the verified state changes without a fade.
 
-### 2.8 Typography — Semantic
+### 3.7 Layout
 
-**Split-property token convention**: Each type-scale entry in this table expands into five property-specific CSS variables: `--type-*-size`, `--type-*-weight`, `--type-*-leading`, `--type-*-spacing`, and `--type-*-family`. Components apply each property individually rather than relying on a CSS shorthand. The `-family` tokens map each type-scale entry to the relevant brand font-family token.
-
-| Semantic Token              | `-family` Token                    | Font Family      | Size | Weight | Additional                                      |
-| --------------------------- | ---------------------------------- | ---------------- | ---- | ------ | ----------------------------------------------- |
-| `--type-hero`               | `--type-hero-family`               | `--font-display` | 96px | 400    | letter-spacing: 0.03em. Landing page hero only. |
-| `--type-page-title`         | `--type-page-title-family`         | `--font-display` | 56px | 400    | letter-spacing: 0.04em                          |
-| `--type-section-heading`    | `--type-section-heading-family`    | `--font-display` | 40px | 400    | letter-spacing: 0.04em                          |
-| `--type-card-title`         | `--type-card-title-family`         | `--font-body`    | 24px | 700    |                                                 |
-| `--type-body`               | `--type-body-family`               | `--font-body`    | 16px | 400    | line-height: 1.7                                |
-| `--type-body-small`         | `--type-body-small-family`         | `--font-body`    | 13px | 400    | line-height: 1.7                                |
-| `--type-button`             | `--type-button-family`             | `--font-body`    | 14px | 600    | letter-spacing: 0.01em                          |
-| `--type-label`              | `--type-label-family`              | `--font-data`    | 11px | 400    | letter-spacing: 0.2em, uppercase                |
-| `--type-section-label`      | `--type-section-label-family`      | `--font-data`    | 11px | 400    | letter-spacing: 0.3em, uppercase                |
-| `--type-data`               | `--type-data-family`               | `--font-data`    | 14px | 400    | Mission codes, financial figures, timestamps    |
-| `--type-stat-value`         | `--type-stat-value-family`         | `--font-display` | 40px | 400    | letter-spacing: 0.03em                          |
-| `--type-stat-value-compact` | `--type-stat-value-compact-family` | `--font-display` | 28px | 400    | letter-spacing: 0.05em                          |
-| `--type-input-label`        | `--type-input-label-family`        | `--font-data`    | 12px | 600    | letter-spacing: 0.05em, uppercase               |
-
-**Rule**: The type scale is a closed set. No intermediate sizes or custom font assignments. If a design requires a size not in this scale, it must be added to this spec before implementation.
-
-**Rule**: `--font-display` (Bebas Neue) is always uppercase. Never set it in mixed case or lowercase.
-
-> **Named Exception — Hero H1 Responsive Sizing**: The `--type-hero-size` token defines the base desktop size as 96px, but the hero H1 uses an approved responsive sizing ladder that overrides `--type-hero-size` at breakpoints: 32px (mobile baseline) → 48px (sm, 640px+) → 72px (lg, 1024px+) → 96px (xl, 1280px+). This breakpoint ladder is implemented via media query overrides and does not introduce new type-scale entries. It is the only approved responsive override of a fixed type-scale token.
-
-### 2.9 Motion — Semantic
-
-| Semantic Token            | Duration            | Easing                | Usage                                             |
-| ------------------------- | ------------------- | --------------------- | ------------------------------------------------- |
-| `--motion-enter`          | `--duration-base`   | `--easing-out`        | Default element entry, card reveals               |
-| `--motion-enter-emphasis` | `--duration-medium` | `--easing-spring`     | CTA appearing, modal entry, success confirmations |
-| `--motion-hover`          | `--duration-fast`   | `--easing-out`        | Hover states, icon transitions, toggle switches   |
-| `--motion-panel`          | `--duration-medium` | `--easing-out`        | Modals, drawers, panels opening/closing           |
-| `--motion-page`           | `--duration-slow`   | `--easing-out`        | Page transitions, celebration animations          |
-| `--motion-ambient`        | 2-4s                | ease-in-out, infinite | Decorative float, hero background elements        |
-| `--motion-urgency`        | 1.5s                | ease-in-out, infinite | Live countdowns, deadline pulse glow              |
-
-**Rule**: All animations must use these semantic tokens. No custom timing or easing values. All animation must be disableable via `prefers-reduced-motion` — see Accessibility section.
-
-### 2.10 Layout — Semantic
-
-| Semantic Token        | Maps To         | Usage                         |
-| --------------------- | --------------- | ----------------------------- |
-| `--radius-button`     | `--radius-full` | All button variants           |
-| `--radius-badge`      | `--radius-sm`   | Status badges, tags           |
-| `--radius-input`      | `--radius-md`   | Form inputs                   |
-| `--radius-card`       | `--radius-xl`   | Standard UI cards             |
-| `--radius-card-large` | `--radius-2xl`  | Feature cards, logo cards     |
-| `--radius-stat`       | `--radius-lg`   | Stat blocks, swatches         |
-| `--radius-progress`   | `--radius-full` | Progress bar tracks and fills |
+| Semantic Token     | Maps To           | Usage                          |
+| ------------------ | ----------------- | ------------------------------ |
+| `--radius-card`    | `--radius-panel`  | Cards, panels, inputs, buttons, badges, progress bars |
+| `--border-card`    | `--hairline-width` solid `--color-border-subtle` | Used only where two surfaces need a clear edge |
 
 ---
 
-## 3. Component Specifications
+## 4. Components
 
-This section defines how semantic tokens apply to specific product components. These mappings are mandatory — agents implementing UI must follow them exactly.
+| Component    | Specification                                                                                                                                  |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Cards        | `--color-bg-surface`, `--radius-card`, separated from the page by tone rather than heavy borders. Generous outer spacing and reading areas      |
+| Card data    | Packed tightly and aligned like a console readout. Small quiet label (`--type-label`, secondary text) above a prominent figure (`--type-data-large`) |
+| Primary CTA  | `--color-action-primary` fill, `--color-action-primary-text`. One per viewport. Copy follows §6                                                |
+| Progress bar | 8px track, `--radius-card`, amber fill that turns teal when complete. `aria-valuenow`, `-min`, `-max` and a label naming the proposal            |
+| Milestone    | Amber while in progress, teal when verified, with a text status as well as colour                                                              |
+| Error        | `--color-status-error` text with an icon and a label. Colour is never the only signal                                                          |
+| Warning      | Outline, icon and label. No amber fill                                                                                                         |
+| Inputs       | `--color-bg-surface` fill, `--color-border-input`, amber focus ring                                                                            |
 
-### 3.1 Buttons
-
-| Variant   | Background                    | Text                            | Border                            | Shadow                          | Usage                              |
-| --------- | ----------------------------- | ------------------------------- | --------------------------------- | ------------------------------- | ---------------------------------- |
-| Primary   | `--gradient-action-primary`   | `--color-action-primary-text`   | none                              | `--color-action-primary-shadow` | Single primary action per viewport |
-| Secondary | `--color-action-secondary-bg` | `--color-action-secondary-text` | `--color-action-secondary-border` | none                            | Alternative actions                |
-| Ghost     | transparent                   | `--color-action-ghost-text`     | `--color-action-ghost-border`     | none                            | Tertiary actions                   |
-| Success   | `--color-status-success-bg`   | `--color-status-success`        | `--color-status-success-border`   | none                            | Post-success state                 |
-
-All buttons: `--radius-button`, `--type-button`, padding 12px 24px.
-
-**Rule**: Only one primary CTA per viewport.
-
-### 3.2 Cards
-
-| Element        | Semantic Token                                                   |
-| -------------- | ---------------------------------------------------------------- |
-| Background     | `--color-bg-surface`                                             |
-| Border         | `--color-border-subtle`                                          |
-| Border radius  | `--radius-card`                                                  |
-| Top accent bar | `2px --color-border-accent` gradient to `--color-status-warning` |
-| Padding        | 32px                                                             |
-
-### 3.3 Progress Bars
-
-| Element            | Semantic Token                                                    |
-| ------------------ | ----------------------------------------------------------------- |
-| Track background   | `--color-progress-track`                                          |
-| Fill (in progress) | `--color-progress-fill`                                           |
-| Fill (complete)    | `--color-progress-complete`                                       |
-| Track radius       | `--radius-progress`                                               |
-| Height             | 8px                                                               |
-| Endpoint indicator | 14px circle, `--color-progress-indicator`, `box-shadow: 0 0 12px` |
-
-### 3.4 Stat Cards
-
-| Element             | Semantic Token                                          |
-| ------------------- | ------------------------------------------------------- |
-| Background          | `--gradient-surface-stat`                               |
-| Border              | `--color-border-subtle`                                 |
-| Border radius       | `--radius-stat`                                         |
-| Label               | `--type-body-small` weight 500, `--color-text-tertiary` |
-| Value               | `--type-stat-value`, `--color-text-primary`             |
-| Sub text (positive) | `--type-body-small`, `--color-data-positive`            |
-| Sub text (neutral)  | `--type-body-small`, `--color-data-neutral`             |
-
-### 3.5 Badges
-
-| Variant       | Background                  | Text                           | Border                          | Dot                      |
-| ------------- | --------------------------- | ------------------------------ | ------------------------------- | ------------------------ |
-| Funded        | `--color-status-success-bg` | `--color-status-success`       | `--color-status-success-border` | `--color-status-success` |
-| Live / Active | `--color-status-active-bg`  | `--color-action-primary-hover` | `--color-status-active-border`  | `--color-status-active`  |
-| New Mission   | `--color-status-new-bg`     | `--color-text-secondary`       | `--color-status-new-border`     | `--color-status-new`     |
-
-All badges: `--radius-badge`, `--type-button` at 12px, padding 6px 12px, 6px dot indicator.
-
-### 3.6 Form Inputs
-
-| Element          | Semantic Token                                 |
-| ---------------- | ---------------------------------------------- |
-| Background       | `--color-bg-input`                             |
-| Border (default) | `--color-border-input`                         |
-| Border (focus)   | `--color-border-emphasis`                      |
-| Border radius    | `--radius-input`                               |
-| Text             | `--color-text-primary`                         |
-| Placeholder      | `--color-text-tertiary`                        |
-| Label            | `--type-input-label`, `--color-text-tertiary`  |
-| Suffix/unit      | `--type-data` at 12px, `--color-text-tertiary` |
-| Padding          | 14px 48px 14px 16px                            |
-
-### 3.7 Section Labels
-
-| Element       | Semantic Token                           |
-| ------------- | ---------------------------------------- |
-| Font          | `--type-section-label`                   |
-| Colour        | `--color-text-accent`                    |
-| Format        | "NUMBER — TITLE" (e.g., "01 — Identity") |
-| Margin bottom | 16px                                     |
+**The pledge moment** is like being given a mission patch, not winning a game. On a successful pledge, show a calm confirmation that names the backer and the mission. No confetti, fireworks or "you're awesome" pop-ups.
 
 ---
 
-## 4. Voice-in-Product
+## 5. Imagery
 
-The brand guidelines define the overall voice. This section specifies how that voice is applied to specific product surfaces. Agents generating copy or UI text must follow these patterns.
-
-### 4.1 Brand Personality Axes (Product Calibration)
-
-| Axis                   | Position              | Product Implication                                                                                 |
-| ---------------------- | --------------------- | --------------------------------------------------------------------------------------------------- |
-| Playful / Serious      | 40% toward playful    | Use mission metaphors and energising language, but never joke about money or risk                   |
-| Technical / Accessible | 65% toward accessible | Use precise financial and technical terms where required, but always explain in context             |
-| Cautious / Bold        | 80% toward bold       | Lead with confidence and urgency, but every financial claim must be accurate                        |
-| Formal / Human         | 70% toward human      | Direct, warm, first-person plural ("we", "your"). Never corporate or legalistic in user-facing copy |
-
-### 4.2 Copy Patterns by Surface
-
-#### Proposal Pages
-
-| Element             | Pattern                          | Example                                                  |
-| ------------------- | -------------------------------- | -------------------------------------------------------- |
-| Proposal title      | Active verb + specific objective | "Building Pressurised Habitats for the First Mars Crews" |
-| Funding status      | Percentage + time urgency        | "73% funded — 18 days left to join the mission"          |
-| CTA button          | Direct action, no "click here"   | "Back This Mission"                                      |
-| Contribution prompt | Personal impact framing          | "Every $50 moves the launch window closer"               |
-
-#### Financial Confirmations
-
-| Element                | Pattern                            | Example                                                             |
-| ---------------------- | ---------------------------------- | ------------------------------------------------------------------- |
-| Contribution confirmed | Precise amount + mission reference | "Your $250 is locked in. You're backing Mission MMF-2026-0147."     |
-| Escrow notification    | Status + reassurance               | "Funds secured in escrow. Release on milestone verification."       |
-| Disbursement notice    | Action + transparency              | "Milestone 2 verified. $840,000 released to Project Habitat Alpha." |
-
-#### Error States
-
-| Element          | Pattern                | Example                                                                               |
-| ---------------- | ---------------------- | ------------------------------------------------------------------------------------- |
-| Payment failure  | Helpful, not alarming  | "We couldn't process this right now. Your data is safe — let's try again."            |
-| Validation error | Specific, actionable   | "Mission code format: MMF-2026-XXXX. Check the last four digits."                     |
-| System error     | Honest, with next step | "Something went wrong on our end. We're looking into it. Try again in a few minutes." |
-
-#### Empty States
-
-| Element              | Pattern                 | Example                                                           |
-| -------------------- | ----------------------- | ----------------------------------------------------------------- |
-| No contributions yet | Invitation, not absence | "Your mission log is empty. Find a mission to back."              |
-| No search results    | Redirect, not dead end  | "No missions match that search. Browse active proposals instead." |
-| No milestones        | Progress framing        | "Milestones will appear here as the team hits targets."           |
-
-### 4.3 Forbidden Language Patterns
-
-Never use the following in any user-facing product copy:
-
-| Pattern                                      | Reason                                         | Use Instead                                                        |
-| -------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ |
-| "Click here"                                 | Non-descriptive, inaccessible                  | Descriptive link text: "View mission details"                      |
-| "Exciting opportunity"                       | Sounds like financial spam                     | Specific claim: "Funding closes in 18 days"                        |
-| "Synergistic", "disruptive", "revolutionary" | Corporate buzzwords violate brand voice        | Plain language: specific, concrete descriptions                    |
-| "invest"                                     | Regulatory risk — contributions are not equity | "donate", "contribute", "back", "pledge"                           |
-| "investing"                                  | Regulatory risk — contributions are not equity | "donating", "contributing", "backing", "pledging"                  |
-| "investor"                                   | Regulatory risk — contributions are not equity | "donor", "contributor", "backer", "supporter"                      |
-| "investment"                                 | Regulatory risk — contributions are not equity | "donation", "contribution", "backing", "pledge"                    |
-| "Guaranteed returns"                         | Illegal in most jurisdictions                  | Never imply financial returns                                      |
-| "Click to learn more"                        | Passive, vague                                 | Action-specific: "Read the mission plan"                           |
-| Passive voice in CTAs                        | Weakens urgency                                | Active voice: "Back this mission" not "This mission can be backed" |
+- **Real photography only**: test stands, hardware, teams, and NASA and ESA images of Mars.
+- **Diagrams and technical drawings** are allowed when they explain something (a mission timeline, an engine schematic, a trajectory). Draw them in the site's own line style, in amber and teal on the dark base.
+- **Not allowed**: decorative illustration, AI-generated space art, stock 3D renders of rockets or astronauts, stock-photo heroes of smiling people looking at the sky.
+- If something cannot be shown for real, show the data instead.
 
 ---
 
-## 5. Accessibility Requirements
+## 6. Voice-in-Product
 
-The dark-first UI and high-contrast accent palette create specific accessibility challenges that must be addressed in every component.
+Unchanged from v1.3 apart from the personality calibration below, which is updated to match the rebrand.
 
-### 5.1 Colour Contrast
+### 6.1 Personality Axes
 
-| Text Context               | Minimum Ratio    | Token Pairing                                           |
-| -------------------------- | ---------------- | ------------------------------------------------------- |
-| Primary text on page bg    | 7:1 (AAA)        | `--color-text-primary` on `--color-bg-page` = 14.8:1    |
-| Primary text on surface bg | 7:1 (AAA)        | `--color-text-primary` on `--color-bg-surface` = 12.6:1 |
-| Secondary text on page bg  | 4.5:1 (AA)       | `--color-text-secondary` on `--color-bg-page` = 10.7:1  |
-| Tertiary text on page bg   | 4.5:1 (AA)       | `--color-text-tertiary` on `--color-bg-page` = 5.4:1    |
-| Accent text on page bg     | 4.5:1 (AA large) | `--color-text-accent` on `--color-bg-page` = 4.8:1      |
-| Success text on page bg    | 4.5:1 (AA)       | `--color-text-success` on `--color-bg-page` = 10.1:1    |
+| Axis                   | Position                | Product Implication                                                                  |
+| ---------------------- | ----------------------- | ------------------------------------------------------------------------------------ |
+| Playful / Serious      | 85% toward serious      | Calm, precise language like a mission log. No jokes about money or risk              |
+| Technical / Accessible | 50% / 50%               | Priya is an engineer: use precise terms and explain them only where needed          |
+| Cautious / Bold        | Confident, not urgent   | No fake scarcity and no countdown pressure. Every financial claim must be accurate  |
+| Formal / Human         | 70% toward human        | Direct, first-person plural. Never corporate or legalistic                          |
 
-**Rule**: `--color-text-accent` must only be used at 18px+ bold or 24px+ regular (WCAG large text). For smaller accent text, use `--color-action-primary-hover` which provides higher contrast.
+### 6.2 Copy Patterns
 
-**Rule**: `--color-text-tertiary` passes AA but fails AAA. Approved for metadata only — never for body text or interactive element labels.
+| Surface                | Pattern                                | Example                                                       |
+| ---------------------- | -------------------------------------- | ------------------------------------------------------------- |
+| Proposal title         | Active verb + specific objective       | "Building Pressurised Habitats for the First Mars Crews"      |
+| Funding status         | Percentage + fact                      | "73% funded. Next milestone: engine static fire"              |
+| CTA button             | Direct action, no "click here"         | "Back this mission"                                           |
+| Contribution confirmed | Precise amount + mission reference     | "Your $250 is locked in. You're backing Mission MMF-2026-0147." |
+| Payment failure        | Helpful, not alarming                  | "We couldn't process this right now. Your data is safe. Try again." |
+| Empty milestones       | Progress framing                       | "Milestones will appear here as the team hits targets."       |
 
-### 5.2 Motion Accessibility
+### 6.3 Forbidden Language
 
-**Rule**: All animations must respect `prefers-reduced-motion: reduce`. When active:
-
-| Semantic Token            | Normal Behaviour | Reduced Motion               |
-| ------------------------- | ---------------- | ---------------------------- |
-| `--motion-enter`          | Slide-in settle  | Instant appearance           |
-| `--motion-enter-emphasis` | Overshoot bounce | Fade-in at `--duration-fast` |
-| `--motion-ambient`        | Continuous float | Static position              |
-| `--motion-urgency`        | Pulse glow       | Static glow at 50%           |
-| Progress bar fill         | Animated fill    | Instant fill                 |
-
-### 5.3 Focus States
-
-All interactive elements must have a visible focus indicator meeting WCAG 2.1 AA:
-
-| Element             | Focus Style                                                                        |
-| ------------------- | ---------------------------------------------------------------------------------- |
-| Buttons             | `outline: 2px solid --color-action-primary-hover; outline-offset: 2px`             |
-| Form inputs         | `border-color: --color-action-primary; box-shadow: 0 0 0 3px rgba(255,92,26,0.25)` |
-| Links               | `outline: 2px solid --color-action-primary-hover; outline-offset: 2px`             |
-| Cards (interactive) | `border-color: --color-action-primary; box-shadow: 0 0 0 3px rgba(255,92,26,0.15)` |
-
-**Rule**: Focus styles must never be suppressed with `outline: none` without an equivalent visible alternative.
-
-### 5.4 Screen Reader Requirements
-
-| Context           | Requirement                                                                                       |
-| ----------------- | ------------------------------------------------------------------------------------------------- |
-| Progress bars     | `aria-valuenow`, `aria-valuemin`, `aria-valuemax`, `aria-label` with proposal name and percentage |
-| Badge indicators  | Dots are decorative (`aria-hidden="true"`); status via text                                       |
-| Stat cards        | Values and labels associated via `aria-labelledby`                                                |
-| Button icons      | Decorative: `aria-hidden="true"`. Icon-only: `aria-label` required                                |
-| Financial amounts | Screen reader includes currency: "$3,108,400 US dollars raised"                                   |
+| Pattern                                                  | Reason                                          | Use Instead                                         |
+| -------------------------------------------------------- | ----------------------------------------------- | --------------------------------------------------- |
+| "Click here", "Click to learn more"                      | Non-descriptive, inaccessible                   | "View mission details", "Read the mission plan"     |
+| "Exciting opportunity"                                   | Sounds like financial spam                      | A specific claim                                    |
+| "Only N days left, don't miss out", any fake scarcity    | Rebrand rule: no urgency pressure               | State the closing date plainly                      |
+| "Synergistic", "disruptive", "revolutionary"             | Corporate buzzwords                             | Plain, concrete language                            |
+| "invest", "investing", "investor", "investment"          | Regulatory risk: contributions are not equity   | "donate", "back", "pledge", "backer", "supporter"   |
+| "Guaranteed returns"                                     | Illegal in most jurisdictions                   | Never imply financial returns                       |
+| Emoji-heavy copy, mascots                                | Kickstarter look                                | Plain text                                          |
+| Passive voice in CTAs                                    | Weakens the action                              | "Back this mission"                                 |
 
 ---
 
-## 6. Logo Usage in Product
+## 7. Accessibility
 
-The brand guidelines are the source of truth for logo specifications. This section defines product-specific usage rules only.
+Measured contrast for the values above (WCAG relative luminance):
 
-### 6.1 Logo Placement
+| Pairing                                       | Ratio  | Requirement          |
+| --------------------------------------------- | ------ | -------------------- |
+| `--starlight` on `--night` / `--console`      | 15.9 / 14.6 | AAA body text   |
+| `--blue-grey` on `--night` / `--console`      | 7.8 / 7.2   | AAA body text   |
+| `--amber` on `--night` / `--console`          | 9.2 / 8.4   | AAA, also for text |
+| `--night` on `--amber` (button text)          | 9.2    | AAA                  |
+| `--teal` on `--night` / `--console`           | 8.1 / 7.5   | AAA             |
+| `--brick` on `--night` / `--console` / `--console-high` | 6.0 / 5.5 / 4.9 | AA text on every surface |
+| `--slate-edge` on `--night` / `--console`     | 3.5 / 3.2   | 3:1 non-text controls |
 
-| Context              | Variant                                 | Size                       |
-| -------------------- | --------------------------------------- | -------------------------- |
-| Navigation bar       | Coin icon mark only                     | 32px height                |
-| Login / registration | Full vertical lockup (dark)             | 120px coin, full wordmark  |
-| Footer               | Horizontal lockup                       | 72px coin, inline wordmark |
-| Favicon              | Coin icon, simplified (no orbital ring) | 16px                       |
-| App icon             | Coin on gradient background             | Per platform guidelines    |
-| Email header         | Horizontal lockup                       | 48px coin height           |
-
-### 6.2 Clear Space in Product
-
-Minimum clear space around the logo equals the height of the "M" in the wordmark. In constrained navigation contexts, the coin icon mark at 32px requires minimum 8px clear space on all sides.
-
----
-
-## 7. Dark Mode / Light Mode
-
-### 7.1 Position
-
-Mars Mission Fund is a dark-first product. The deep-space palette is the primary UI context. There is no light mode for the core application.
-
-### 7.2 Exceptions
-
-| Context             | Treatment                                                                                                 |
-| ------------------- | --------------------------------------------------------------------------------------------------------- |
-| Email templates     | Light background for compatibility. `--color-bg-accent` headings, `--color-bg-page` body text on white.   |
-| PDF exports / print | White background. `--color-bg-accent` headings, `--color-bg-page` body, `--color-action-primary` accents. |
-| Embedded widgets    | Both dark and light variants. Light uses `--color-text-primary` background, `--color-bg-accent` text.     |
-| Legal / compliance  | Light background permitted if required by legal review.                                                   |
-
-**Note**: These exception contexts invert the standard dark-first token mappings. When implemented as components, they should define theme-specific semantic token overrides (e.g., a `light` theme map) rather than hardcoding values.
+- **Colour is never the only signal.** Errors, warnings and verified states each carry an icon and a text label.
+- **Focus** is a 2px amber outline with 2px offset on every focusable element. Never suppress it with `outline: none` without an equivalent.
+- **Reduced motion**: see §3.6.
+- **Screen readers**: progress bars carry `aria-valuenow/min/max` and a label with the proposal name and percentage. Financial amounts include the currency ("$3,108 US dollars raised"). Icon-only buttons need `aria-label`.
+- `--hairline` is decorative (1.6:1) and must not be the only boundary of an interactive control. Use `--slate-edge`.
 
 ---
 
-## 8. Brand Misuse in Product
+## 8. Dark Mode
 
-The following are violations of this standard. Agents and developers must flag these in code review.
+Mars Mission Fund is dark only. There is no light mode in the core application. Email, PDF and legal contexts that need a light background must define a theme-specific semantic token map rather than hardcoding values.
 
-| Violation                                                  | Why It Matters                                                              |
-| ---------------------------------------------------------- | --------------------------------------------------------------------------- |
-| Referencing Tier 1 identity tokens in component code       | Breaks the semantic abstraction; brand evolution requires component changes |
-| Using `--color-action-primary` for error states            | Conflates actions with errors; confuses clickability                        |
-| Using `--color-status-success` for non-financial positives | Dilutes "funded" and "complete" meaning                                     |
-| `--font-display` in body text or form labels               | Display-only font; unreadable at small sizes                                |
-| Custom colours outside the token system                    | Breaks consistency, unmaintainable                                          |
-| Animations ignoring `prefers-reduced-motion`               | WCAG 2.1 SC 2.3.3 violation                                                 |
-| Multiple primary CTAs per viewport                         | Dilutes action hierarchy                                                    |
-| Corporate buzzwords in copy                                | Brand voice violation; see Forbidden Language Patterns                      |
-| Suppressed focus indicators                                | WCAG 2.1 SC 2.4.7 violation                                                 |
+---
+
+## 9. Misuse
+
+Flag these in code review.
+
+| Violation                                                          | Why It Matters                                     |
+| ------------------------------------------------------------------ | -------------------------------------------------- |
+| Referencing Tier 1 identity tokens in component code               | Breaks the semantic abstraction                    |
+| Amber for errors or warnings                                       | Amber means in motion or the main action           |
+| Teal for anything that is not done or verified                     | Dilutes "verified"                                 |
+| Brick red outside errors and destructive actions                   | Red means stop                                     |
+| Mono font for body copy, or display font for body or labels        | Mono is data only, display is headlines only       |
+| Starfields, nebula wallpapers, neon glow, glassmorphism, purple-blue gradients | The rejected NFT and crypto look  |
+| Confetti, countdown banners, pop-up celebrations                   | The rejected game and hype look                    |
+| Pastel rounded cards, mascots, reward-tier tables                  | The rejected Kickstarter look                      |
+| Parallax or animated hero video                                    | Makes Priya wait for the facts                     |
+| Decorative or AI-generated imagery                                 | Real photography, or the data                      |
+| Custom colours, fonts, sizes or timings outside the token system   | Unmaintainable                                     |
+| Animations ignoring `prefers-reduced-motion`                       | WCAG 2.3.3                                         |
+| Multiple primary CTAs per viewport                                 | Dilutes the action hierarchy                       |
+
+---
+
+## Open Items
+
+- **Logo**: the v1.3 coin mark was not part of this rebrand interview. Logo, favicon and clear-space rules are undefined and need their own pass.
+- **Specimen**: `specs/standards/mars-mission-fund-brand.html` still shows the v1.3 identity and is superseded by this document.
+- **Existing UI**: the client still uses the v1.3 tokens. Moving it to these tokens is implementation work, not done by this spec.
+- **Hex values** were proposed from the interview descriptions and contrast-checked, but have not been seen on screen yet. Review them in the running app.
 
 ---
 
 ## Change Log
 
-| Date       | Version | Author | Summary                                                                                                                                                                                                                                                                                                  |
-| ---------- | ------- | ------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| March 2026 | 1.0     | —      | Initial draft. Combined identity and semantic tokens.                                                                                                                                                                                                                                                    |
-| March 2026 | 1.1     | —      | Restructured to two-tier token architecture. Identity tokens (Tier 1) for brand reference only; semantic tokens (Tier 2) as sole component consumption layer. Added semantic mappings for all colour, typography, motion, and layout tokens. Tier 1 direct reference added as misuse violation.          |
-| March 2026 | 1.2     | —      | Closed token chain gaps: replaced raw rgba/hex values in Tier 2 with identity token derivations using `{token} / {opacity%}` convention. Added `--success-deep` and `--signal-blue` to Tier 1. Removed unused `--crater`. Section 7.2 now references semantic tokens with note on light-theme overrides. |
-| 2026-03-10 | 1.3     | —      | §2.8: documented split-property token convention (five suffixes per scale entry: `-size`, `-weight`, `-leading`, `-spacing`, `-family`); added `-family` column to typography table with all 13 `--type-*-family` tokens; added Named Exception block for hero H1 responsive sizing ladder (32px→48px→72px→96px). §4.3: expanded "invest" forbidden-word table from one row to four, covering "invest", "investing", "investor", "investment" with approved alternatives. |
-
----
-
-*This standard governs brand application in the Mars Mission Fund product. For the visual identity source of truth (logo specimens, colour swatches, type specimens, motion demos), reference the brand guidelines: `mars-mission-fund-brand.html`.*
+| Date       | Version | Summary                                                                                                                                                                       |
+| ---------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| March 2026 | 1.0–1.3 | Original Launchfire identity (Bebas Neue, DM Sans, Space Mono, 8–24px radii, spring and ambient motion). See git history.                                                      |
+| 2026-10-06 | 2.0     | Full rebrand from a blank page: night-sky base, amber accent, teal verified state, brick error red; Archivo / IBM Plex Sans / IBM Plex Mono; 4px radius; functional-only motion; imagery and misuse rules. |

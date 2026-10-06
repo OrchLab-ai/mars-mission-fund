@@ -1,50 +1,70 @@
-/* Bebas Neue — decorative display font; optional load (non-critical) */
+/* Archivo — display font. One variable file (wght 100-900, wdth 62-125).
+   The descriptors below are single values on purpose: a face declared at font-weight 700 and
+   font-stretch 125% clamps the variable axes to those values, so every use of this family is
+   expanded bold whatever weight or width the component asks for (brand.md §2.2). */
 @font-face {
-  font-family: 'Bebas Neue';
-  src: url('./assets/fonts/bebas-neue-400.woff2') format('woff2');
-  font-weight: 400;
+  font-family: 'Archivo';
+  src: url('./assets/fonts/archivo-wdth.woff2') format('woff2');
+  font-weight: 700;
+  font-stretch: 125%;
   font-style: normal;
-  font-display: optional;
+  font-display: swap;
 }
 
-/* DM Sans — body font; swap to avoid invisible text */
+/* IBM Plex Sans — body font; swap to avoid invisible text */
 @font-face {
-  font-family: 'DM Sans';
-  src: url('./assets/fonts/dm-sans-400.woff2') format('woff2');
+  font-family: 'IBM Plex Sans';
+  src: url('./assets/fonts/ibm-plex-sans-400.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'DM Sans';
-  src: url('./assets/fonts/dm-sans-500.woff2') format('woff2');
+  font-family: 'IBM Plex Sans';
+  src: url('./assets/fonts/ibm-plex-sans-500.woff2') format('woff2');
   font-weight: 500;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'DM Sans';
-  src: url('./assets/fonts/dm-sans-600.woff2') format('woff2');
+  font-family: 'IBM Plex Sans';
+  src: url('./assets/fonts/ibm-plex-sans-600.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'DM Sans';
-  src: url('./assets/fonts/dm-sans-700.woff2') format('woff2');
+  font-family: 'IBM Plex Sans';
+  src: url('./assets/fonts/ibm-plex-sans-700.woff2') format('woff2');
   font-weight: 700;
   font-style: normal;
   font-display: swap;
 }
 
-/* Space Mono — monospace font; swap to avoid invisible text */
+/* IBM Plex Mono — data font (figures, timestamps, labels); swap to avoid invisible text */
 @font-face {
-  font-family: 'Space Mono';
-  src: url('./assets/fonts/space-mono-400.woff2') format('woff2');
+  font-family: 'IBM Plex Mono';
+  src: url('./assets/fonts/ibm-plex-mono-400.woff2') format('woff2');
   font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('./assets/fonts/ibm-plex-mono-500.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'IBM Plex Mono';
+  src: url('./assets/fonts/ibm-plex-mono-600.woff2') format('woff2');
+  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }
