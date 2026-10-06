@@ -1,0 +1,26 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mmf
+      POSTGRES_PASSWORD: mmf
+      POSTGRES_DB: mmf
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U mmf']
+      interval: 2s
+      timeout: 5s
+      retries: 10
+
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.e2e
+    entrypoint: ['/app/scripts/docker-e2e-entrypoint.sh']
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://mmf:mmf@db:5432/mmf?sslmode=disable
+      JWT_SECRET: local-dev-jwt-secret
+      PORT: '3001'
+      CI: 'true'

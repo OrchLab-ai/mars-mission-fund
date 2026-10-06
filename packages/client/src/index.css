@@ -1,0 +1,121 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@import './fonts.css';
+
+/* =============================================================================
+   TAILWIND v4 THEME — expose semantic tokens as Tailwind utilities
+   Maps design tokens to Tailwind's CSS-first theme namespace.
+   ============================================================================= */
+@theme {
+  /* --- Colours --- */
+  --color-bg-page: var(--color-bg-page);
+  --color-bg-surface: var(--color-bg-surface);
+  --color-bg-elevated: var(--color-bg-elevated);
+  --color-bg-overlay: var(--color-bg-overlay);
+  --color-bg-input: var(--color-bg-input);
+  --color-bg-accent: var(--color-bg-accent);
+
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-tertiary: var(--color-text-tertiary);
+  --color-text-accent: var(--color-text-accent);
+
+  --color-action-primary: var(--color-action-primary);
+  --color-action-primary-hover: var(--color-action-primary-hover);
+  --color-action-secondary-bg: var(--color-action-secondary-bg);
+  --color-action-disabled: var(--color-action-disabled);
+
+  --color-border-subtle: var(--color-border-subtle);
+  --color-border-emphasis: var(--color-border-emphasis);
+  --color-border-input: var(--color-border-input);
+  --color-border-accent: var(--color-border-accent);
+
+  --color-status-success: var(--color-status-success);
+  --color-status-error: var(--color-status-error);
+  --color-status-warning: var(--color-status-warning);
+  --color-status-info: var(--color-status-info);
+
+  /* --- Font families --- */
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+
+  /* --- Border radius --- */
+  --radius-button: var(--radius-button);
+  --radius-badge: var(--radius-badge);
+  --radius-input: var(--radius-input);
+  --radius-card: var(--radius-card);
+  --radius-card-large: var(--radius-card-large);
+  --radius-stat: var(--radius-stat);
+  --radius-progress: var(--radius-progress);
+}
+
+/* =============================================================================
+   BASE STYLES — global reset and dark-theme defaults
+   ============================================================================= */
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--color-bg-page);
+    color: var(--color-text-secondary);
+    font-family: var(--font-body);
+    font-size: var(--type-body-size);
+    line-height: var(--type-body-leading);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    margin: 0;
+  }
+
+  a {
+    color: var(--color-text-accent);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-action-primary-hover);
+  }
+
+  a:focus-visible {
+    outline: 2px solid var(--color-border-accent);
+    outline-offset: 2px;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
+/* =============================================================================
+   DIALOG — backdrop overlay
+   ============================================================================= */
+dialog::backdrop {
+  background: var(--color-bg-overlay);
+}

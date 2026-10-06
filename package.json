@@ -1,0 +1,33 @@
+{
+  "name": "mars-mission-fund",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @mmf/client",
+    "build": "npm run build --workspaces --if-present",
+    "preview": "npm run preview -w @mmf/client",
+    "test": "npm run test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" \"#**/node_modules\" \"#test-results\" \"#.claude\"",
+    "dev:server": "npm run dev -w @mmf/server",
+    "test:e2e": "playwright test",
+    "prepare": "cp scripts/pre-push .git/hooks/pre-push"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.58.2",
+    "eslint": "^9",
+    "eslint-plugin-react": "^7",
+    "eslint-plugin-react-hooks": "^5",
+    "markdownlint-cli2": "^0.23.3",
+    "prettier": "^3",
+    "typescript-eslint": "^8"
+  }
+}

@@ -1,0 +1,93 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: mmf
+          POSTGRES_PASSWORD: mmf
+          POSTGRES_DB: mmf_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type-check
+        run: npm run build -w @mmf/shared && npx tsc -b --noEmit && npx tsc --noEmit -p packages/server/tsconfig.json
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Markdown lint
+        run: npm run lint:md
+
+      - name: Build
+        run: npm run build
+
+      - name: Test coverage
+        run: npm run test:coverage
+
+      - name: Run DB migrations
+        if: github.event_name == 'push' || github.event.pull_request.draft == false
+        env:
+          DATABASE_URL: postgres://mmf:mmf@localhost:5432/mmf_test?sslmode=disable
+        run: >
+          docker run --rm --network host
+          -e DATABASE_URL=$DATABASE_URL
+          -v ${{ github.workspace }}/packages/server/db:/db
+          ghcr.io/amacneil/dbmate up
+
+      - name: Install Playwright browsers
+        if: github.event_name == 'push' || github.event.pull_request.draft == false
+        run: npx playwright install --with-deps chromium
+
+      - name: Start server
+        if: github.event_name == 'push' || github.event.pull_request.draft == false
+        env:
+          DATABASE_URL: postgres://mmf:mmf@localhost:5432/mmf_test?sslmode=disable
+          JWT_SECRET: test-jwt-secret
+          PORT: 3001
+        run: npm run dev:server &
+
+      - name: E2E tests
+        if: github.event_name == 'push' || github.event.pull_request.draft == false
+        env:
+          DATABASE_URL: postgres://mmf:mmf@localhost:5432/mmf_test?sslmode=disable
+        run: npm run test:e2e
+
+      - name: Audit
+        # Fail only on high/critical advisories in production dependencies.
+        # Dev-only tools (vitest, markdownlint-cli2 -> markdown-it/yaml) don't
+        # block CI; prod high/critical still do.
+        run: npm audit --omit=dev --audit-level=high

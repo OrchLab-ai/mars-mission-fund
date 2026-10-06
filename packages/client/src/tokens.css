@@ -1,0 +1,383 @@
+/* =============================================================================
+   DESIGN TOKENS — Mars Mission Fund
+   Source of truth: specs/standards/brand.md (L2-001)
+   =============================================================================
+   Structure:
+   1. Tier 1 — Identity Tokens (brand primitives; never reference in component code)
+   2. Tier 2 — Semantic Tokens (component consumption layer; the only layer components may reference)
+   3. Breakpoint Tokens (from L3-005 §5.2)
+   4. prefers-reduced-motion overrides
+   ============================================================================= */
+
+:root {
+  /* ---------------------------------------------------------------------------
+     TIER 1 — IDENTITY TOKENS
+     Named for brand vocabulary. Raw palette — colours, fonts, timing, radii.
+     Do NOT reference these in component code.
+     --------------------------------------------------------------------------- */
+
+  /* --- 1.1 Colour — Deep Space (Foundation) --- */
+  --void: #060a14;
+  --deep-space: #0b1628;
+  --nebula: #0e2040;
+  --orbit: #1a3a6e;
+
+  /* --- 1.1 Colour — Launch Fire (Energy) --- */
+  --launchfire: #ff5c1a;
+  --ignition: #ff8c42;
+  --afterburn: #ffb347;
+  --red-planet: #c1440e;
+
+  /* --- 1.1 Colour — Metallic Silver (Trust & Finish) --- */
+  --chrome: #e8edf5;
+  --silver: #c8d0dc;
+  --stardust: #8a96a8;
+  --white: #f5f8ff;
+
+  /* --- 1.1 Colour — Mission Outcomes --- */
+  --success: #2fe8a2;
+  --success-deep: #1ab878;
+  --signal-blue: #5b8fd8;
+
+  /* --- 1.2 Gradient Identity Tokens --- */
+  --grad-launch-sequence: linear-gradient(135deg, #ff5c1a, #ff8c42, #ffb347);
+  --grad-deep-field: linear-gradient(135deg, #060a14, #0e2040, #1a3a6e);
+  --grad-metallic-sheen: linear-gradient(135deg, #e8edf5, #c8d0dc, #8a96a8);
+  --grad-mars-atmosphere: linear-gradient(135deg, #c1440e, #ff5c1a, #ff8c42);
+  --grad-night-launch: linear-gradient(
+    135deg,
+    #060a14 0%,
+    #0b1628 50%,
+    rgba(255, 92, 26, 0.15) 100%
+  );
+  --grad-mission-success: linear-gradient(135deg, #0b1628, rgba(47, 232, 162, 0.2), #0b1628);
+
+  /* --- 1.3 Typography — Font-family Identity Tokens --- */
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-data: 'Space Mono', monospace;
+
+  /* --- 1.3 Typography — Font-size Primitives --- */
+  --text-2xs: 11px;
+  --text-xs: 12px;
+  --text-sm: 13px;
+  --text-base: 14px;
+  --text-md: 16px;
+  --text-lg: 24px;
+  --text-xl: 28px;
+  --text-2xl: 40px;
+  --text-3xl: 56px;
+  --text-4xl: 96px;
+
+  /* --- 1.3 Typography — Line-height Primitives --- */
+  --leading-tight: 1.1;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+
+  /* --- 1.3 Typography — Letter-spacing Primitives --- */
+  --tracking-normal: 0;
+  --tracking-wide: 0.01em;
+  --tracking-wider: 0.03em;
+  --tracking-widest-display: 0.04em;
+  --tracking-widest-label: 0.05em;
+  --tracking-mono-label: 0.2em;
+  --tracking-section-label: 0.3em;
+
+  /* --- 1.4 Motion — Duration & Easing Identity Tokens --- */
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+  --duration-medium: 500ms;
+  --duration-slow: 800ms;
+
+  --easing-out: cubic-bezier(0.25, 1, 0.5, 1);
+  --easing-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* --- 1.5 Radius — Identity Tokens --- */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 100px;
+
+  /* --- Spacing Scale (4px base grid) --- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+
+  /* ---------------------------------------------------------------------------
+     TIER 2 — SEMANTIC TOKENS
+     Named for purpose and intent. These are the only tokens components may consume.
+     Each maps to a Tier 1 identity token.
+     --------------------------------------------------------------------------- */
+
+  /* --- 2.1 Colour — Actions --- */
+  --color-action-primary: var(--launchfire);
+  --color-action-primary-hover: var(--ignition);
+  --color-action-primary-text: var(--white);
+  --color-action-primary-shadow: rgba(255, 92, 26, 0.35);
+  --color-action-secondary-bg: rgba(245, 248, 255, 0.06);
+  --color-action-secondary-text: var(--silver);
+  --color-action-secondary-border: rgba(245, 248, 255, 0.12);
+  --color-action-ghost-text: var(--ignition);
+  --color-action-ghost-border: rgba(255, 92, 26, 0.3);
+  --color-action-disabled: rgba(138, 150, 168, 0.5);
+
+  /* --- 2.2 Colour — Status --- */
+  --color-status-success: var(--success);
+  --color-status-success-bg: rgba(47, 232, 162, 0.12);
+  --color-status-success-border: rgba(47, 232, 162, 0.2);
+  --color-status-error: var(--red-planet);
+  --color-status-warning: var(--afterburn);
+  --color-status-info: var(--orbit);
+  --color-status-active: var(--launchfire);
+  --color-status-active-bg: rgba(255, 92, 26, 0.12);
+  --color-status-active-border: rgba(255, 92, 26, 0.2);
+  --color-status-new: var(--signal-blue);
+  --color-status-new-bg: rgba(26, 58, 110, 0.4);
+  --color-status-new-border: rgba(26, 58, 110, 0.6);
+
+  /* --- 2.3 Colour — Surfaces --- */
+  --color-bg-page: var(--void);
+  --color-bg-surface: var(--deep-space);
+  --color-bg-elevated: var(--nebula);
+  --color-bg-overlay: rgba(6, 10, 20, 0.9);
+  --color-bg-input: rgba(245, 248, 255, 0.04);
+  --color-bg-accent: var(--orbit);
+
+  /* --- 2.4 Colour — Text --- */
+  --color-text-primary: var(--chrome);
+  --color-text-secondary: var(--silver);
+  --color-text-tertiary: var(--stardust);
+  --color-text-accent: var(--launchfire);
+  --color-text-on-action: var(--white);
+  --color-text-success: var(--success);
+  --color-text-error: var(--red-planet);
+  --color-text-warning: var(--afterburn);
+
+  /* --- 2.5 Colour — Borders & Dividers --- */
+  --color-border-subtle: rgba(245, 248, 255, 0.06);
+  --color-border-emphasis: var(--orbit);
+  --color-border-input: rgba(245, 248, 255, 0.1);
+  --color-border-accent: var(--launchfire);
+
+  /* --- 2.6 Colour — Progress & Data Visualisation --- */
+  --color-progress-fill: linear-gradient(90deg, var(--launchfire), var(--afterburn));
+  --color-progress-complete: linear-gradient(90deg, var(--success), var(--success-deep));
+  --color-progress-track: rgba(245, 248, 255, 0.06);
+  --color-progress-indicator: var(--afterburn);
+  --color-data-positive: var(--success);
+  --color-data-neutral: var(--stardust);
+
+  /* --- 2.7 Gradients — Semantic --- */
+  --gradient-action-primary: var(--grad-launch-sequence);
+  --gradient-surface-card: var(--grad-deep-field);
+  --gradient-surface-stat: linear-gradient(135deg, var(--nebula), var(--deep-space));
+  --gradient-hero: var(--grad-night-launch);
+  --gradient-campaign-hero: var(--grad-mars-atmosphere);
+  --gradient-celebration: var(--grad-mission-success);
+  --gradient-achievement: var(--grad-metallic-sheen);
+
+  /* --- 2.8 Typography — Semantic Font-family Tokens --- */
+  /* These map brand font-families to semantic purpose names. */
+  /* --font-display, --font-body, --font-data are already defined as Tier 1 above;
+     these semantic aliases make component code intent-expressive. */
+  --font-heading: var(--font-display);
+  --font-mono: var(--font-data);
+
+  /* Font-family shorthand tokens — map --type-* names to font-family identity tokens */
+  --type-hero: var(--font-display);
+  --type-page-title: var(--font-display);
+  --type-section-heading: var(--font-display);
+  --type-stat-value: var(--font-display);
+  --type-stat-value-compact: var(--font-display);
+  --type-card-title: var(--font-body);
+  --type-body: var(--font-body);
+  --type-body-small: var(--font-body);
+  --type-button: var(--font-body);
+  --type-label: var(--font-data);
+  --type-section-label: var(--font-data);
+  --type-data: var(--font-data);
+  --type-input-label: var(--font-data);
+
+  /* --- 2.8 Typography — Type Scale Semantic Tokens --- */
+  /* Each type-style token encodes font-size, line-height, letter-spacing for use
+     as individual properties. Components apply: font-family, font-size,
+     font-weight, line-height, letter-spacing from the relevant --type-* group. */
+
+  /* Hero — landing page hero only */
+  --type-hero-size: var(--text-4xl);
+  --type-hero-weight: 400;
+  --type-hero-spacing: var(--tracking-wider);
+  --type-hero-leading: var(--leading-tight);
+
+  /* Page Title */
+  --type-page-title-size: var(--text-3xl);
+  --type-page-title-weight: 400;
+  --type-page-title-spacing: var(--tracking-widest-display);
+  --type-page-title-leading: var(--leading-tight);
+
+  /* Section Heading */
+  --type-section-heading-size: var(--text-2xl);
+  --type-section-heading-weight: 400;
+  --type-section-heading-spacing: var(--tracking-widest-display);
+  --type-section-heading-leading: var(--leading-snug);
+
+  /* Card Title */
+  --type-card-title-size: var(--text-lg);
+  --type-card-title-weight: 700;
+  --type-card-title-spacing: var(--tracking-normal);
+  --type-card-title-leading: var(--leading-snug);
+
+  /* Body */
+  --type-body-size: var(--text-md);
+  --type-body-weight: 400;
+  --type-body-spacing: var(--tracking-normal);
+  --type-body-leading: var(--leading-relaxed);
+
+  /* Body Small */
+  --type-body-small-size: var(--text-sm);
+  --type-body-small-weight: 400;
+  --type-body-small-spacing: var(--tracking-normal);
+  --type-body-small-leading: var(--leading-relaxed);
+
+  /* Button */
+  --type-button-size: var(--text-base);
+  --type-button-weight: 600;
+  --type-button-spacing: var(--tracking-wide);
+  --type-button-leading: var(--leading-normal);
+
+  /* Label (mono) */
+  --type-label-size: var(--text-2xs);
+  --type-label-weight: 400;
+  --type-label-spacing: var(--tracking-mono-label);
+  --type-label-leading: var(--leading-normal);
+
+  /* Section Label (mono) */
+  --type-section-label-size: var(--text-2xs);
+  --type-section-label-weight: 400;
+  --type-section-label-spacing: var(--tracking-section-label);
+  --type-section-label-leading: var(--leading-normal);
+
+  /* Data (mono) */
+  --type-data-size: var(--text-base);
+  --type-data-weight: 400;
+  --type-data-spacing: var(--tracking-normal);
+  --type-data-leading: var(--leading-normal);
+
+  /* Stat Value */
+  --type-stat-value-size: var(--text-2xl);
+  --type-stat-value-weight: 400;
+  --type-stat-value-spacing: var(--tracking-wider);
+  --type-stat-value-leading: var(--leading-tight);
+
+  /* Stat Value Compact */
+  --type-stat-value-compact-size: var(--text-xl);
+  --type-stat-value-compact-weight: 400;
+  --type-stat-value-compact-spacing: 0.05em;
+  --type-stat-value-compact-leading: var(--leading-tight);
+
+  /* Input Label (mono) */
+  --type-input-label-size: var(--text-xs);
+  --type-input-label-weight: 600;
+  --type-input-label-spacing: var(--tracking-widest-label);
+  --type-input-label-leading: var(--leading-normal);
+
+  /* --- 2.9 Motion — Semantic Tokens --- */
+  /* Duration aliases mapped to intent */
+  --motion-duration-fast: var(--duration-fast);
+  --motion-duration-base: var(--duration-base);
+  --motion-duration-medium: var(--duration-medium);
+  --motion-duration-slow: var(--duration-slow);
+
+  /* Per-interaction semantic duration tokens */
+  --motion-duration-hover: var(--duration-fast);
+  --motion-duration-enter: var(--duration-base);
+  --motion-duration-enter-emphasis: var(--duration-medium);
+  --motion-duration-panel: var(--duration-medium);
+  --motion-duration-page: var(--duration-slow);
+
+  /* Easing aliases */
+  --motion-easing-default: var(--easing-out);
+  --motion-easing-spring: var(--easing-spring);
+
+  /* Composite motion shorthand values (duration easing) for use in transition: */
+  --motion-hover: var(--motion-duration-hover) var(--motion-easing-default);
+  --motion-enter: var(--motion-duration-enter) var(--motion-easing-default);
+  --motion-enter-emphasis: var(--motion-duration-enter-emphasis) var(--motion-easing-spring);
+  --motion-panel: var(--motion-duration-panel) var(--motion-easing-default);
+  --motion-page: var(--motion-duration-page) var(--motion-easing-default);
+
+  /* Ambient / looping animations */
+  --motion-ambient: 3s ease-in-out infinite;
+  --motion-urgency: 1.5s ease-in-out infinite;
+
+  /* --- 2.10 Layout — Semantic Radius Tokens --- */
+  --radius-button: var(--radius-full);
+  --radius-badge: var(--radius-sm);
+  --radius-input: var(--radius-md);
+  --radius-card: var(--radius-xl);
+  --radius-card-large: var(--radius-2xl);
+  --radius-stat: var(--radius-lg);
+  --radius-progress: var(--radius-full);
+
+  /* ---------------------------------------------------------------------------
+     BREAKPOINT TOKENS — from L3-005 §5.2
+     Used as min-width values in media queries (mobile-first).
+     --------------------------------------------------------------------------- */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+}
+
+/* =============================================================================
+   MOTION ACCESSIBILITY — prefers-reduced-motion override
+   Per L2-001 §5.2 and L3-005 §6.3: all motion duration tokens are overridden
+   to 0ms; ambient/looping animations are set to a static fallback.
+   ============================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    /* Override all duration primitives */
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-medium: 0ms;
+    --duration-slow: 0ms;
+
+    /* Override all semantic motion-duration-* tokens */
+    --motion-duration-fast: 0ms;
+    --motion-duration-base: 0ms;
+    --motion-duration-medium: 0ms;
+    --motion-duration-slow: 0ms;
+    --motion-duration-hover: 0ms;
+    --motion-duration-enter: 0ms;
+    --motion-duration-enter-emphasis: 0ms;
+    --motion-duration-panel: 0ms;
+    --motion-duration-page: 0ms;
+
+    /* Override easing to linear so 0ms transitions complete cleanly */
+    --motion-easing-default: linear;
+    --motion-easing-spring: linear;
+
+    /* Override composite motion tokens */
+    --motion-hover: 0ms linear;
+    --motion-enter: 0ms linear;
+    --motion-enter-emphasis: 0ms linear;
+    --motion-panel: 0ms linear;
+    --motion-page: 0ms linear;
+
+    /* Ambient and urgency animations become static */
+    --motion-ambient: static;
+    --motion-urgency: static;
+  }
+}

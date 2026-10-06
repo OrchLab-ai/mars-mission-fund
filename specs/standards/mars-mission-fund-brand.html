@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mars Mission Fund — Brand Guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --void: #060A14;
+    --deep-space: #0B1628;
+    --nebula: #0E2040;
+    --orbit: #1A3A6E;
+    --launchfire: #FF5C1A;
+    --ignition: #FF8C42;
+    --afterburn: #FFB347;
+    --success: #2FE8A2;
+    --silver: #C8D0DC;
+    --chrome: #E8EDF5;
+    --stardust: #8A96A8;
+    --white: #F5F8FF;
+    --red-planet: #C1440E;
+    --crater: #8B3A2A;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--void);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    overflow-x: hidden;
+  }
+
+  /* STAR FIELD */
+  .starfield {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle var(--d, 3s) ease-in-out infinite alternate;
+    opacity: var(--o, 0.6);
+  }
+  @keyframes twinkle { from { opacity: var(--o, 0.6); } to { opacity: 0.1; } }
+
+  /* LAYOUT */
+  .page { position: relative; z-index: 1; }
+
+  /* COVER */
+  .cover {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 80px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: '';
+    position: absolute;
+    width: 900px; height: 900px;
+    background: radial-gradient(ellipse, rgba(255,92,26,0.12) 0%, transparent 65%);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+  }
+  .cover-inner { max-width: 900px; }
+
+  .brand-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,92,26,0.12);
+    border: 1px solid rgba(255,92,26,0.3);
+    border-radius: 100px;
+    padding: 6px 18px;
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.15em;
+    color: var(--ignition);
+    margin-bottom: 48px;
+    text-transform: uppercase;
+  }
+  .brand-badge::before {
+    content: '';
+    width: 6px; height: 6px;
+    background: var(--launchfire);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { transform: scale(1); opacity:1; } 50% { transform:scale(1.5); opacity:0.5; } }
+
+  .cover h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(72px, 12vw, 160px);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    background: linear-gradient(135deg, var(--chrome) 0%, var(--silver) 30%, var(--launchfire) 60%, var(--afterburn) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+  }
+  .cover-subtitle {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 4vw, 52px);
+    letter-spacing: 0.25em;
+    color: var(--stardust);
+    margin-bottom: 32px;
+  }
+  .cover-desc {
+    font-size: 16px;
+    line-height: 1.7;
+    color: var(--silver);
+    max-width: 520px;
+    margin: 0 auto 64px;
+    font-weight: 300;
+  }
+
+  .doc-meta {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .meta-item { text-align: center; }
+  .meta-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--stardust);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+  .meta-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--silver);
+  }
+
+  /* SECTION */
+  section {
+    padding: 120px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .section-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    color: var(--launchfire);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 88px);
+    letter-spacing: 0.03em;
+    line-height: 1;
+    margin-bottom: 24px;
+  }
+  .section-title span { color: var(--launchfire); }
+  .section-intro {
+    font-size: 16px;
+    line-height: 1.75;
+    color: var(--stardust);
+    max-width: 600px;
+    margin-bottom: 80px;
+    font-weight: 300;
+  }
+
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,92,26,0.3), transparent);
+    margin: 0 40px;
+  }
+
+  /* LOGO SECTION */
+  .logo-showcase {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-bottom: 64px;
+  }
+  @media(max-width:768px){ .logo-showcase { grid-template-columns:1fr; } }
+
+  .logo-card {
+    border-radius: 24px;
+    padding: 60px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .logo-card.dark {
+    background: var(--deep-space);
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .logo-card.light {
+    background: var(--chrome);
+  }
+  .logo-card.fire {
+    background: linear-gradient(135deg, var(--red-planet), var(--launchfire), var(--afterburn));
+  }
+  .logo-card.space {
+    background: linear-gradient(135deg, var(--void), var(--nebula));
+    border: 1px solid rgba(255,92,26,0.2);
+  }
+
+  /* SVG LOGO */
+  .mmf-logo { display: flex; flex-direction: column; align-items: center; gap: 20px; }
+
+  .coin-svg { width: 120px; height: 120px; }
+
+  .logo-wordmark {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+  .wordmark-main {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.12em;
+    font-size: 32px;
+    line-height: 1;
+  }
+  .wordmark-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  .logo-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  /* ICON ONLY */
+  .icon-grid {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .icon-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .icon-bg {
+    width: 80px; height: 80px;
+    border-radius: 20px;
+    display: grid;
+    place-items: center;
+  }
+  .icon-bg.dark { background: var(--deep-space); border: 1px solid rgba(255,255,255,0.08); }
+  .icon-bg.light { background: var(--chrome); }
+  .icon-bg.grad { background: linear-gradient(135deg, var(--red-planet), var(--ignition)); }
+  .icon-label { font-family: 'Space Mono', monospace; font-size: 9px; letter-spacing: 0.2em; color: var(--stardust); text-transform: uppercase; }
+
+  /* COLOR PALETTE */
+  .palette-group { margin-bottom: 56px; }
+  .palette-group-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    color: var(--stardust);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+  }
+  .palette-row { display: flex; gap: 16px; flex-wrap: wrap; }
+
+  .swatch {
+    flex: 1;
+    min-width: 140px;
+    border-radius: 16px;
+    overflow: hidden;
+    cursor: default;
+    transition: transform 0.2s ease;
+  }
+  .swatch:hover { transform: translateY(-4px); }
+  .swatch-color { height: 96px; position: relative; }
+  .swatch-color::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+  }
+  .swatch-info {
+    background: var(--deep-space);
+    padding: 14px 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+  }
+  .swatch-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .swatch-hex { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--stardust); }
+  .swatch-use { font-size: 11px; color: var(--stardust); margin-top: 6px; line-height: 1.4; }
+
+  .swatch-primary { background: var(--void); }
+  .swatch-deep { background: var(--deep-space); }
+  .swatch-nebula { background: var(--nebula); }
+  .swatch-orbit { background: var(--orbit); }
+  .swatch-launch { background: var(--launchfire); }
+  .swatch-ignition { background: var(--ignition); }
+  .swatch-afterburn { background: var(--afterburn); }
+  .swatch-success { background: var(--success); }
+  .swatch-silver { background: var(--silver); }
+  .swatch-chrome { background: var(--chrome); }
+  .swatch-stardust { background: var(--stardust); }
+  .swatch-mars { background: var(--red-planet); }
+
+  /* GRADIENT SHOWCASE */
+  .gradient-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 32px; }
+  @media(max-width:768px){ .gradient-row { grid-template-columns:1fr; } }
+
+  .grad-card {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  .grad-swatch { height: 72px; }
+  .grad-info {
+    background: var(--deep-space);
+    padding: 14px 16px;
+    border: 1px solid rgba(255,255,255,0.06);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+  }
+  .grad-name { font-weight: 600; font-size: 13px; margin-bottom: 4px; }
+  .grad-value { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--stardust); }
+  .grad-use { font-size: 11px; color: var(--stardust); margin-top: 6px; }
+
+  /* TYPOGRAPHY */
+  .type-specimen { margin-bottom: 64px; }
+
+  .font-card {
+    background: var(--deep-space);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 24px;
+    padding: 48px;
+    margin-bottom: 24px;
+    overflow: hidden;
+    position: relative;
+  }
+  .font-card::before {
+    content: attr(data-font);
+    position: absolute;
+    top: -20px; right: 40px;
+    font-family: 'Space Mono', monospace;
+    font-size: 120px;
+    opacity: 0.03;
+    color: white;
+    pointer-events: none;
+    letter-spacing: -0.05em;
+  }
+  .font-meta {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .font-name-block {}
+  .font-role {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--launchfire);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .font-name { font-weight: 700; font-size: 18px; }
+  .font-source { font-size: 12px; color: var(--stardust); margin-top: 4px; }
+
+  .font-tags { display: flex; gap: 8px; flex-wrap: wrap; align-items: flex-start; }
+  .tag {
+    background: rgba(255,92,26,0.1);
+    border: 1px solid rgba(255,92,26,0.2);
+    border-radius: 100px;
+    padding: 4px 12px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    color: var(--ignition);
+    letter-spacing: 0.05em;
+  }
+  .tag.blue {
+    background: rgba(26,58,110,0.3);
+    border-color: rgba(26,58,110,0.6);
+    color: var(--silver);
+  }
+  .tag.green {
+    background: rgba(47,232,162,0.1);
+    border-color: rgba(47,232,162,0.2);
+    color: var(--success);
+  }
+
+  .type-specimen-text {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding-top: 32px;
+  }
+  .specimen-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 1;
+    letter-spacing: 0.03em;
+    background: linear-gradient(135deg, var(--chrome), var(--silver));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 12px;
+  }
+  .specimen-alpha {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 0.15em;
+    color: var(--stardust);
+    margin-bottom: 8px;
+  }
+  .specimen-nums {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 0.1em;
+    color: var(--orbit);
+  }
+
+  .specimen-body { font-size: 16px; line-height: 1.8; color: var(--silver); margin-bottom: 12px; }
+  .specimen-body-sm { font-size: 13px; line-height: 1.7; color: var(--stardust); }
+
+  .specimen-mono {
+    font-family: 'Space Mono', monospace;
+    font-size: 14px;
+    color: var(--success);
+    line-height: 1.6;
+  }
+
+  .type-scale {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 48px;
+  }
+  .scale-row {
+    display: flex;
+    align-items: baseline;
+    gap: 24px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    padding-bottom: 16px;
+  }
+  .scale-label {
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--stardust);
+    min-width: 80px;
+    text-transform: uppercase;
+  }
+  .scale-example { color: var(--white); }
+
+  /* UI SAMPLES */
+  .ui-samples { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media(max-width:768px){ .ui-samples { grid-template-columns: 1fr; } }
+
+  .ui-card {
+    background: var(--deep-space);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 32px;
+    position: relative;
+    overflow: hidden;
+  }
+  .ui-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--launchfire), var(--afterburn));
+  }
+
+  /* BUTTON STYLES */
+  .btn-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border-radius: 100px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    letter-spacing: 0.01em;
+    transition: all 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--launchfire), var(--ignition));
+    color: white;
+    box-shadow: 0 8px 24px rgba(255,92,26,0.35);
+  }
+  .btn-secondary {
+    background: rgba(255,255,255,0.06);
+    color: var(--silver);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--ignition);
+    border: 1px solid rgba(255,92,26,0.3);
+  }
+  .btn-success {
+    background: linear-gradient(135deg, rgba(47,232,162,0.15), rgba(47,232,162,0.05));
+    color: var(--success);
+    border: 1px solid rgba(47,232,162,0.25);
+  }
+  .btn-icon { width: 16px; height: 16px; }
+
+  /* STAT CARD */
+  .stat-card {
+    background: linear-gradient(135deg, var(--nebula), var(--deep-space));
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .stat-label { font-size: 12px; color: var(--stardust); font-weight: 500; }
+  .stat-value { font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 0.03em; color: var(--chrome); line-height: 1; }
+  .stat-sub { font-size: 12px; color: var(--success); display: flex; align-items: center; gap: 4px; }
+
+  .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* PROGRESS BAR */
+  .progress-block { margin-top: 20px; }
+  .progress-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .progress-title { font-size: 14px; font-weight: 600; }
+  .progress-pct { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: var(--launchfire); letter-spacing: 0.05em; }
+  .progress-bar { height: 8px; background: rgba(255,255,255,0.06); border-radius: 100px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 100px; background: linear-gradient(90deg, var(--launchfire), var(--afterburn)); position: relative; }
+  .progress-fill::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 50%;
+    width: 14px; height: 14px;
+    transform: translate(50%, -50%);
+    background: var(--afterburn);
+    border-radius: 50%;
+    box-shadow: 0 0 12px var(--afterburn);
+  }
+
+  /* INPUT */
+  .input-block { margin-top: 24px; }
+  .input-label { font-size: 12px; font-weight: 600; color: var(--stardust); margin-bottom: 8px; letter-spacing: 0.05em; text-transform: uppercase; font-family: 'Space Mono', monospace; }
+  .input-wrap { position: relative; }
+  .input-field {
+    width: 100%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 14px 48px 14px 16px;
+    font-size: 15px;
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    outline: none;
+  }
+  .input-suffix {
+    position: absolute;
+    right: 14px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    color: var(--stardust);
+  }
+
+  /* BADGE SAMPLES */
+  .badge-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .badge-funded { background: rgba(47,232,162,0.12); color: var(--success); border: 1px solid rgba(47,232,162,0.2); }
+  .badge-active { background: rgba(255,92,26,0.12); color: var(--ignition); border: 1px solid rgba(255,92,26,0.2); }
+  .badge-new { background: rgba(26,58,110,0.4); color: var(--silver); border: 1px solid rgba(26,58,110,0.6); }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .badge-dot.green { background: var(--success); }
+  .badge-dot.orange { background: var(--launchfire); }
+  .badge-dot.blue { background: #5B8FD8; }
+
+  /* ICON SYSTEM */
+  .icon-system { margin-top: 20px; }
+  .icon-row-display { display: flex; gap: 16px; flex-wrap: wrap; }
+  .icon-display {
+    width: 48px; height: 48px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    display: grid;
+    place-items: center;
+    color: var(--silver);
+  }
+  .icon-display.active {
+    background: rgba(255,92,26,0.12);
+    border-color: rgba(255,92,26,0.25);
+    color: var(--launchfire);
+  }
+
+  /* VOICE & TONE */
+  .voice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media(max-width:768px){ .voice-grid { grid-template-columns:1fr; } }
+
+  .voice-card {
+    border-radius: 20px;
+    padding: 32px;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .voice-card.do { background: rgba(47,232,162,0.04); border-color: rgba(47,232,162,0.15); }
+  .voice-card.dont { background: rgba(255,92,26,0.04); border-color: rgba(255,92,26,0.15); }
+  .voice-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    font-size: 15px;
+  }
+  .voice-header.do { color: var(--success); }
+  .voice-header.dont { color: var(--launchfire); }
+  .voice-icon { font-size: 20px; }
+  .voice-examples { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .voice-examples li {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--silver);
+    padding-left: 16px;
+    position: relative;
+  }
+  .voice-examples li::before {
+    content: '"';
+    position: absolute;
+    left: 0;
+    color: var(--stardust);
+  }
+
+  /* MOTION */
+  .motion-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 32px; }
+  @media(max-width:768px){ .motion-row { grid-template-columns: 1fr 1fr; } }
+
+  .motion-card {
+    background: var(--deep-space);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 16px;
+    padding: 24px 20px;
+    text-align: center;
+  }
+  .motion-vis {
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+  .motion-dot {
+    width: 16px; height: 16px;
+    background: var(--launchfire);
+    border-radius: 50%;
+  }
+  .m-ease-out .motion-dot { animation: easeOut 2s cubic-bezier(0.25,1,0.5,1) infinite; }
+  .m-spring .motion-dot { animation: spring 2s cubic-bezier(0.34,1.56,0.64,1) infinite; }
+  .m-float .motion-dot { animation: float 3s ease-in-out infinite; }
+  .m-ignite .motion-dot { animation: ignite 1.5s ease-in-out infinite; background: var(--afterburn); }
+
+  @keyframes easeOut { 0%,100% { transform: translateX(-20px); } 50% { transform: translateX(20px); } }
+  @keyframes spring { 0% { transform: scale(0.7); } 60% { transform: scale(1.2); } 100% { transform: scale(1); } }
+  @keyframes float { 0%,100% { transform: translateY(6px); } 50% { transform: translateY(-6px); } }
+  @keyframes ignite { 0%,100% { transform: scale(1); box-shadow: 0 0 8px var(--launchfire); } 50% { transform: scale(1.3); box-shadow: 0 0 20px var(--launchfire), 0 0 40px rgba(255,92,26,0.4); } }
+
+  .motion-name { font-weight: 700; font-size: 13px; margin-bottom: 6px; }
+  .motion-spec { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--stardust); }
+
+  /* FOOTER */
+  .brand-footer {
+    border-top: 1px solid rgba(255,255,255,0.06);
+    padding: 80px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    flex-wrap: gap;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 32px; letter-spacing: 0.1em; }
+  .footer-brand span { color: var(--launchfire); }
+  .footer-note { font-family: 'Space Mono', monospace; font-size: 11px; color: var(--stardust); letter-spacing: 0.1em; }
+
+  /* UTILITIES */
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .mt-24 { margin-top: 24px; }
+  .mt-32 { margin-top: 32px; }
+  .mt-48 { margin-top: 48px; }
+  .mt-64 { margin-top: 64px; }
+
+  /* NAV */
+  .toc {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(6,10,20,0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    overflow-x: auto;
+  }
+  .toc a {
+    display: block;
+    padding: 16px 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--stardust);
+    text-decoration: none;
+    white-space: nowrap;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .toc a:hover { color: var(--white); border-bottom-color: var(--launchfire); }
+  .toc-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 0.1em;
+    color: var(--launchfire);
+    margin-right: 24px;
+    padding: 16px 0;
+    white-space: nowrap;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    padding-right: 24px;
+  }
+
+  /* CLEARSPACE */
+  .clearspace-demo {
+    background: var(--deep-space);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 20px;
+    padding: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+  }
+  .clearspace-inner {
+    position: relative;
+    padding: 32px;
+  }
+  .clearspace-inner::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1.5px dashed rgba(255,92,26,0.3);
+    border-radius: 8px;
+    pointer-events: none;
+  }
+  .clearspace-label { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--launchfire); letter-spacing: 0.2em; text-transform: uppercase; opacity: 0.7; }
+
+  .dont-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-top: 32px; }
+  @media(max-width:768px) { .dont-grid { grid-template-columns:1fr; } }
+  .dont-card {
+    background: var(--deep-space);
+    border: 1px solid rgba(255,60,60,0.15);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+  }
+  .dont-logo-area {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.02);
+    position: relative;
+  }
+  .dont-logo-area::after {
+    content: '✕';
+    position: absolute;
+    top: 8px; right: 8px;
+    color: rgba(255,60,60,0.6);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .dont-title { font-size: 13px; font-weight: 700; color: rgba(255,100,100,0.8); margin-bottom: 4px; }
+  .dont-desc { font-size: 11px; color: var(--stardust); line-height: 1.4; }
+
+  .dont-squish { transform: scaleX(0.6); }
+  .dont-stretch { transform: scaleY(0.5); }
+  .dont-rotate { transform: rotate(35deg) scale(0.8); }
+  .dont-low-contrast { filter: contrast(0.2) brightness(0.5); }
+  .dont-busy { filter: drop-shadow(0 0 6px red) drop-shadow(0 0 12px blue) drop-shadow(0 0 18px green); }
+  .dont-outline { -webkit-text-fill-color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.4); font-family: 'Bebas Neue'; font-size: 28px; letter-spacing: 0.1em; color: transparent; }
+
+</style>
+</head>
+<body>
+
+<!-- STARFIELD -->
+<div class="starfield" id="stars"></div>
+
+<!-- NAV -->
+<nav class="toc">
+  <div class="toc-brand">MMF</div>
+  <a href="#logo">Logo</a>
+  <a href="#palette">Colors</a>
+  <a href="#typography">Type</a>
+  <a href="#ui">UI Kit</a>
+  <a href="#voice">Voice</a>
+  <a href="#motion">Motion</a>
+</nav>
+
+<div class="page">
+
+  <!-- COVER -->
+  <div class="cover">
+    <div class="cover-inner">
+      <div class="brand-badge">Brand Identity Guidelines v1.0</div>
+      <h1>MARS<br>MISSION<br>FUND</h1>
+      <div class="cover-subtitle">Brand Guidelines</div>
+      <p class="cover-desc">A complete visual identity system for the crowdfunding platform that turns ordinary investors into mission backers — funding humanity's next great leap to the red planet.</p>
+      <div class="doc-meta">
+        <div class="meta-item">
+          <div class="meta-label">Version</div>
+          <div class="meta-value">1.0</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Audience</div>
+          <div class="meta-value">Design & Dev Teams</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Last Updated</div>
+          <div class="meta-value">2026</div>
+        </div>
+        <div class="meta-item">
+          <div class="meta-label">Status</div>
+          <div class="meta-value" style="color:var(--success)">Live</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- LOGO -->
+  <section id="logo">
+    <div class="section-label">01 — Identity</div>
+    <h2 class="section-title">The <span>Logo</span></h2>
+    <p class="section-intro">The Mars Mission Fund mark fuses a metallic coin — symbol of capital, trust, and value — with Mars itself embedded within it. Together they say: your money is going somewhere extraordinary.</p>
+
+    <!-- LOGO CARDS -->
+    <div class="logo-showcase">
+
+      <!-- Primary Dark -->
+      <div class="logo-card dark">
+        <div class="mmf-logo">
+          <!-- COIN SVG - Primary -->
+          <svg class="coin-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="coinGrad" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#E8EDF5"/>
+                <stop offset="40%" stop-color="#C8D0DC"/>
+                <stop offset="75%" stop-color="#8A96A8"/>
+                <stop offset="100%" stop-color="#5A6475"/>
+              </radialGradient>
+              <radialGradient id="coinInner" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#1A3A6E"/>
+                <stop offset="50%" stop-color="#0B1628"/>
+                <stop offset="100%" stop-color="#060A14"/>
+              </radialGradient>
+              <radialGradient id="marsGrad" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#FF8C42"/>
+                <stop offset="45%" stop-color="#C1440E"/>
+                <stop offset="100%" stop-color="#7A2A0A"/>
+              </radialGradient>
+              <filter id="glow">
+                <feGaussianBlur stdDeviation="2" result="blur"/>
+                <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+              </filter>
+              <clipPath id="coinClip">
+                <circle cx="60" cy="60" r="50"/>
+              </clipPath>
+            </defs>
+            <!-- Outer ring -->
+            <circle cx="60" cy="60" r="58" fill="url(#coinGrad)" opacity="0.3"/>
+            <!-- Coin body -->
+            <circle cx="60" cy="60" r="52" fill="url(#coinGrad)"/>
+            <!-- Inner recess -->
+            <circle cx="60" cy="60" r="44" fill="url(#coinInner)"/>
+            <!-- Ridge detail -->
+            <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(200,208,220,0.15)" stroke-width="1"/>
+            <circle cx="60" cy="60" r="46" fill="none" stroke="rgba(200,208,220,0.08)" stroke-width="0.5"/>
+            <!-- MARS PLANET -->
+            <circle cx="60" cy="60" r="24" fill="url(#marsGrad)"/>
+            <!-- Mars surface details -->
+            <ellipse cx="52" cy="56" rx="5" ry="3" fill="rgba(90,30,10,0.5)" transform="rotate(-15,52,56)"/>
+            <ellipse cx="68" cy="58" rx="4" ry="2" fill="rgba(90,30,10,0.4)" transform="rotate(10,68,58)"/>
+            <ellipse cx="60" cy="50" rx="7" ry="2.5" fill="rgba(255,140,66,0.4)" transform="rotate(-5,60,50)"/>
+            <ellipse cx="57" cy="68" rx="3" ry="2" fill="rgba(90,30,10,0.3)" transform="rotate(20,57,68)"/>
+            <!-- Mars polar cap -->
+            <ellipse cx="60" cy="38" rx="6" ry="2.5" fill="rgba(220,230,245,0.4)"/>
+            <!-- Orbital ring around Mars -->
+            <ellipse cx="60" cy="60" rx="32" ry="10" fill="none" stroke="rgba(200,208,220,0.25)" stroke-width="1" stroke-dasharray="3 2" transform="rotate(-25,60,60)"/>
+            <!-- Coin shine highlight -->
+            <ellipse cx="46" cy="36" rx="14" ry="8" fill="rgba(255,255,255,0.12)" transform="rotate(-20,46,36)"/>
+            <!-- $ symbol subtle overlay in coin rim -->
+            <text x="60" y="15" text-anchor="middle" font-size="7" fill="rgba(200,208,220,0.4)" font-family="serif" font-weight="bold">★</text>
+            <text x="60" y="109" text-anchor="middle" font-size="7" fill="rgba(200,208,220,0.4)" font-family="serif" font-weight="bold">★</text>
+          </svg>
+          <div class="logo-wordmark">
+            <div class="wordmark-main" style="color: var(--chrome);">MARS MISSION<br><span style="color:var(--launchfire)">FUND</span></div>
+            <div class="wordmark-sub" style="color:var(--stardust)">Crowdfunding the Next Giant Leap</div>
+          </div>
+        </div>
+        <div class="logo-label">Primary — Dark Background</div>
+      </div>
+
+      <!-- Light bg -->
+      <div class="logo-card light">
+        <div class="mmf-logo">
+          <svg class="coin-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="coinGrad2" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#C8D0DC"/>
+                <stop offset="50%" stop-color="#8A96A8"/>
+                <stop offset="100%" stop-color="#5A6475"/>
+              </radialGradient>
+              <radialGradient id="marsGrad2" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#FF8C42"/>
+                <stop offset="50%" stop-color="#C1440E"/>
+                <stop offset="100%" stop-color="#7A2A0A"/>
+              </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#coinGrad2)"/>
+            <circle cx="60" cy="60" r="44" fill="#1A3A6E"/>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(90,100,117,0.3)" stroke-width="1"/>
+            <circle cx="60" cy="60" r="24" fill="url(#marsGrad2)"/>
+            <ellipse cx="52" cy="56" rx="5" ry="3" fill="rgba(90,30,10,0.5)" transform="rotate(-15,52,56)"/>
+            <ellipse cx="68" cy="58" rx="4" ry="2" fill="rgba(90,30,10,0.4)" transform="rotate(10,68,58)"/>
+            <ellipse cx="60" cy="50" rx="7" ry="2.5" fill="rgba(255,140,66,0.4)" transform="rotate(-5,60,50)"/>
+            <ellipse cx="60" cy="38" rx="6" ry="2.5" fill="rgba(220,230,245,0.5)"/>
+            <ellipse cx="60" cy="60" rx="32" ry="10" fill="none" stroke="rgba(200,208,220,0.3)" stroke-width="1" stroke-dasharray="3 2" transform="rotate(-25,60,60)"/>
+            <ellipse cx="46" cy="36" rx="14" ry="8" fill="rgba(255,255,255,0.15)" transform="rotate(-20,46,36)"/>
+          </svg>
+          <div class="logo-wordmark">
+            <div class="wordmark-main" style="color: #1A3A6E;">MARS MISSION<br><span style="color:var(--launchfire)">FUND</span></div>
+            <div class="wordmark-sub" style="color:#5A6475;">Crowdfunding the Next Giant Leap</div>
+          </div>
+        </div>
+        <div class="logo-label" style="color:#5A6475;">Reversed — Light Background</div>
+      </div>
+
+      <!-- Horizontal lockup -->
+      <div class="logo-card space">
+        <div class="mmf-logo" style="flex-direction:row; gap:24px; align-items:center;">
+          <svg width="72" height="72" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="cg3" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#E8EDF5"/>
+                <stop offset="50%" stop-color="#C8D0DC"/>
+                <stop offset="100%" stop-color="#5A6475"/>
+              </radialGradient>
+              <radialGradient id="mg3" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#FF8C42"/>
+                <stop offset="50%" stop-color="#C1440E"/>
+                <stop offset="100%" stop-color="#7A2A0A"/>
+              </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#cg3)"/>
+            <circle cx="60" cy="60" r="44" fill="#060A14"/>
+            <circle cx="60" cy="60" r="48" fill="none" stroke="rgba(200,208,220,0.15)" stroke-width="1"/>
+            <circle cx="60" cy="60" r="24" fill="url(#mg3)"/>
+            <ellipse cx="52" cy="56" rx="5" ry="3" fill="rgba(90,30,10,0.5)" transform="rotate(-15,52,56)"/>
+            <ellipse cx="68" cy="58" rx="4" ry="2" fill="rgba(90,30,10,0.4)" transform="rotate(10,68,58)"/>
+            <ellipse cx="60" cy="38" rx="6" ry="2.5" fill="rgba(220,230,245,0.4)"/>
+            <ellipse cx="60" cy="60" rx="32" ry="10" fill="none" stroke="rgba(200,208,220,0.25)" stroke-width="1" stroke-dasharray="3 2" transform="rotate(-25,60,60)"/>
+            <ellipse cx="46" cy="36" rx="14" ry="8" fill="rgba(255,255,255,0.12)" transform="rotate(-20,46,36)"/>
+          </svg>
+          <div>
+            <div style="font-family:'Bebas Neue',sans-serif; font-size:28px; letter-spacing:0.08em; color:var(--chrome); line-height:1;">MARS MISSION <span style="color:var(--launchfire)">FUND</span></div>
+            <div style="font-family:'Space Mono',monospace; font-size:9px; letter-spacing:0.3em; color:var(--stardust); margin-top:4px;">CROWDFUNDING THE NEXT GIANT LEAP</div>
+          </div>
+        </div>
+        <div class="logo-label">Horizontal Lockup</div>
+      </div>
+
+      <!-- Fire bg -->
+      <div class="logo-card fire">
+        <div class="mmf-logo">
+          <svg class="coin-svg" viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="cg4" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.9)"/>
+                <stop offset="40%" stop-color="rgba(255,255,255,0.6)"/>
+                <stop offset="100%" stop-color="rgba(255,255,255,0.3)"/>
+              </radialGradient>
+              <radialGradient id="mg4" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="rgba(255,255,255,0.5)"/>
+                <stop offset="50%" stop-color="rgba(255,255,255,0.2)"/>
+                <stop offset="100%" stop-color="rgba(255,255,255,0.05)"/>
+              </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#cg4)"/>
+            <circle cx="60" cy="60" r="44" fill="rgba(0,0,0,0.3)"/>
+            <circle cx="60" cy="60" r="24" fill="url(#mg4)"/>
+            <ellipse cx="60" cy="38" rx="6" ry="2.5" fill="rgba(255,255,255,0.4)"/>
+            <ellipse cx="60" cy="60" rx="32" ry="10" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1" stroke-dasharray="3 2" transform="rotate(-25,60,60)"/>
+          </svg>
+          <div class="logo-wordmark">
+            <div class="wordmark-main" style="color:white;">MARS MISSION<br>FUND</div>
+            <div class="wordmark-sub" style="color:rgba(255,255,255,0.6);">Crowdfunding the Next Giant Leap</div>
+          </div>
+        </div>
+        <div class="logo-label" style="color:rgba(255,255,255,0.5);">White — On Color</div>
+      </div>
+    </div>
+
+    <!-- ICON VARIANTS -->
+    <h3 style="font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:0.05em; color:var(--chrome); margin-bottom:8px;">Icon Mark</h3>
+    <p style="color:var(--stardust); font-size:14px; margin-bottom:24px;">Use the standalone coin mark at sizes where the full wordmark becomes illegible (below 40px height).</p>
+    <div class="icon-grid">
+      <div class="icon-item">
+        <div class="icon-bg dark">
+          <svg width="48" height="48" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <radialGradient id="igs" cx="35%" cy="30%" r="70%">
+                <stop offset="0%" stop-color="#E8EDF5"/>
+                <stop offset="50%" stop-color="#C8D0DC"/>
+                <stop offset="100%" stop-color="#5A6475"/>
+              </radialGradient>
+              <radialGradient id="ims" cx="40%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#FF8C42"/>
+                <stop offset="50%" stop-color="#C1440E"/>
+                <stop offset="100%" stop-color="#7A2A0A"/>
+              </radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#igs)"/>
+            <circle cx="60" cy="60" r="44" fill="#060A14"/>
+            <circle cx="60" cy="60" r="24" fill="url(#ims)"/>
+            <ellipse cx="60" cy="38" rx="6" ry="2.5" fill="rgba(220,230,245,0.4)"/>
+            <ellipse cx="60" cy="60" rx="32" ry="10" fill="none" stroke="rgba(200,208,220,0.2)" stroke-width="1.5" stroke-dasharray="3 2" transform="rotate(-25,60,60)"/>
+          </svg>
+        </div>
+        <div class="icon-label">48px</div>
+      </div>
+      <div class="icon-item">
+        <div class="icon-bg dark" style="width:56px;height:56px;border-radius:14px;">
+          <svg width="36" height="36" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <radialGradient id="igs2" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#E8EDF5"/><stop offset="50%" stop-color="#C8D0DC"/><stop offset="100%" stop-color="#5A6475"/></radialGradient>
+              <radialGradient id="ims2" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#FF8C42"/><stop offset="50%" stop-color="#C1440E"/><stop offset="100%" stop-color="#7A2A0A"/></radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#igs2)"/><circle cx="60" cy="60" r="44" fill="#060A14"/><circle cx="60" cy="60" r="24" fill="url(#ims2)"/>
+            <ellipse cx="60" cy="38" rx="6" ry="2.5" fill="rgba(220,230,245,0.4)"/>
+            <ellipse cx="60" cy="60" rx="32" ry="10" fill="none" stroke="rgba(200,208,220,0.2)" stroke-width="1.5" stroke-dasharray="3 2" transform="rotate(-25,60,60)"/>
+          </svg>
+        </div>
+        <div class="icon-label">32px</div>
+      </div>
+      <div class="icon-item">
+        <div class="icon-bg grad" style="width:80px;height:80px;border-radius:22px;">
+          <svg width="52" height="52" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <radialGradient id="igs3" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="rgba(255,255,255,0.9)"/><stop offset="100%" stop-color="rgba(255,255,255,0.4)"/></radialGradient>
+              <radialGradient id="ims3" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="rgba(255,255,255,0.5)"/><stop offset="100%" stop-color="rgba(255,255,255,0.1)"/></radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#igs3)"/><circle cx="60" cy="60" r="44" fill="rgba(0,0,0,0.3)"/><circle cx="60" cy="60" r="24" fill="url(#ims3)"/>
+            <ellipse cx="60" cy="38" rx="6" ry="2.5" fill="rgba(255,255,255,0.4)"/>
+            <ellipse cx="60" cy="60" rx="32" ry="10" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="1.5" stroke-dasharray="3 2" transform="rotate(-25,60,60)"/>
+          </svg>
+        </div>
+        <div class="icon-label">App Icon</div>
+      </div>
+      <div class="icon-item">
+        <div class="icon-bg dark" style="width:32px;height:32px;border-radius:8px;overflow:hidden;">
+          <svg width="22" height="22" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <radialGradient id="igs4" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#E8EDF5"/><stop offset="100%" stop-color="#5A6475"/></radialGradient>
+              <radialGradient id="ims4" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#FF8C42"/><stop offset="100%" stop-color="#7A2A0A"/></radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#igs4)"/><circle cx="60" cy="60" r="44" fill="#060A14"/><circle cx="60" cy="60" r="24" fill="url(#ims4)"/>
+          </svg>
+        </div>
+        <div class="icon-label">16px</div>
+      </div>
+    </div>
+
+    <!-- CLEARSPACE -->
+    <h3 class="mt-64" style="font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:0.05em; color:var(--chrome); margin-bottom:8px;">Clear Space</h3>
+    <p style="color:var(--stardust); font-size:14px; margin-bottom:32px;">Always maintain a minimum clear space equal to the height of the "M" in the wordmark around all sides of the logo mark.</p>
+    <div class="clearspace-demo">
+      <div class="clearspace-inner">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <svg width="56" height="56" viewBox="0 0 120 120" fill="none">
+            <defs>
+              <radialGradient id="cgc" cx="35%" cy="30%" r="70%"><stop offset="0%" stop-color="#E8EDF5"/><stop offset="50%" stop-color="#C8D0DC"/><stop offset="100%" stop-color="#5A6475"/></radialGradient>
+              <radialGradient id="mgc" cx="40%" cy="35%" r="65%"><stop offset="0%" stop-color="#FF8C42"/><stop offset="50%" stop-color="#C1440E"/><stop offset="100%" stop-color="#7A2A0A"/></radialGradient>
+            </defs>
+            <circle cx="60" cy="60" r="52" fill="url(#cgc)"/>
+            <circle cx="60" cy="60" r="44" fill="#060A14"/>
+            <circle cx="60" cy="60" r="24" fill="url(#mgc)"/>
+            <ellipse cx="60" cy="38" rx="6" ry="2.5" fill="rgba(220,230,245,0.4)"/>
+            <ellipse cx="60" cy="60" rx="32" ry="10" fill="none" stroke="rgba(200,208,220,0.2)" stroke-width="1.5" stroke-dasharray="3 2" transform="rotate(-25,60,60)"/>
+          </svg>
+          <div style="font-family:'Bebas Neue',sans-serif; font-size:26px; letter-spacing:0.08em; color:var(--chrome);">MARS MISSION <span style="color:var(--launchfire)">FUND</span></div>
+        </div>
+      </div>
+      <div class="clearspace-label">← Minimum clear space: 1× coin diameter →</div>
+    </div>
+
+    <!-- DON'T -->
+    <h3 class="mt-64" style="font-family:'Bebas Neue',sans-serif; font-size:32px; letter-spacing:0.05em; color:var(--chrome); margin-bottom:8px;">Logo Don'ts</h3>
+    <p style="color:var(--stardust); font-size:14px; margin-bottom:0;">Never alter, distort, or misuse the logo in these ways.</p>
+    <div class="dont-grid">
+      <div class="dont-card">
+        <div class="dont-logo-area"><span class="dont-outline">MMF</span></div>
+        <div class="dont-title">Don't outline</div>
+        <div class="dont-desc">Never create an outlined or stroked version of the wordmark</div>
+      </div>
+      <div class="dont-card">
+        <div class="dont-logo-area">
+          <div style="font-family:'Bebas Neue',sans-serif; font-size:22px; color:var(--chrome); transform:scaleX(0.55);">MARS MISSION FUND</div>
+        </div>
+        <div class="dont-title">Don't squish</div>
+        <div class="dont-desc">Never stretch or compress the logo disproportionately</div>
+      </div>
+      <div class="dont-card">
+        <div class="dont-logo-area">
+          <div style="font-family:'Bebas Neue',sans-serif; font-size:18px; color:rgba(200,208,220,0.2);">MARS MISSION FUND</div>
+        </div>
+        <div class="dont-title">Don't fade</div>
+        <div class="dont-desc">Never use the logo below minimum contrast on any background</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- COLOR PALETTE -->
+  <section id="palette">
+    <div class="section-label">02 — Color</div>
+    <h2 class="section-title">The <span>Palette</span></h2>
+    <p class="section-intro">Four systems working in concert: deep-space foundations, launch-fire energy, mission-success green, and metallic silver for trust and finish.</p>
+
+    <div class="palette-group">
+      <div class="palette-group-title">01 / Deep Space — Foundation</div>
+      <div class="palette-row">
+        <div class="swatch">
+          <div class="swatch-color swatch-primary"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Void</div>
+            <div class="swatch-hex">#060A14</div>
+            <div class="swatch-use">Primary background, deepest contrast</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color swatch-deep"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Deep Space</div>
+            <div class="swatch-hex">#0B1628</div>
+            <div class="swatch-use">Card backgrounds, secondary surfaces</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color swatch-nebula"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Nebula</div>
+            <div class="swatch-hex">#0E2040</div>
+            <div class="swatch-use">Elevated surfaces, hover states</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color swatch-orbit"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Orbit</div>
+            <div class="swatch-hex">#1A3A6E</div>
+            <div class="swatch-use">Borders, dividers, subtle emphasis</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-title">02 / Launch Fire — Energy</div>
+      <div class="palette-row">
+        <div class="swatch">
+          <div class="swatch-color swatch-launch"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Launchfire</div>
+            <div class="swatch-hex">#FF5C1A</div>
+            <div class="swatch-use">Primary CTA, brand accent, links</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color swatch-ignition"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Ignition</div>
+            <div class="swatch-hex">#FF8C42</div>
+            <div class="swatch-use">Hover states, secondary CTA, icons</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color swatch-afterburn"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Afterburn</div>
+            <div class="swatch-hex">#FFB347</div>
+            <div class="swatch-use">Progress fills, gradient endpoints</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color swatch-mars"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Red Planet</div>
+            <div class="swatch-hex">#C1440E</div>
+            <div class="swatch-use">Mars imagery, deep accent tones</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-title">03 / Metallic Silver — Trust & Finish</div>
+      <div class="palette-row">
+        <div class="swatch">
+          <div class="swatch-color swatch-chrome"></div>
+          <div class="swatch-info">
+            <div class="swatch-name" style="color:#1A1A1A">Chrome</div>
+            <div class="swatch-hex" style="color:#444">#E8EDF5</div>
+            <div class="swatch-use" style="color:#666">Primary text on dark backgrounds</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color swatch-silver"></div>
+          <div class="swatch-info">
+            <div class="swatch-name" style="color:#1A1A1A">Silver</div>
+            <div class="swatch-hex" style="color:#444">#C8D0DC</div>
+            <div class="swatch-use" style="color:#666">Secondary text, coin highlights</div>
+          </div>
+        </div>
+        <div class="swatch">
+          <div class="swatch-color swatch-stardust"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Stardust</div>
+            <div class="swatch-hex">#8A96A8</div>
+            <div class="swatch-use">Tertiary text, placeholders, labels</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="palette-group">
+      <div class="palette-group-title">04 / Success Green — Mission Complete</div>
+      <div class="palette-row" style="max-width:320px;">
+        <div class="swatch">
+          <div class="swatch-color swatch-success"></div>
+          <div class="swatch-info">
+            <div class="swatch-name">Mission Success</div>
+            <div class="swatch-hex">#2FE8A2</div>
+            <div class="swatch-use">Funded badges, success states, gain indicators</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GRADIENTS -->
+    <h3 style="font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.05em; color:var(--chrome); margin-bottom:8px;">Branded Gradients</h3>
+    <p style="color:var(--stardust); font-size:14px;">Use these approved gradient combinations for hero sections, CTAs, and visual emphasis.</p>
+    <div class="gradient-row">
+      <div class="grad-card">
+        <div class="grad-swatch" style="background: linear-gradient(135deg, #FF5C1A, #FF8C42, #FFB347);"></div>
+        <div class="grad-info">
+          <div class="grad-name">Launch Sequence</div>
+          <div class="grad-value">#FF5C1A → #FFB347</div>
+          <div class="grad-use">Primary CTAs, hero backgrounds</div>
+        </div>
+      </div>
+      <div class="grad-card">
+        <div class="grad-swatch" style="background: linear-gradient(135deg, #060A14, #0E2040, #1A3A6E);"></div>
+        <div class="grad-info">
+          <div class="grad-name">Deep Field</div>
+          <div class="grad-value">#060A14 → #1A3A6E</div>
+          <div class="grad-use">Card gradients, page sections</div>
+        </div>
+      </div>
+      <div class="grad-card">
+        <div class="grad-swatch" style="background: linear-gradient(135deg, #E8EDF5, #C8D0DC, #8A96A8);"></div>
+        <div class="grad-info">
+          <div class="grad-name">Metallic Sheen</div>
+          <div class="grad-value">#E8EDF5 → #8A96A8</div>
+          <div class="grad-use">Coin renders, achievement badges</div>
+        </div>
+      </div>
+      <div class="grad-card">
+        <div class="grad-swatch" style="background: linear-gradient(135deg, #C1440E, #FF5C1A, #FF8C42);"></div>
+        <div class="grad-info">
+          <div class="grad-name">Mars Atmosphere</div>
+          <div class="grad-value">#C1440E → #FF8C42</div>
+          <div class="grad-use">Mars imagery, campaign heroes</div>
+        </div>
+      </div>
+      <div class="grad-card">
+        <div class="grad-swatch" style="background: linear-gradient(135deg, #060A14 0%, #0B1628 50%, rgba(255,92,26,0.15) 100%);"></div>
+        <div class="grad-info">
+          <div class="grad-name">Night Launch</div>
+          <div class="grad-value">Void + Launchfire glow</div>
+          <div class="grad-use">Landing page hero, dark overlays</div>
+        </div>
+      </div>
+      <div class="grad-card">
+        <div class="grad-swatch" style="background: linear-gradient(135deg, #0B1628, rgba(47,232,162,0.2), #0B1628);"></div>
+        <div class="grad-info">
+          <div class="grad-name">Mission Success</div>
+          <div class="grad-value">Deep Space + Success glow</div>
+          <div class="grad-use">Funded campaign celebrations</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- TYPOGRAPHY -->
+  <section id="typography">
+    <div class="section-label">03 — Type</div>
+    <h2 class="section-title">Type<span>faces</span></h2>
+    <p class="section-intro">Three typefaces. Each with a distinct mission: commanding display presence, intelligent readability, and technical precision.</p>
+
+    <!-- BEBAS NEUE -->
+    <div class="font-card" data-font="Bb">
+      <div class="font-meta">
+        <div class="font-name-block">
+          <div class="font-role">Display / Headlines</div>
+          <div class="font-name">Bebas Neue</div>
+          <div class="font-source">Google Fonts · Free · 1 weight</div>
+        </div>
+        <div class="font-tags">
+          <span class="tag">Impact</span>
+          <span class="tag">Futuristic</span>
+          <span class="tag">All-caps</span>
+        </div>
+      </div>
+      <div class="type-specimen-text">
+        <div class="specimen-display">FUNDING<br>THE NEXT<br>GIANT LEAP</div>
+        <div class="specimen-alpha">A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</div>
+        <div class="specimen-nums">0 1 2 3 4 5 6 7 8 9 ! ? & $ %</div>
+      </div>
+    </div>
+
+    <!-- DM SANS -->
+    <div class="font-card" data-font="Dm">
+      <div class="font-meta">
+        <div class="font-name-block">
+          <div class="font-role">Body / UI / Buttons</div>
+          <div class="font-name">DM Sans</div>
+          <div class="font-source">Google Fonts · Free · Variable weight 100–900</div>
+        </div>
+        <div class="font-tags">
+          <span class="tag blue">Readable</span>
+          <span class="tag blue">Modern</span>
+          <span class="tag blue">Professional</span>
+        </div>
+      </div>
+      <div class="type-specimen-text">
+        <p class="specimen-body">Mars Mission Fund connects visionary investors with the teams building humanity's multiplanetary future. Every contribution moves the mission forward — one launch at a time.</p>
+        <p class="specimen-body-sm">Invest in orbital infrastructure, habitat modules, life-support systems, and the engineering teams designing the technology stack for long-duration spaceflight. Starting at $50 per mission stake.</p>
+      </div>
+    </div>
+
+    <!-- SPACE MONO -->
+    <div class="font-card" data-font="Sm">
+      <div class="font-meta">
+        <div class="font-name-block">
+          <div class="font-role">Data / Labels / Code / Tags</div>
+          <div class="font-name">Space Mono</div>
+          <div class="font-source">Google Fonts · Free · 2 weights</div>
+        </div>
+        <div class="font-tags">
+          <span class="tag green">Technical</span>
+          <span class="tag green">Data</span>
+          <span class="tag green">Monospace</span>
+        </div>
+      </div>
+      <div class="type-specimen-text">
+        <div class="specimen-mono">
+          MISSION_ID: MMF-2026-MARS-041<br>
+          FUNDING_TARGET: $4,200,000 USD<br>
+          RAISED_TO_DATE: $3,108,400 (73.9%)<br>
+          T_MINUS: 18d 04h 22m 11s<br>
+          STATUS: ACTIVE — ACCEPTING STAKES
+        </div>
+      </div>
+    </div>
+
+    <!-- TYPE SCALE -->
+    <h3 style="font-family:'Bebas Neue',sans-serif; font-size:40px; letter-spacing:0.05em; color:var(--chrome); margin-bottom:8px;" class="mt-48">Type Scale</h3>
+    <p style="color:var(--stardust); font-size:14px; margin-bottom:24px;">A complete modular scale for consistent hierarchy across all surfaces.</p>
+    <div class="type-scale">
+      <div class="scale-row">
+        <div class="scale-label">Hero / 96px</div>
+        <div class="scale-example" style="font-family:'Bebas Neue',sans-serif; font-size:clamp(32px,5vw,72px); letter-spacing:0.03em; line-height:1;">LAUNCH SEQUENCE</div>
+      </div>
+      <div class="scale-row">
+        <div class="scale-label">H1 / 56px</div>
+        <div class="scale-example" style="font-family:'Bebas Neue',sans-serif; font-size:clamp(28px,4vw,48px); letter-spacing:0.04em; line-height:1;">Mars Mission 041</div>
+      </div>
+      <div class="scale-row">
+        <div class="scale-label">H2 / 40px</div>
+        <div class="scale-example" style="font-family:'Bebas Neue',sans-serif; font-size:clamp(24px,3vw,36px); letter-spacing:0.04em; line-height:1.1;">Habitat Module Campaign</div>
+      </div>
+      <div class="scale-row">
+        <div class="scale-label">H3 / 24px</div>
+        <div class="scale-example" style="font-family:'DM Sans',sans-serif; font-size:20px; font-weight:700;">Mission Details & Milestones</div>
+      </div>
+      <div class="scale-row">
+        <div class="scale-label">Body / 16px</div>
+        <div class="scale-example" style="font-family:'DM Sans',sans-serif; font-size:16px; font-weight:400; color:var(--silver);">Your investment funds the teams designing pressurized habitats for six-person crews.</div>
+      </div>
+      <div class="scale-row">
+        <div class="scale-label">Small / 13px</div>
+        <div class="scale-example" style="font-family:'DM Sans',sans-serif; font-size:13px; font-weight:400; color:var(--stardust);">All investments are subject to mission risk. Past performance is not indicative of future results.</div>
+      </div>
+      <div class="scale-row">
+        <div class="scale-label">Label / 11px</div>
+        <div class="scale-example" style="font-family:'Space Mono',monospace; font-size:11px; letter-spacing:0.2em; text-transform:uppercase; color:var(--launchfire);">MISSION STATUS · ACTIVE</div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- UI KIT -->
+  <section id="ui">
+    <div class="section-label">04 — UI Components</div>
+    <h2 class="section-title">UI <span>Kit</span></h2>
+    <p class="section-intro">Core component patterns built from the brand system. Consistent, accessible, and unmistakably Mars Mission Fund.</p>
+
+    <div class="ui-samples">
+
+      <!-- Buttons -->
+      <div class="ui-card">
+        <div style="font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--stardust); text-transform:uppercase; margin-bottom:20px;">Buttons</div>
+        <div class="btn-row">
+          <button class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            Back This Mission
+          </button>
+          <button class="btn btn-secondary">View Details</button>
+        </div>
+        <div class="btn-row" style="margin-top:12px;">
+          <button class="btn btn-ghost">Learn More</button>
+          <button class="btn btn-success">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Funded!
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="ui-card">
+        <div style="font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--stardust); text-transform:uppercase; margin-bottom:20px;">Mission Stats</div>
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">Raised</div>
+            <div class="stat-value" style="font-size:28px;">$3.1M</div>
+            <div class="stat-sub">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              73.9% funded
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Backers</div>
+            <div class="stat-value" style="font-size:28px;">2,841</div>
+            <div class="stat-sub">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+              +124 today
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Days Left</div>
+            <div class="stat-value" style="font-size:28px; color:var(--ignition);">18</div>
+            <div class="stat-sub" style="color:var(--stardust);">Closes Mar 21</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Min. Stake</div>
+            <div class="stat-value" style="font-size:28px; color:var(--silver);">$50</div>
+            <div class="stat-sub" style="color:var(--stardust);">Any amount</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress -->
+      <div class="ui-card">
+        <div style="font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--stardust); text-transform:uppercase; margin-bottom:20px;">Progress Tracker</div>
+        <div class="progress-block">
+          <div class="progress-header">
+            <div class="progress-title">Habitat Module Alpha</div>
+            <div class="progress-pct">73%</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:73%;"></div>
+          </div>
+          <div style="display:flex; justify-content:space-between; margin-top:8px;">
+            <span style="font-size:12px; color:var(--stardust);">$3,108,400 raised</span>
+            <span style="font-size:12px; color:var(--stardust);">Goal: $4,200,000</span>
+          </div>
+        </div>
+        <div class="progress-block" style="margin-top:20px;">
+          <div class="progress-header">
+            <div class="progress-title">Propulsion System R&D</div>
+            <div class="progress-pct" style="color:var(--success);">100%</div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width:100%; background: linear-gradient(90deg, var(--success), #1AB878);"></div>
+          </div>
+          <div style="margin-top:8px;">
+            <span style="font-size:12px; color:var(--success);">✓ Fully funded — Mission complete</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Badges & Input -->
+      <div class="ui-card">
+        <div style="font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--stardust); text-transform:uppercase; margin-bottom:20px;">Status Badges</div>
+        <div class="badge-row">
+          <span class="badge badge-funded"><span class="badge-dot green"></span>Funded</span>
+          <span class="badge badge-active"><span class="badge-dot orange"></span>Live Now</span>
+          <span class="badge badge-new"><span class="badge-dot blue"></span>New Mission</span>
+        </div>
+        <div class="input-block">
+          <div class="input-label">Investment Amount</div>
+          <div class="input-wrap">
+            <input class="input-field" type="text" value="250" />
+            <span class="input-suffix">USD</span>
+          </div>
+        </div>
+        <div class="input-block">
+          <div class="input-label">Mission Code</div>
+          <div class="input-wrap">
+            <input class="input-field" type="text" placeholder="MMF-2026-XXXX" style="color:var(--stardust);" />
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- VOICE & TONE -->
+  <section id="voice">
+    <div class="section-label">05 — Voice</div>
+    <h2 class="section-title">Voice <span>&</span> Tone</h2>
+    <p class="section-intro">Mars Mission Fund speaks like a brilliant, optimistic engineer who also happens to be brilliant at making complex things feel exciting to anyone.</p>
+
+    <div class="voice-grid">
+      <div class="voice-card do">
+        <div class="voice-header do"><span class="voice-icon">✓</span> Do write this way</div>
+        <ul class="voice-examples">
+          <li>Back the team building pressurized habitats for the first Mars crews</li>
+          <li>73% funded — 18 days left to join the mission</li>
+          <li>Every $50 moves the launch window closer</li>
+          <li>Your stake. Their mission. Our planet.</li>
+          <li>Funding opens March 1. Liftoff begins March 21.</li>
+        </ul>
+      </div>
+      <div class="voice-card dont">
+        <div class="voice-header dont"><span class="voice-icon">✕</span> Avoid this language</div>
+        <ul class="voice-examples">
+          <li>Please consider investing in our exciting new venture opportunity</li>
+          <li>Utilizing synergistic technologies for next-gen planetary colonization</li>
+          <li>Click here to learn more about our financial product</li>
+          <li>Results may not be as depicted. This is not investment advice.</li>
+          <li>Our revolutionary disruptive space platform solutions</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="mt-48" style="background: var(--deep-space); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 40px;">
+      <div style="font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--launchfire); text-transform:uppercase; margin-bottom:24px;">Brand Personality Axes</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:32px;">
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--stardust); margin-bottom:8px;"><span>Playful</span><span>Serious</span></div>
+          <div style="height:6px; background:rgba(255,255,255,0.06); border-radius:100px; overflow:hidden;"><div style="width:40%; height:100%; background:linear-gradient(90deg,var(--launchfire),var(--ignition));"></div></div>
+          <div style="font-size:11px; color:var(--stardust); margin-top:6px;">Leans playful — but never flippant</div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--stardust); margin-bottom:8px;"><span>Technical</span><span>Accessible</span></div>
+          <div style="height:6px; background:rgba(255,255,255,0.06); border-radius:100px; overflow:hidden;"><div style="width:65%; height:100%; background:linear-gradient(90deg,var(--launchfire),var(--ignition));"></div></div>
+          <div style="font-size:11px; color:var(--stardust); margin-top:6px;">Precise, but never alienating</div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--stardust); margin-bottom:8px;"><span>Cautious</span><span>Bold</span></div>
+          <div style="height:6px; background:rgba(255,255,255,0.06); border-radius:100px; overflow:hidden;"><div style="width:80%; height:100%; background:linear-gradient(90deg,var(--launchfire),var(--ignition));"></div></div>
+          <div style="font-size:11px; color:var(--stardust); margin-top:6px;">Leans confidently bold</div>
+        </div>
+        <div>
+          <div style="display:flex; justify-content:space-between; font-size:12px; color:var(--stardust); margin-bottom:8px;"><span>Formal</span><span>Human</span></div>
+          <div style="height:6px; background:rgba(255,255,255,0.06); border-radius:100px; overflow:hidden;"><div style="width:70%; height:100%; background:linear-gradient(90deg,var(--launchfire),var(--ignition));"></div></div>
+          <div style="font-size:11px; color:var(--stardust); margin-top:6px;">Warm and direct, not corporate</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- MOTION -->
+  <section id="motion">
+    <div class="section-label">06 — Motion</div>
+    <h2 class="section-title">Motion <span>&</span> Feel</h2>
+    <p class="section-intro">Animation mirrors the physical reality of spaceflight — dramatic acceleration, precise control, moments of weightlessness, and ignition events that demand attention.</p>
+
+    <div class="motion-row">
+      <div class="motion-card">
+        <div class="motion-vis m-ease-out">
+          <div class="motion-dot"></div>
+        </div>
+        <div class="motion-name">Gravity Assist</div>
+        <div class="motion-spec">ease-out · 300–500ms</div>
+        <div style="font-size:11px; color:var(--stardust); margin-top:8px; line-height:1.4;">Elements enter fast and settle smoothly</div>
+      </div>
+      <div class="motion-card">
+        <div class="motion-vis m-spring">
+          <div class="motion-dot"></div>
+        </div>
+        <div class="motion-name">Bounce Deploy</div>
+        <div class="motion-spec">spring · 400ms · overshoot</div>
+        <div style="font-size:11px; color:var(--stardust); margin-top:8px; line-height:1.4;">CTAs, modals, and success states</div>
+      </div>
+      <div class="motion-card">
+        <div class="motion-vis m-float">
+          <div class="motion-dot"></div>
+        </div>
+        <div class="motion-name">Zero Gravity</div>
+        <div class="motion-spec">ease-in-out · 2–4s · infinite</div>
+        <div style="font-size:11px; color:var(--stardust); margin-top:8px; line-height:1.4;">Decorative elements and hero imagery</div>
+      </div>
+      <div class="motion-card">
+        <div class="motion-vis m-ignite">
+          <div class="motion-dot"></div>
+        </div>
+        <div class="motion-name">Ignition</div>
+        <div class="motion-spec">ease-in-out · 1.5s · glow pulse</div>
+        <div style="font-size:11px; color:var(--stardust); margin-top:8px; line-height:1.4;">Live countdowns and urgent states</div>
+      </div>
+    </div>
+
+    <!-- Timing tokens -->
+    <div class="mt-48" style="background: var(--deep-space); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 40px;">
+      <div style="font-family:'Space Mono',monospace; font-size:10px; letter-spacing:0.2em; color:var(--launchfire); text-transform:uppercase; margin-bottom:24px;">Timing Tokens</div>
+      <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:20px;">
+        <div>
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--success); margin-bottom:4px;">--duration-fast</div>
+          <div style="font-size:22px; font-family:'Bebas Neue',sans-serif; letter-spacing:0.05em; color:var(--chrome);">150ms</div>
+          <div style="font-size:11px; color:var(--stardust);">Hover states, icon transitions</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--success); margin-bottom:4px;">--duration-base</div>
+          <div style="font-size:22px; font-family:'Bebas Neue',sans-serif; letter-spacing:0.05em; color:var(--chrome);">300ms</div>
+          <div style="font-size:11px; color:var(--stardust);">Page elements, cards entering</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--success); margin-bottom:4px;">--duration-medium</div>
+          <div style="font-size:22px; font-family:'Bebas Neue',sans-serif; letter-spacing:0.05em; color:var(--chrome);">500ms</div>
+          <div style="font-size:11px; color:var(--stardust);">Modals, drawers, panels</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--success); margin-bottom:4px;">--duration-slow</div>
+          <div style="font-size:22px; font-family:'Bebas Neue',sans-serif; letter-spacing:0.05em; color:var(--chrome);">800ms</div>
+          <div style="font-size:11px; color:var(--stardust);">Page transitions, celebrations</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--success); margin-bottom:4px;">--easing-out</div>
+          <div style="font-size:13px; font-family:'Space Mono',monospace; color:var(--chrome); margin-top:6px;">cubic-bezier<br>(0.25, 1, 0.5, 1)</div>
+          <div style="font-size:11px; color:var(--stardust); margin-top:4px;">Default easing</div>
+        </div>
+        <div>
+          <div style="font-family:'Space Mono',monospace; font-size:11px; color:var(--success); margin-bottom:4px;">--easing-spring</div>
+          <div style="font-size:13px; font-family:'Space Mono',monospace; color:var(--chrome); margin-top:6px;">cubic-bezier<br>(0.34, 1.56, 0.64, 1)</div>
+          <div style="font-size:11px; color:var(--stardust); margin-top:4px;">Energetic, overshooting</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <div class="divider"></div>
+  <div class="brand-footer">
+    <div>
+      <div class="footer-brand">MARS MISSION <span>FUND</span></div>
+      <div style="font-size:13px; color:var(--stardust); margin-top:6px;">Brand Guidelines v1.0 · 2026</div>
+    </div>
+    <div class="footer-note">FOR INTERNAL DESIGN & DEVELOPMENT USE · CONFIDENTIAL</div>
+  </div>
+
+</div>
+
+<script>
+  // Generate stars
+  const starfield = document.getElementById('stars');
+  for (let i = 0; i < 200; i++) {
+    const star = document.createElement('div');
+    star.className = 'star';
+    const size = Math.random() * 2 + 0.5;
+    star.style.cssText = `
+      width: ${size}px;
+      height: ${size}px;
+      left: ${Math.random()*100}%;
+      top: ${Math.random()*100}%;
+      --d: ${(Math.random()*4+2).toFixed(1)}s;
+      --o: ${(Math.random()*0.6+0.2).toFixed(2)};
+      animation-delay: ${(Math.random()*5).toFixed(1)}s;
+    `;
+    starfield.appendChild(star);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,40 @@
+{
+  // Line length — disabled; one-sentence-per-line governs structure
+  "MD013": false,
+
+  // Unordered list marker: dash only
+  "MD004": { "style": "dash" },
+
+  // Ordered list prefix: always 1.
+  "MD029": { "style": "one" },
+
+  // List indentation: 2 spaces
+  "MD007": { "indent": 2 },
+
+  // Heading style: ATX only
+  "MD003": { "style": "atx" },
+
+  // Code block style: fenced only
+  "MD046": { "style": "fenced" },
+
+  // Code fence style: backtick only
+  "MD048": { "style": "backtick" },
+
+  // Emphasis style: asterisk only
+  "MD049": { "style": "asterisk" },
+
+  // Strong style: asterisk only
+  "MD050": { "style": "asterisk" },
+
+  // Horizontal rule style: dashes
+  "MD035": { "style": "---" },
+
+  // No inline HTML
+  "MD033": true,
+
+  // Heading trailing punctuation — allow question marks
+  "MD026": { "punctuation": ".,;:!" },
+
+  // Table separator style: padded (spaces around dashes)
+  "MD060": { "style": "padded" },
+}
