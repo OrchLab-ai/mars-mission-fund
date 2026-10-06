@@ -53,7 +53,7 @@ export function MissionCard({
       <p style={fundingStatusStyle}>
         Raised {raised} of {goal}
       </p>
-      <Button variant="ghost" href="/campaigns">
+      <Button variant="ghost" href="/proposals">
         View Mission
       </Button>
     </Card>

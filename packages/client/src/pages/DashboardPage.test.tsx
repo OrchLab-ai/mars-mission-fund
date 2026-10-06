@@ -3,20 +3,20 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter } from 'react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { DashboardPage } from './DashboardPage'
-import type { CampaignSummary } from '../api/campaigns'
+import type { ProposalSummary } from '../api/proposals'
 
-vi.mock('../hooks/useCreatorCampaigns', () => ({
-  useCreatorCampaigns: vi.fn(),
+vi.mock('../hooks/useCreatorProposals', () => ({
+  useCreatorProposals: vi.fn(),
 }))
 
-vi.mock('../api/campaigns', () => ({
-  deleteCampaign: vi.fn().mockResolvedValue(undefined),
-  submitCampaignForReview: vi.fn().mockResolvedValue(undefined),
-  launchCampaign: vi.fn().mockResolvedValue(undefined),
-  resubmitCampaign: vi.fn().mockResolvedValue(undefined),
+vi.mock('../api/proposals', () => ({
+  deleteProposal: vi.fn().mockResolvedValue(undefined),
+  submitProposalForReview: vi.fn().mockResolvedValue(undefined),
+  launchProposal: vi.fn().mockResolvedValue(undefined),
+  resubmitProposal: vi.fn().mockResolvedValue(undefined),
 }))
 
-import { useCreatorCampaigns } from '../hooks/useCreatorCampaigns'
+import { useCreatorProposals } from '../hooks/useCreatorProposals'
 
 function makeQueryClient() {
   return new QueryClient({
@@ -38,7 +38,7 @@ function renderPage() {
   )
 }
 
-const baseCampaign: CampaignSummary = {
+const baseProposal: ProposalSummary = {
   id: 'c1',
   title: 'Mars Habitat Alpha',
   summary: 'A Mars habitat.',
@@ -59,61 +59,61 @@ describe('DashboardPage', () => {
   })
 
   it('shows loading state while fetching', () => {
-    vi.mocked(useCreatorCampaigns).mockReturnValue({
+    vi.mocked(useCreatorProposals).mockReturnValue({
       data: undefined,
       isLoading: true,
       isError: false,
-    } as unknown as ReturnType<typeof useCreatorCampaigns>)
+    } as unknown as ReturnType<typeof useCreatorProposals>)
 
     renderPage()
 
     expect(screen.getByRole('status')).toBeInTheDocument()
-    expect(screen.getByText('Loading your campaigns…')).toBeInTheDocument()
+    expect(screen.getByText('Loading your proposals…')).toBeInTheDocument()
   })
 
   it('shows error state on fetch failure', () => {
-    vi.mocked(useCreatorCampaigns).mockReturnValue({
+    vi.mocked(useCreatorProposals).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: true,
-    } as unknown as ReturnType<typeof useCreatorCampaigns>)
+    } as unknown as ReturnType<typeof useCreatorProposals>)
 
     renderPage()
 
     expect(screen.getByRole('alert')).toBeInTheDocument()
-    expect(screen.getByText('Failed to load your campaigns. Please try again.')).toBeInTheDocument()
+    expect(screen.getByText('Failed to load your proposals. Please try again.')).toBeInTheDocument()
   })
 
-  it('shows empty state when there are no campaigns', () => {
-    vi.mocked(useCreatorCampaigns).mockReturnValue({
+  it('shows empty state when there are no proposals', () => {
+    vi.mocked(useCreatorProposals).mockReturnValue({
       data: [],
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useCreatorCampaigns>)
+    } as unknown as ReturnType<typeof useCreatorProposals>)
 
     renderPage()
 
-    expect(screen.getByText('You have no campaigns yet.')).toBeInTheDocument()
-    expect(screen.getByRole('link', { name: 'Create your first campaign' })).toBeInTheDocument()
+    expect(screen.getByText('You have no proposals yet.')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Create your first proposal' })).toBeInTheDocument()
   })
 
-  it('always shows the "+ New Campaign" link', () => {
-    vi.mocked(useCreatorCampaigns).mockReturnValue({
+  it('always shows the "+ New Proposal" link', () => {
+    vi.mocked(useCreatorProposals).mockReturnValue({
       data: [],
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useCreatorCampaigns>)
+    } as unknown as ReturnType<typeof useCreatorProposals>)
 
     renderPage()
 
-    const link = screen.getByRole('link', { name: '+ New Campaign' })
+    const link = screen.getByRole('link', { name: '+ New Proposal' })
     expect(link).toBeInTheDocument()
-    expect(link).toHaveAttribute('href', '/campaigns/new')
+    expect(link).toHaveAttribute('href', '/proposals/new')
   })
 
-  it('renders campaigns grouped by status sections', () => {
-    const liveCampaign: CampaignSummary = {
-      ...baseCampaign,
+  it('renders proposals grouped by status sections', () => {
+    const liveProposal: ProposalSummary = {
+      ...baseProposal,
       id: 'c2',
       title: 'Mars Power Grid',
       status: 'Live',
@@ -121,11 +121,11 @@ describe('DashboardPage', () => {
       deadline: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
     }
 
-    vi.mocked(useCreatorCampaigns).mockReturnValue({
-      data: [baseCampaign, liveCampaign],
+    vi.mocked(useCreatorProposals).mockReturnValue({
+      data: [baseProposal, liveProposal],
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useCreatorCampaigns>)
+    } as unknown as ReturnType<typeof useCreatorProposals>)
 
     renderPage()
 
@@ -137,12 +137,12 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('heading', { name: 'Active' })).toBeInTheDocument()
   })
 
-  it('shows Edit, Submit, and Delete actions for Draft campaigns', () => {
-    vi.mocked(useCreatorCampaigns).mockReturnValue({
-      data: [baseCampaign],
+  it('shows Edit, Submit, and Delete actions for Draft proposals', () => {
+    vi.mocked(useCreatorProposals).mockReturnValue({
+      data: [baseProposal],
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useCreatorCampaigns>)
+    } as unknown as ReturnType<typeof useCreatorProposals>)
 
     renderPage()
 
@@ -153,38 +153,38 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('link', { name: 'Edit' })).toBeInTheDocument()
   })
 
-  it('shows Launch action for Approved campaigns', () => {
-    const approvedCampaign: CampaignSummary = {
-      ...baseCampaign,
+  it('shows Launch action for Approved proposals', () => {
+    const approvedProposal: ProposalSummary = {
+      ...baseProposal,
       id: 'c3',
       title: 'Mars Water System',
       status: 'Approved',
     }
 
-    vi.mocked(useCreatorCampaigns).mockReturnValue({
-      data: [approvedCampaign],
+    vi.mocked(useCreatorProposals).mockReturnValue({
+      data: [approvedProposal],
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useCreatorCampaigns>)
+    } as unknown as ReturnType<typeof useCreatorProposals>)
 
     renderPage()
 
     expect(screen.getByRole('button', { name: 'Launch Mars Water System' })).toBeInTheDocument()
   })
 
-  it('shows View link for Live campaigns', () => {
-    const liveCampaign: CampaignSummary = {
-      ...baseCampaign,
+  it('shows View link for Live proposals', () => {
+    const liveProposal: ProposalSummary = {
+      ...baseProposal,
       id: 'c4',
       title: 'Mars Solar Array',
       status: 'Live',
     }
 
-    vi.mocked(useCreatorCampaigns).mockReturnValue({
-      data: [liveCampaign],
+    vi.mocked(useCreatorProposals).mockReturnValue({
+      data: [liveProposal],
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useCreatorCampaigns>)
+    } as unknown as ReturnType<typeof useCreatorProposals>)
 
     renderPage()
 
