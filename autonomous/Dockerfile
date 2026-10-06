@@ -52,6 +52,13 @@ USER agent
 # Placed before COPY steps so script/prompt edits don't bust this cache layer.
 RUN node /usr/lib/node_modules/@playwright/mcp/node_modules/playwright-core/cli.js install chromium
 
+# The app's own Playwright (@playwright/test in package.json) needs the browser build for
+# ITS version, for ./scripts/run-e2e.sh and anything else that launches Chromium from the
+# repo. The install above deletes browser builds no registered install claims, which
+# removes the base image's, so install the app's build too, after it. Keep this version in
+# step with @playwright/test in package.json and the FROM tag.
+RUN npx -y playwright@1.58.2 install chromium
+
 # No entrypoint of its own. The workshop stack runs its own start script in this
 # image (see docker-compose.workshop.yml in the workshop repository); on its own the
 # container simply stays up so a shell can be opened in it.
