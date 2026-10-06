@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { fetchReviewQueue, claimProposal } from '../api/proposals'
-import type { ProposalSummary } from '../api/proposals'
+import { fetchReviewQueue, claimCampaign } from '../api/campaigns'
+import type { CampaignSummary } from '../api/campaigns'
 
 const pageStyle: React.CSSProperties = {
   minHeight: '100vh',
@@ -103,19 +103,19 @@ const emptyStyle: React.CSSProperties = {
   color: 'var(--color-text-secondary)',
 }
 
-function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
+function CampaignRow({ campaign }: { campaign: CampaignSummary }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const [claimError, setClaimError] = useState<string | null>(null)
 
   const { mutate: claim, isPending } = useMutation({
-    mutationFn: () => claimProposal(proposal.id),
+    mutationFn: () => claimCampaign(campaign.id),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ['review-queue'] })
-      void navigate(`/review/${proposal.id}`)
+      void navigate(`/review/${campaign.id}`)
     },
     onError: () => {
-      setClaimError('Failed to claim proposal. Please try again.')
+      setClaimError('Failed to claim campaign. Please try again.')
     },
   })
 
@@ -123,11 +123,11 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
-  }).format(proposal.createdAt)
+  }).format(campaign.createdAt)
 
   return (
     <tr>
-      <td style={tdStyle}>{proposal.title}</td>
+      <td style={tdStyle}>{campaign.title}</td>
       <td style={tdStyle}>{submittedDate}</td>
       <td style={tdStyle}>
         {claimError && (
@@ -149,7 +149,7 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
             setClaimError(null)
             claim()
           }}
-          aria-label={`Claim proposal: ${proposal.title}`}
+          aria-label={`Claim campaign: ${campaign.title}`}
         >
           {isPending ? 'Claiming…' : 'Claim'}
         </button>
@@ -160,7 +160,7 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
 
 export function ReviewQueuePage() {
   const {
-    data: proposals,
+    data: campaigns,
     isLoading,
     isError,
   } = useQuery({
@@ -192,24 +192,24 @@ export function ReviewQueuePage() {
     <div style={pageStyle}>
       <div style={contentStyle}>
         <h1 style={headingStyle}>Review Queue</h1>
-        <p style={subheadingStyle}>Proposals awaiting review, oldest first.</p>
+        <p style={subheadingStyle}>Campaigns awaiting review, oldest first.</p>
 
-        {proposals && proposals.length === 0 && (
-          <div style={emptyStyle}>No proposals awaiting review.</div>
+        {campaigns && campaigns.length === 0 && (
+          <div style={emptyStyle}>No campaigns awaiting review.</div>
         )}
 
-        {proposals && proposals.length > 0 && (
-          <table style={tableStyle} aria-label="Proposals awaiting review">
+        {campaigns && campaigns.length > 0 && (
+          <table style={tableStyle} aria-label="Campaigns awaiting review">
             <thead>
               <tr>
-                <th style={thStyle}>Proposal</th>
+                <th style={thStyle}>Campaign</th>
                 <th style={thStyle}>Submitted</th>
                 <th style={thStyle}>Action</th>
               </tr>
             </thead>
             <tbody>
-              {proposals.map((proposal) => (
-                <ProposalRow key={proposal.id} proposal={proposal} />
+              {campaigns.map((campaign) => (
+                <CampaignRow key={campaign.id} campaign={campaign} />
               ))}
             </tbody>
           </table>

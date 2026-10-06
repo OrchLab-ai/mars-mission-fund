@@ -15,7 +15,7 @@ describe('ContributePlaceholderPage', () => {
     expect(screen.getByRole('heading', { name: 'Coming Soon' })).toBeInTheDocument()
   })
 
-  it('renders back-link to proposal page', () => {
+  it('renders back-link to campaign page', () => {
     render(
       <MemoryRouter initialEntries={['/contribute/1']}>
         <Routes>
@@ -23,9 +23,9 @@ describe('ContributePlaceholderPage', () => {
         </Routes>
       </MemoryRouter>
     )
-    const link = screen.getByRole('link', { name: 'Back to Proposal' })
+    const link = screen.getByRole('link', { name: 'Back to Campaign' })
     expect(link).toBeInTheDocument()
-    expect(link).toHaveAttribute('href', '/proposals/1')
+    expect(link).toHaveAttribute('href', '/campaigns/1')
   })
 
   it('renders development message', () => {

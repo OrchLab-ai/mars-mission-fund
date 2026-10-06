@@ -63,7 +63,7 @@ if [ -n "$(git status --porcelain 2>/dev/null)" ]; then
 fi
 
 # ── Diff base = where this run starts, then branch off the current HEAD ──────
-# Not main: in the workshop the run starts from a checkpoint (work/cp-06), and a
+# Not main: in the workshop the run starts from a checkpoint (work/cp-07), and a
 # diff against main would credit the agent with every earlier checkpoint's work.
 BASE_BRANCH="$(git rev-parse HEAD)"
 export BASE_BRANCH

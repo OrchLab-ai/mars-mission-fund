@@ -99,7 +99,7 @@ Schema: `packages/server/db/schema.sql`
 - **Audit trail**: plain `INSERT`s into audit tables from route handlers
 - **JWT authentication** with bcrypt password hashing; role-based access (Backer, Creator, Admin)
 - Frontend proxies `/v1` requests to backend (Vite proxy config)
-- API routes: `/v1/auth/*`, `/v1/users/*`, `/v1/proposals/*`
+- API routes: `/v1/auth/*`, `/v1/users/*`, `/v1/campaigns/*`
 
 ### Path Aliases
 

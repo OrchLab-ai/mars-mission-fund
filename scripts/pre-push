@@ -11,7 +11,7 @@ set -euo pipefail
 #
 # In both cases running the suite over the current working tree proves nothing
 # about what is being pushed; it only reports on whatever happens to be checked
-# out right now. Publishing the cp-00 checkpoint was blocked exactly this way: the
+# out right now. Publishing the first checkpoint was blocked exactly this way: the
 # tag pointed at an already-published commit and the push failed on lint errors in
 # untracked local files. Deleting a merged branch hit the same wall for the same
 # reason, and this hook previously said deletes should — which contradicts the

@@ -13,7 +13,7 @@
 
 The owner of a proposal can post short updates to it, and backers read them on the
 proposal's page. (The funding entity is called a proposal in this codebase — it was
-named Proposal until the rename challenge; use whichever name the code uses now.)
+named Campaign until the rename challenge; use whichever name the code uses now.)
 
 If a spec for this feature exists in `specs/` (for example
 `specs/mission-updates.spec.md`), it is the source of truth: build what it says and

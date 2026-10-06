@@ -1,18 +1,18 @@
 import { Navigate, useParams } from 'react-router'
-import { useProposal } from '../hooks/useProposal'
+import { useCampaign } from '../hooks/useCampaign'
 import { useAuthContext } from '../context/AuthContext'
 import { Badge } from '../components/ui/Badge'
 import { Card } from '../components/ui/Card'
-import { FundingProgressSection } from '../components/proposals/FundingProgressSection'
-import { MilestonesSection } from '../components/proposals/MilestonesSection'
-import { StretchGoalsSection } from '../components/proposals/StretchGoalsSection'
-import { TeamSection } from '../components/proposals/TeamSection'
-import { ReviewActionsPanel } from '../components/proposals/ReviewActionsPanel'
-import type { ProposalStatus } from '@mmf/shared'
+import { FundingProgressSection } from '../components/campaigns/FundingProgressSection'
+import { MilestonesSection } from '../components/campaigns/MilestonesSection'
+import { StretchGoalsSection } from '../components/campaigns/StretchGoalsSection'
+import { TeamSection } from '../components/campaigns/TeamSection'
+import { ReviewActionsPanel } from '../components/campaigns/ReviewActionsPanel'
+import type { CampaignStatus } from '@mmf/shared'
 
 type BadgeVariant = 'funded' | 'active' | 'new'
 
-const statusBadgeVariant: Record<ProposalStatus, BadgeVariant> = {
+const statusBadgeVariant: Record<CampaignStatus, BadgeVariant> = {
   Complete: 'funded',
   Funded: 'funded',
   Live: 'active',
@@ -103,29 +103,29 @@ const errorStyle: React.CSSProperties = {
 export function ReviewDetailPage() {
   const { id } = useParams<{ id: string }>()
   const { user } = useAuthContext()
-  const { data: proposal, isLoading, isError } = useProposal(id ?? '')
+  const { data: campaign, isLoading, isError } = useCampaign(id ?? '')
 
   if (isLoading) {
     return (
       <div style={pageStyle}>
         <div style={loadingStyle} role="status" aria-busy="true">
-          Loading proposal…
+          Loading campaign…
         </div>
       </div>
     )
   }
 
-  if (isError || !proposal) {
+  if (isError || !campaign) {
     return (
       <div style={pageStyle}>
         <div style={errorStyle} role="alert">
-          Failed to load proposal. Please try again.
+          Failed to load campaign. Please try again.
         </div>
       </div>
     )
   }
 
-  if (proposal.reviewerId !== user?.id) {
+  if (campaign.reviewerId !== user?.id) {
     return <Navigate to="/review" replace />
   }
 
@@ -156,10 +156,10 @@ export function ReviewDetailPage() {
         <div style={contentStyle}>
           <div style={headerStyle}>
             <div style={titleRowStyle}>
-              <h1 style={titleStyle}>{proposal.title}</h1>
-              <Badge variant={statusBadgeVariant[proposal.status]}>{proposal.status}</Badge>
+              <h1 style={titleStyle}>{campaign.title}</h1>
+              <Badge variant={statusBadgeVariant[campaign.status]}>{campaign.status}</Badge>
             </div>
-            <span style={categoryStyle}>{proposal.category}</span>
+            <span style={categoryStyle}>{campaign.category}</span>
           </div>
 
           <div className="review-detail-layout">
@@ -167,30 +167,30 @@ export function ReviewDetailPage() {
               <Card>
                 <div
                   style={descriptionStyle}
-                  dangerouslySetInnerHTML={{ __html: proposal.description }}
+                  dangerouslySetInnerHTML={{ __html: campaign.description }}
                 />
               </Card>
 
               <div style={sectionSpacingStyle}>
-                <TeamSection teamMembers={proposal.teamMembers} />
+                <TeamSection teamMembers={campaign.teamMembers} />
               </div>
 
               <div style={sectionSpacingStyle}>
-                <MilestonesSection milestones={proposal.milestones} />
+                <MilestonesSection milestones={campaign.milestones} />
               </div>
 
               <div style={sectionSpacingStyle}>
-                <StretchGoalsSection stretchGoals={proposal.stretchGoals} />
+                <StretchGoalsSection stretchGoals={campaign.stretchGoals} />
               </div>
 
               <div style={sectionSpacingStyle}>
-                <ReviewActionsPanel proposal={proposal} user={user} />
+                <ReviewActionsPanel campaign={campaign} user={user} />
               </div>
             </div>
 
             <div className="review-detail-sidebar">
               <Card accent>
-                <FundingProgressSection proposal={proposal} />
+                <FundingProgressSection campaign={campaign} />
               </Card>
             </div>
           </div>

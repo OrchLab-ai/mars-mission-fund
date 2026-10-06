@@ -42,10 +42,10 @@ export function ContributePlaceholderPage() {
           <h1 style={headingStyle}>Coming Soon</h1>
           <p style={messageStyle}>
             The contribution flow is currently in development. Check back soon to support this
-            proposal.
+            campaign.
           </p>
-          <Button variant="ghost" href={'/proposals/' + id}>
-            Back to Proposal
+          <Button variant="ghost" href={'/campaigns/' + id}>
+            Back to Campaign
           </Button>
         </div>
       </Card>

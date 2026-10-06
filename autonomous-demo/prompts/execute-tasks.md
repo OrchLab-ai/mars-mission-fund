@@ -38,7 +38,7 @@ standards:
 - **Accessibility**: semantic HTML, focus-visible states
 
 When the task is (or includes) an E2E test, read `e2e/auth.spec.ts` and
-`e2e/proposals.spec.ts` first and follow their patterns (`getByRole`,
+`e2e/campaigns.spec.ts` first and follow their patterns (`getByRole`,
 `getByLabel`, `test.describe`). Write standard Playwright Test code — do NOT use
 the Playwright MCP to author E2E specs.
 
@@ -56,7 +56,7 @@ timeout on the Bash call and read the full output (do not pipe through `tail`).
 under `packages/client/src/`):
 
 1. Health-check the backend: `curl -sf http://localhost:3001/health` (or
-   `http://localhost:3001/v1/proposals`). If it fails, start it with
+   `http://localhost:3001/v1/campaigns`). If it fails, start it with
    `npm run dev:server &` and poll until ready.
 1. Start the dev server: `npm run dev &`
 1. Use the Playwright MCP to navigate to `http://localhost:5173`.

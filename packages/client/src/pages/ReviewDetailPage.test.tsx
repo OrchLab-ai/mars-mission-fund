@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { ReviewDetailPage } from './ReviewDetailPage'
-import type { ProposalDetail } from '../api/proposals'
+import type { CampaignDetail } from '../api/campaigns'
 import type { User } from '@mmf/shared'
 
 vi.mock('@tanstack/react-query', () => ({
@@ -31,8 +31,8 @@ const otherUser: User = {
   updatedAt: new Date(),
 }
 
-const mockProposal: ProposalDetail = {
-  id: 'proposal-1',
+const mockCampaign: CampaignDetail = {
+  id: 'campaign-1',
   title: 'Mars Soil Analyser',
   summary: 'A portable mass spectrometer.',
   description: '<p>Understanding Martian soil chemistry.</p>',
@@ -88,18 +88,18 @@ const mockProposal: ProposalDetail = {
   riskDisclosures: [],
 }
 
-vi.mock('../hooks/useProposal', () => ({
-  useProposal: vi.fn(),
+vi.mock('../hooks/useCampaign', () => ({
+  useCampaign: vi.fn(),
 }))
 
 vi.mock('../context/AuthContext', () => ({
   useAuthContext: vi.fn(),
 }))
 
-import { useProposal } from '../hooks/useProposal'
+import { useCampaign } from '../hooks/useCampaign'
 import { useAuthContext } from '../context/AuthContext'
 
-function renderWithRouter(ui: React.ReactElement, { path = '/review/proposal-1' } = {}) {
+function renderWithRouter(ui: React.ReactElement, { path = '/review/campaign-1' } = {}) {
   return render(
     <MemoryRouter initialEntries={[path]}>
       <Routes>
@@ -112,11 +112,11 @@ function renderWithRouter(ui: React.ReactElement, { path = '/review/proposal-1' 
 
 describe('ReviewDetailPage', () => {
   it('shows loading state', () => {
-    vi.mocked(useProposal).mockReturnValue({
+    vi.mocked(useCampaign).mockReturnValue({
       data: undefined,
       isLoading: true,
       isError: false,
-    } as ReturnType<typeof useProposal>)
+    } as ReturnType<typeof useCampaign>)
     vi.mocked(useAuthContext).mockReturnValue({
       user: reviewerUser,
       token: null,
@@ -130,11 +130,11 @@ describe('ReviewDetailPage', () => {
   })
 
   it('shows error state when fetch fails', () => {
-    vi.mocked(useProposal).mockReturnValue({
+    vi.mocked(useCampaign).mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: true,
-    } as ReturnType<typeof useProposal>)
+    } as ReturnType<typeof useCampaign>)
     vi.mocked(useAuthContext).mockReturnValue({
       user: reviewerUser,
       token: null,
@@ -148,11 +148,11 @@ describe('ReviewDetailPage', () => {
   })
 
   it('redirects to /review when user is not the assigned reviewer', () => {
-    vi.mocked(useProposal).mockReturnValue({
-      data: mockProposal,
+    vi.mocked(useCampaign).mockReturnValue({
+      data: mockCampaign,
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useProposal>)
+    } as ReturnType<typeof useCampaign>)
     vi.mocked(useAuthContext).mockReturnValue({
       user: otherUser,
       token: null,
@@ -166,11 +166,11 @@ describe('ReviewDetailPage', () => {
   })
 
   it('redirects to /review when user is null', () => {
-    vi.mocked(useProposal).mockReturnValue({
-      data: mockProposal,
+    vi.mocked(useCampaign).mockReturnValue({
+      data: mockCampaign,
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useProposal>)
+    } as ReturnType<typeof useCampaign>)
     vi.mocked(useAuthContext).mockReturnValue({
       user: null,
       token: null,
@@ -183,12 +183,12 @@ describe('ReviewDetailPage', () => {
     expect(screen.getByText('Review Queue')).toBeInTheDocument()
   })
 
-  it('renders proposal title and sections for assigned reviewer', () => {
-    vi.mocked(useProposal).mockReturnValue({
-      data: mockProposal,
+  it('renders campaign title and sections for assigned reviewer', () => {
+    vi.mocked(useCampaign).mockReturnValue({
+      data: mockCampaign,
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useProposal>)
+    } as ReturnType<typeof useCampaign>)
     vi.mocked(useAuthContext).mockReturnValue({
       user: reviewerUser,
       token: null,
@@ -202,12 +202,12 @@ describe('ReviewDetailPage', () => {
     expect(screen.getByText('Under Review')).toBeInTheDocument()
   })
 
-  it('renders proposal sections for assigned reviewer', () => {
-    vi.mocked(useProposal).mockReturnValue({
-      data: mockProposal,
+  it('renders campaign sections for assigned reviewer', () => {
+    vi.mocked(useCampaign).mockReturnValue({
+      data: mockCampaign,
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useProposal>)
+    } as ReturnType<typeof useCampaign>)
     vi.mocked(useAuthContext).mockReturnValue({
       user: reviewerUser,
       token: null,
@@ -225,12 +225,12 @@ describe('ReviewDetailPage', () => {
     expect(screen.getByText('Enhanced sensors')).toBeInTheDocument()
   })
 
-  it('shows ReviewActionsPanel for assigned reviewer with Under Review proposal', () => {
-    vi.mocked(useProposal).mockReturnValue({
-      data: mockProposal,
+  it('shows ReviewActionsPanel for assigned reviewer with Under Review campaign', () => {
+    vi.mocked(useCampaign).mockReturnValue({
+      data: mockCampaign,
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useProposal>)
+    } as ReturnType<typeof useCampaign>)
     vi.mocked(useAuthContext).mockReturnValue({
       user: reviewerUser,
       token: null,

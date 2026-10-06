@@ -1,16 +1,16 @@
 import { Link, useNavigate } from 'react-router'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useCreatorProposals } from '../hooks/useCreatorProposals'
+import { useCreatorCampaigns } from '../hooks/useCreatorCampaigns'
 import {
-  deleteProposal,
-  submitProposalForReview,
-  launchProposal,
-  resubmitProposal,
-  cancelProposal,
-} from '../api/proposals'
+  deleteCampaign,
+  submitCampaignForReview,
+  launchCampaign,
+  resubmitCampaign,
+  cancelCampaign,
+} from '../api/campaigns'
 import { Badge } from '../components/ui/Badge'
-import type { ProposalSummary } from '../api/proposals'
-import type { ProposalStatus } from '@mmf/shared'
+import type { CampaignSummary } from '../api/campaigns'
+import type { CampaignStatus } from '@mmf/shared'
 
 const pageStyle: React.CSSProperties = {
   minHeight: '100vh',
@@ -40,7 +40,7 @@ const headerRowStyle: React.CSSProperties = {
   marginBottom: 'var(--space-6)',
 }
 
-const newProposalLinkStyle: React.CSSProperties = {
+const newCampaignLinkStyle: React.CSSProperties = {
   display: 'inline-flex',
   alignItems: 'center',
   background: 'var(--color-accent-primary)',
@@ -147,7 +147,7 @@ const emptyStyle: React.CSSProperties = {
 
 type BadgeVariant = 'funded' | 'active' | 'new' | 'accent'
 
-function statusBadgeVariant(status: ProposalStatus): BadgeVariant {
+function statusBadgeVariant(status: CampaignStatus): BadgeVariant {
   switch (status) {
     case 'Live':
     case 'Funded':
@@ -181,47 +181,47 @@ function formatRaised(raisedAmount: number): string {
   }).format(raisedAmount)
 }
 
-function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
+function CampaignRow({ campaign }: { campaign: CampaignSummary }) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
 
   const { mutate: submitForReview, isPending: isSubmitting } = useMutation({
-    mutationFn: () => submitProposalForReview(proposal.id),
+    mutationFn: () => submitCampaignForReview(campaign.id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['my-proposals'] })
+      void queryClient.invalidateQueries({ queryKey: ['my-campaigns'] })
     },
   })
 
   const { mutate: doDelete, isPending: isDeleting } = useMutation({
-    mutationFn: () => deleteProposal(proposal.id),
+    mutationFn: () => deleteCampaign(campaign.id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['my-proposals'] })
+      void queryClient.invalidateQueries({ queryKey: ['my-campaigns'] })
     },
   })
 
   const { mutate: launch, isPending: isLaunching } = useMutation({
-    mutationFn: () => launchProposal(proposal.id),
+    mutationFn: () => launchCampaign(campaign.id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['my-proposals'] })
+      void queryClient.invalidateQueries({ queryKey: ['my-campaigns'] })
     },
   })
 
   const { mutate: revise, isPending: isRevising } = useMutation({
-    mutationFn: () => resubmitProposal(proposal.id),
+    mutationFn: () => resubmitCampaign(campaign.id),
     onSuccess: () => {
-      void navigate(`/proposals/${proposal.id}/edit`)
+      void navigate(`/campaigns/${campaign.id}/edit`)
     },
   })
 
   const { mutate: doCancel, isPending: isCancelling } = useMutation({
-    mutationFn: () => cancelProposal(proposal.id),
+    mutationFn: () => cancelCampaign(campaign.id),
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['my-proposals'] })
+      void queryClient.invalidateQueries({ queryKey: ['my-campaigns'] })
     },
   })
 
   function handleDelete() {
-    if (window.confirm(`Are you sure you want to delete "${proposal.title}"?`)) {
+    if (window.confirm(`Are you sure you want to delete "${campaign.title}"?`)) {
       doDelete()
     }
   }
@@ -232,27 +232,27 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
     }
   }
 
-  const status = proposal.status
+  const status = campaign.status
 
   return (
     <tr>
-      <td style={tdStyle}>{proposal.title}</td>
+      <td style={tdStyle}>{campaign.title}</td>
       <td style={tdStyle}>
         <Badge variant={statusBadgeVariant(status)}>{status}</Badge>
       </td>
-      <td style={tdStyle}>{formatDeadline(proposal.deadline)}</td>
-      <td style={tdStyle}>{formatRaised(proposal.raisedAmount)}</td>
+      <td style={tdStyle}>{formatDeadline(campaign.deadline)}</td>
+      <td style={tdStyle}>{formatRaised(campaign.raisedAmount)}</td>
       <td style={tdStyle}>
         {status === 'Draft' && (
           <>
-            <Link to={`/proposals/${proposal.id}/edit`} style={linkButtonStyle}>
+            <Link to={`/campaigns/${campaign.id}/edit`} style={linkButtonStyle}>
               Edit
             </Link>
             <button
               style={actionButtonStyle}
               disabled={isSubmitting}
               onClick={() => submitForReview()}
-              aria-label={`Submit ${proposal.title} for review`}
+              aria-label={`Submit ${campaign.title} for review`}
             >
               {isSubmitting ? 'Submitting…' : 'Submit'}
             </button>
@@ -260,7 +260,7 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
               style={dangerButtonStyle}
               disabled={isDeleting}
               onClick={handleDelete}
-              aria-label={`Delete ${proposal.title}`}
+              aria-label={`Delete ${campaign.title}`}
             >
               {isDeleting ? 'Deleting…' : 'Delete'}
             </button>
@@ -272,25 +272,25 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
               style={actionButtonStyle}
               disabled={isLaunching}
               onClick={() => launch()}
-              aria-label={`Launch ${proposal.title}`}
+              aria-label={`Launch ${campaign.title}`}
             >
               {isLaunching ? 'Launching…' : 'Launch'}
             </button>
-            <Link to={`/proposals/${proposal.id}/edit`} style={linkButtonStyle}>
+            <Link to={`/campaigns/${campaign.id}/edit`} style={linkButtonStyle}>
               Edit
             </Link>
           </>
         )}
         {(status === 'Live' || status === 'Funded') && (
           <>
-            <Link to={`/proposals/${proposal.id}`} style={linkButtonStyle}>
+            <Link to={`/campaigns/${campaign.id}`} style={linkButtonStyle}>
               View
             </Link>
             <button
               style={dangerButtonStyle}
               disabled={isCancelling}
               onClick={handleCancel}
-              aria-label={`Cancel ${proposal.title}`}
+              aria-label={`Cancel ${campaign.title}`}
             >
               {isCancelling ? 'Cancelling…' : 'Cancel'}
             </button>
@@ -301,7 +301,7 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
             style={actionButtonStyle}
             disabled={isRevising}
             onClick={() => revise()}
-            aria-label={`Revise ${proposal.title}`}
+            aria-label={`Revise ${campaign.title}`}
           >
             {isRevising ? 'Loading…' : 'Revise'}
           </button>
@@ -311,7 +311,7 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
           status === 'Cancelled' ||
           status === 'Failed' ||
           status === 'Suspended') && (
-          <Link to={`/proposals/${proposal.id}`} style={linkButtonStyle}>
+          <Link to={`/campaigns/${campaign.id}`} style={linkButtonStyle}>
             View
           </Link>
         )}
@@ -322,7 +322,7 @@ function ProposalRow({ proposal }: { proposal: ProposalSummary }) {
 
 type StatusGroup = {
   label: string
-  statuses: ProposalStatus[]
+  statuses: CampaignStatus[]
 }
 
 const STATUS_GROUPS: StatusGroup[] = [
@@ -339,16 +339,16 @@ const STATUS_GROUPS: StatusGroup[] = [
   },
 ]
 
-function ProposalSection({ label, proposals }: { label: string; proposals: ProposalSummary[] }) {
-  if (proposals.length === 0) return null
+function CampaignSection({ label, campaigns }: { label: string; campaigns: CampaignSummary[] }) {
+  if (campaigns.length === 0) return null
 
   return (
     <section>
       <h2 style={sectionHeadingStyle}>{label}</h2>
-      <table style={tableStyle} aria-label={`${label} proposals`}>
+      <table style={tableStyle} aria-label={`${label} campaigns`}>
         <thead>
           <tr>
-            <th style={thStyle}>Proposal</th>
+            <th style={thStyle}>Campaign</th>
             <th style={thStyle}>Status</th>
             <th style={thStyle}>Deadline</th>
             <th style={thStyle}>Raised</th>
@@ -356,8 +356,8 @@ function ProposalSection({ label, proposals }: { label: string; proposals: Propo
           </tr>
         </thead>
         <tbody>
-          {proposals.map((proposal) => (
-            <ProposalRow key={proposal.id} proposal={proposal} />
+          {campaigns.map((campaign) => (
+            <CampaignRow key={campaign.id} campaign={campaign} />
           ))}
         </tbody>
       </table>
@@ -366,13 +366,13 @@ function ProposalSection({ label, proposals }: { label: string; proposals: Propo
 }
 
 export function DashboardPage() {
-  const { data: proposals, isLoading, isError } = useCreatorProposals()
+  const { data: campaigns, isLoading, isError } = useCreatorCampaigns()
 
   if (isLoading) {
     return (
       <div style={pageStyle}>
         <div style={loadingStyle} role="status" aria-busy="true">
-          Loading your proposals…
+          Loading your campaigns…
         </div>
       </div>
     )
@@ -382,30 +382,30 @@ export function DashboardPage() {
     return (
       <div style={pageStyle}>
         <div style={errorStyle} role="alert">
-          Failed to load your proposals. Please try again.
+          Failed to load your campaigns. Please try again.
         </div>
       </div>
     )
   }
 
-  const isEmpty = !proposals || proposals.length === 0
+  const isEmpty = !campaigns || campaigns.length === 0
 
   return (
     <div style={pageStyle}>
       <div style={contentStyle}>
         <div style={headerRowStyle}>
           <h1 style={headingStyle}>Creator Dashboard</h1>
-          <Link to="/proposals/new" style={newProposalLinkStyle}>
-            + New Proposal
+          <Link to="/campaigns/new" style={newCampaignLinkStyle}>
+            + New Campaign
           </Link>
         </div>
 
         {isEmpty && (
           <div style={emptyStyle}>
-            <p>You have no proposals yet.</p>
+            <p>You have no campaigns yet.</p>
             <p>
-              <Link to="/proposals/new" style={{ color: 'var(--color-accent-primary)' }}>
-                Create your first proposal
+              <Link to="/campaigns/new" style={{ color: 'var(--color-accent-primary)' }}>
+                Create your first campaign
               </Link>
             </p>
           </div>
@@ -413,8 +413,8 @@ export function DashboardPage() {
 
         {!isEmpty &&
           STATUS_GROUPS.map(({ label, statuses }) => {
-            const group = proposals!.filter((c) => statuses.includes(c.status))
-            return <ProposalSection key={label} label={label} proposals={group} />
+            const group = campaigns!.filter((c) => statuses.includes(c.status))
+            return <CampaignSection key={label} label={label} campaigns={group} />
           })}
       </div>
     </div>
