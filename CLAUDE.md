@@ -131,3 +131,12 @@ All implementation must align with the layered spec system in `specs/`. Read `sp
 | `API_PROXY_TARGET` | Where Vite forwards `/v1` | `http://localhost:3001` |
 | `E2E_API_PORT` / `E2E_WEB_PORT` | Ports `run-e2e.sh` uses for its API and site | 3101 / 5273 |
 | `NODE_ENV` | Environment | development |
+
+## Running Headless
+
+If you were started with `claude -p` by the harness (`harness/run-task.sh`, `harness/pipeline.sh`), no human is
+available: never ask a question, because nobody will answer. Instead, either:
+
+- write what you assumed under an `ASSUMPTIONS` heading in your final message, and carry on; or
+- if you would have to guess something that matters, stop and make a line of your final message start with
+  `BLOCKED:` followed by the reason.
