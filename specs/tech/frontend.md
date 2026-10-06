@@ -485,13 +485,12 @@ There is no user-togglable light mode for the main application.
 
 ### 9.1 Font Loading
 
-The brand typography defined in [Brand Application Standard](L2-001) Section 1.3 requires loading three web fonts:
+The brand typography defined in [Brand Application Standard](L2-001) Section 1.3 requires loading two web font families:
 
-| Font       | Identity Token   | Usage                                    |
-| ---------- | ---------------- | ---------------------------------------- |
-| Bebas Neue | `--font-display` | Display headings, hero text, stat values |
-| DM Sans    | `--font-body`    | Body text, buttons, card titles          |
-| Space Mono | `--font-data`    | Labels, data values, mission codes       |
+| Font                | Identity Token                  | Weights loaded     | Usage                                                         |
+| ------------------- | ------------------------------- | ------------------ | ------------------------------------------------------------- |
+| Bricolage Grotesque | `--font-display`                | 800 (ExtraBold)    | Display headings, hero text, stat values                      |
+| Inter               | `--font-body`, `--font-data`    | 400, 500, 600, 700 | Body text, buttons, card titles, labels, data values, numbers |
 
 Font loading implementation:
 
@@ -502,11 +501,12 @@ Rationale: self-hosting avoids a third-party font CDN dependency and keeps the f
 
 `font-display` strategy per font:
 
-- `font-display: swap` for DM Sans (body font) — prevents invisible text while the font loads.
-- `font-display: optional` for Bebas Neue (display font) on slow connections — a fallback is acceptable for display headings.
-- `font-display: swap` for Space Mono (data font).
+- `font-display: swap` for Inter (body and data font) — prevents invisible text while the font loads.
+- `font-display: swap` for Bricolage Grotesque (display font) — headlines carry the brand, so a late swap is preferred to a permanent fallback.
 
-Font preload hint (`<link rel="preload">` in `packages/client/index.html`) is applied to DM Sans 400 as the critical path font for body text rendering.
+Bricolage Grotesque is a single ExtraBold (800) file declared across the whole weight range, so display text renders ExtraBold whatever weight a type token requests.
+
+Font preload hint (`<link rel="preload">` in `packages/client/index.html`) is applied to Inter 400 as the critical path font for body text rendering.
 
 ### 9.2 Image Optimisation
 
