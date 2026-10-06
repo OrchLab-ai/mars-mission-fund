@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(./**)",
+      "Edit(./**)",
+      "Glob",
+      "Grep",
+      "Bash(npm test)",
+      "Bash(npm run test)",
+      "Bash(npm run test *)",
+      "Bash(npm run test:coverage)",
+      "Bash(npx vitest *)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:md)",
+      "Bash(npm run format:check)",
+      "Bash(npx eslint *)",
+      "Bash(npx prettier --check *)",
+      "Bash(npm run build -w @mmf/shared)",
+      "Bash(npx tsc *)",
+      "Bash(git status *)",
+      "Bash(git diff *)"
+    ],
+    "deny": [
+      "Bash(curl *)",
+      "Bash(wget *)",
+      "WebFetch",
+      "WebSearch",
+      "Bash(git push *)",
+      "Bash(sudo *)",
+      "Bash(env)",
+      "Bash(env *)",
+      "Bash(printenv)",
+      "Bash(printenv *)",
+      "Read(//etc/**)",
+      "Read(~/**)",
+      "Edit(//etc/**)",
+      "Edit(~/**)"
+    ]
+  }
+}

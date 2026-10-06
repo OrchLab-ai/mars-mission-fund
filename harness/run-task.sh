@@ -24,6 +24,20 @@ if ! (cd "$work" && npm ci) >>"$log" 2>&1; then
   exit 1
 fi
 
+# Permissions: an allowlist by default. dontAsk refuses anything not allowed instead of
+# waiting for an answer nobody gives, and --setting-sources local keeps the project's own
+# .claude/settings.json (which allows curl and git push) out. The file is read from the
+# checkout, not the worktree, so the agent cannot rewrite its own rules.
+# HARNESS_YOLO=1 restores the old skip-everything behaviour so the difference stays visible.
+if [ "${HARNESS_YOLO:-}" = 1 ]; then
+  perm_args=(--dangerously-skip-permissions)
+  perm_line="permissions: OFF (HARNESS_YOLO=1)"
+else
+  perm_args=(--settings "$repo/harness/settings.json" --permission-mode dontAsk --setting-sources local)
+  perm_line="permissions: harness/settings.json"
+fi
+echo "$perm_line" | tee -a "$log"
+
 # stderr goes to the terminal and run.log so claude's own errors are not lost.
 # stdout (the event stream) is kept whole in events.jsonl, outside the worktree.
 cd "$work"
@@ -31,7 +45,7 @@ timeout "${TIMEOUT_SECONDS:-900}" claude -p "$(cat "$task_file")" \
   --output-format stream-json --verbose \
   --max-turns "${MAX_TURNS:-25}" \
   --model "${HARNESS_MODEL:-sonnet}" \
-  --dangerously-skip-permissions \
+  "${perm_args[@]}" \
   </dev/null 2> >(tee -a "$log" >&2) |
   tee "$run/events.jsonl" |
   # One line per tool call: its name and the command or path it works on.
