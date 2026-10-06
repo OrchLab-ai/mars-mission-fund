@@ -27,11 +27,28 @@ fi
 # stderr goes to the terminal and run.log so claude's own errors are not lost.
 # stdout (the event stream) is kept whole in events.jsonl, outside the worktree.
 cd "$work"
+
+# The permissions in force. HARNESS_YOLO=1 restores the old, unrestricted behaviour.
+# --setting-sources local keeps the project's .claude/settings.json (curl, git push) out.
+# A refused call only says "denied", so the agent is told the rules up front.
+if [ "${HARNESS_YOLO:-}" = 1 ]; then
+  echo "permissions: OFF (HARNESS_YOLO=1)"
+  perm_args=(--dangerously-skip-permissions)
+else
+  echo "permissions: harness/settings.json"
+  perm_args=(
+    --settings "$repo/harness/settings.json"
+    --setting-sources local
+    --permission-mode dontAsk
+    --append-system-prompt "You run under a permissions allowlist. Bash is on, but only for allowed commands: look-around tools (cd, pwd, ls, cat, head, tail, wc, grep, find, sort, uniq, sed, cut, tr, comm, diff) and the test, lint, type-check and build commands (npm test, npm run test/lint/build, npx vitest/tsc/eslint, npx prettier --check). Make each Bash call one simple command, run from the worktree root; do not chain commands or use absolute or .. paths. If a command is refused, that command is not allowed; Bash itself is not off, so try another way (the Read, Grep, Glob and Edit tools also work). There is no network, git push, sudo or environment printing, and nothing outside the worktree. find -exec/-delete and sed -i are refused; use the Edit tool to change files."
+  )
+fi
+
 timeout "${TIMEOUT_SECONDS:-900}" claude -p "$(cat "$task_file")" \
   --output-format stream-json --verbose \
   --max-turns "${MAX_TURNS:-25}" \
   --model "${HARNESS_MODEL:-sonnet}" \
-  --dangerously-skip-permissions \
+  "${perm_args[@]}" \
   </dev/null 2> >(tee -a "$log" >&2) |
   tee "$run/events.jsonl" |
   # One line per tool call: its name and the command or path it works on.
