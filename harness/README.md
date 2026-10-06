@@ -12,13 +12,38 @@ Each run gets an id from the timestamp and a folder `/workspace/runs/<id>/`:
 - `events.jsonl` — every stream-json event, as it arrived.
 - `run.log` — `npm ci` output, tool-call lines and claude's stderr.
 - `result.md` — the agent's final message: its answer to the task.
+- `before.png`, `after.png` — screenshots of the first proposal's detail page (see Gate and screenshots).
+- `web.log` — output of the site served for the screenshots.
 
 The record is outside the worktree, so removing the worktree keeps it
 (`git worktree remove /workspace/runs/<id>/repo`).
 
-Whatever the agent changed is committed to the branch. The script prints the run id,
-branch, model that ran, turns and cost, then the agent's final message, and exits with
-the agent's status (non-zero on failure; 124 on timeout).
+Whatever the agent changed is committed to the branch, after the script runs the worktree's own
+Prettier (`npx prettier --write --ignore-unknown`) on the changed files, as a pre-commit hook
+would: the agent may check formatting but not rewrite it, and a style nit should not fail the
+gate. Deleted files and files Prettier does not handle are skipped; its output is in `run.log`. The script prints the run id,
+branch, model that ran, turns and cost, then the agent's final message, then the gate
+(below). The branch is kept whatever the outcome, so it can be inspected.
+
+## Gate and screenshots
+
+After the work is committed, the script runs `./scripts/ci-check.sh` inside the run's worktree
+(with `npm_config_ignore_scripts=true`, since the install's `prepare` step cannot write git hooks
+from a worktree) and appends its output to `run.log`. It then prints `--- gate` and exactly
+`GATE PASSED` or `GATE FAILED`. If the run committed nothing, that is `GATE FAILED` too: an
+empty run has not done the task, and untouched code would pass the checks.
+
+For the human reviewer, before the agent starts the script serves the worktree's client on
+`HARNESS_WEB_PORT` (default `5373`, `--strictPort`), sending `/v1` to the running API on
+3001, and uses the worktree's Playwright to screenshot the detail page of the first proposal
+(from `GET /v1/proposals`) as `before.png`. After the commit it screenshots the same page as
+`after.png`, and copies both to `/screenshots/<run id>-before.png` and
+`/screenshots/<run id>-after.png`, so they open on the host and runs never overwrite each
+other. The paths are printed after the gate line. The site is stopped when the run ends,
+whatever happens. A screenshot that fails is reported but never fails the run.
+
+Exit status: the agent's status if that is non-zero (124 on timeout), otherwise `0` if the gate
+passed and `1` if it failed.
 
 ## Settings (environment variables)
 
@@ -27,6 +52,7 @@ the agent's status (non-zero on failure; 124 on timeout).
 | `HARNESS_MODEL` | `sonnet` | `--model` alias or full name |
 | `MAX_TURNS` | `25` | turn cap |
 | `TIMEOUT_SECONDS` | `900` | wall-clock limit |
+| `HARNESS_WEB_PORT` | `5373` | port for the site served for the screenshots |
 | `HARNESS_YOLO` | unset | `1` turns the permissions off (see below) |
 
 ## Permissions

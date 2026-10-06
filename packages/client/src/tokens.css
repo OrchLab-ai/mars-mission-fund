@@ -312,6 +312,50 @@
   --type-input-label-spacing: var(--tracking-widest-label);
   --type-input-label-leading: var(--leading-normal);
 
+  /* --- 2.11 Aliases used by components --------------------------------------
+     Components already reference these names. Each is mapped to the v2.0
+     identity token that brand.md gives the equivalent role. */
+  /* Actions and brand: violet (brand.md 2.1, 2.4) */
+  --color-accent-primary: var(--violet);
+  --color-brand-primary: var(--violet);
+  --color-text-on-accent: var(--white);
+  --color-text-on-brand: var(--white);
+
+  /* Surfaces: cards and dropdowns are white, quiet fills are paper (brand.md 2.3) */
+  --color-bg-card: var(--white);
+  --color-surface-card: var(--white);
+  --color-surface-elevated: var(--white);
+  --color-surface-muted: var(--paper);
+
+  /* Borders: ink, as for cards and inputs (brand.md 2.5) */
+  --color-border-default: var(--ink);
+
+  /* Error badge: flat white fill with a signal-red border (brand.md 2.2 badge pattern) */
+  --color-status-error-bg: var(--white);
+  --color-status-error-border: var(--signal-red);
+
+  /* Heading scale: aliases of the page-title, section-heading, card-title and
+     hero type styles (brand.md 2.8) */
+  --type-heading-1-size: var(--text-3xl);
+  --type-heading-1-weight: 400;
+  --type-heading-1-spacing: var(--tracking-widest-display);
+  --type-heading-1-leading: var(--leading-tight);
+
+  --type-heading-2-size: var(--text-2xl);
+  --type-heading-2-weight: 400;
+  --type-heading-2-spacing: var(--tracking-widest-display);
+  --type-heading-2-leading: var(--leading-snug);
+
+  --type-heading-3-size: var(--text-lg);
+  --type-heading-3-weight: 700;
+  --type-heading-3-spacing: var(--tracking-normal);
+  --type-heading-3-leading: var(--leading-snug);
+
+  --type-hero-heading-size: var(--text-4xl);
+  --type-hero-heading-weight: 400;
+  --type-hero-heading-spacing: var(--tracking-wider);
+  --type-hero-heading-leading: var(--leading-tight);
+
   /* --- 2.9 Motion — Semantic Tokens --- */
   /* Duration aliases mapped to intent */
   --motion-duration-fast: var(--duration-fast);
