@@ -13,9 +13,9 @@ describe('DatePickerInput', () => {
 
   it('renders the label text', () => {
     render(
-      <DatePickerInput id="test-date" label="Campaign Deadline" value="" onChange={() => {}} />
+      <DatePickerInput id="test-date" label="Proposal Deadline" value="" onChange={() => {}} />
     )
-    expect(screen.getByText('Campaign Deadline')).toBeInTheDocument()
+    expect(screen.getByText('Proposal Deadline')).toBeInTheDocument()
   })
 
   it('renders helper text', () => {

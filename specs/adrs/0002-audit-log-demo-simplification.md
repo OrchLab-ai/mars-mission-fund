@@ -15,7 +15,7 @@ with the following capabilities:
 - Anomaly-detection rules (e.g., flagging unusual disbursement patterns)
 - Audit-access logging (who read the audit log and when)
 
-The Campaign Lifecycle milestone required an auditable trail — reviewers approving campaigns,
+The Proposal Lifecycle milestone required an auditable trail — reviewers approving proposals,
 admins verifying milestones, settlement disbursements — recorded in the database during the
 workshop demo. Implementing the full production event-sourcing infrastructure (hash chaining, tiered
 storage, anomaly detection) was out of scope for a local development demo.
@@ -28,23 +28,23 @@ through a single upfront design pass.
 The demo writes audit rows to three tables instead of the single spec-aligned event stream
 (column lists per `packages/server/db/schema.sql`):
 
-- **`audit_log`** — JSONB table (`event_type`, `campaign_id`, `milestone_id`, `actor_id`,
+- **`audit_log`** — JSONB table (`event_type`, `proposal_id`, `milestone_id`, `actor_id`,
   `payload`, `created_at`). Written by `insertAuditLog` in
-  `packages/server/src/campaigns/queries.ts` for settlement and milestone events (evidence
-  submission, verification, return, campaign completion, settlement cancellation). No hash
+  `packages/server/src/proposals/queries.ts` for settlement and milestone events (evidence
+  submission, verification, return, proposal completion, settlement cancellation). No hash
   chaining or structured schema enforcement.
-- **`campaign_audit_events`** — Structured table (`campaign_id`, `event_type`, `actor_id`,
+- **`proposal_audit_events`** — Structured table (`proposal_id`, `event_type`, `actor_id`,
   `previous_state`, `new_state` as text, `metadata` JSONB, `occurred_at`). Written by
-  `createAuditEvent` and by the campaign create/submit queries for review workflow
+  `createAuditEvent` and by the proposal create/submit queries for review workflow
   transitions (creation, submission, claim, approval, rejection, resubmission).
 - **`audit_events`** — Closest to the L3-006 schema (`timestamp`, `level`, `correlation_id`,
   `service`, `message`, `event_type`, `actor_id`, `actor_type`, `action`, `resource_type`,
   `resource_id`, `outcome`, `previous_state`/`new_state` JSONB, `rationale`). Written by
-  `writeAuditEvent` in `packages/server/src/campaigns/audit.ts` for campaign lifecycle events
+  `writeAuditEvent` in `packages/server/src/proposals/audit.ts` for proposal lifecycle events
   (launch, contributions, status changes, deadline expiry, cancellation). No hash
   chaining.
 
-A fourth table, **`campaign_audit_log`** (`campaign_id`, `previous_state`, `new_state`,
+A fourth table, **`proposal_audit_log`** (`proposal_id`, `previous_state`, `new_state`,
 `actor_id`, `rationale`, `created_at`), is created by an early migration but is not written by
 current server code.
 
@@ -60,7 +60,7 @@ No migration was made to unify the tables; each was introduced when a feature ne
 - The demo value comes from *recording* what happened and when, so it can be inspected in the
   database — not from hash-chain integrity or tamper-proof guarantees.
 - Adding SHA-256 chaining, tiered retention, and anomaly detection during a workshop-focused
-  milestone would have shifted effort away from the core campaign lifecycle workflows being
+  milestone would have shifted effort away from the core proposal lifecycle workflows being
   demonstrated.
 - Each table was added in context of a specific feature; unifying them retrospectively would
   have introduced risk without workshop-visible benefit.

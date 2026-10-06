@@ -1,9 +1,9 @@
 import { expect, type Page } from '@playwright/test'
 
 /**
- * Saves a NEW campaign and waits until the edit page has really taken over.
+ * Saves a NEW proposal and waits until the edit page has really taken over.
  *
- * Saving on /campaigns/new navigates to /campaigns/:id/edit, but the URL changes before
+ * Saving on /proposals/new navigates to /proposals/:id/edit, but the URL changes before
  * React swaps the page: for a moment the old form is still on screen, with the same
  * "Step 1" heading. A test that carries on into it loses that work when the edit page
  * mounts and loads the draft back at step 1. The edit page sets the document title only
@@ -11,7 +11,7 @@ import { expect, type Page } from '@playwright/test'
  */
 export async function saveNewDraft(page: Page) {
   await page.getByRole('button', { name: /save draft/i }).click()
-  await expect(page).toHaveURL(/\/campaigns\/.+\/edit/)
+  await expect(page).toHaveURL(/\/proposals\/.+\/edit/)
   await expect(page).toHaveTitle(/ — Edit — /)
   await expect(page.locator('#title')).not.toHaveValue('')
 }
@@ -26,7 +26,7 @@ export async function saveNewDraft(page: Page) {
 export async function saveDraft(page: Page) {
   const saved = page.waitForResponse(
     (r) =>
-      r.request().method() === 'PUT' && /^\/v1\/campaigns\/[^/]+$/.test(new URL(r.url()).pathname)
+      r.request().method() === 'PUT' && /^\/v1\/proposals\/[^/]+$/.test(new URL(r.url()).pathname)
   )
   await page.getByRole('button', { name: /save draft/i }).click()
   expect((await saved).ok()).toBe(true)
