@@ -1,4 +1,4 @@
-import { ProposalSummarySchema, ProposalDetailSchema } from '@mmf/shared'
+import { ProposalSummarySchema, ProposalDetailSchema, MissionUpdateSchema } from '@mmf/shared'
 import type {
   ProposalSummary,
   ProposalDetail,
@@ -7,6 +7,7 @@ import type {
   TeamMember,
   CreateProposalRequest,
   UpdateProposalRequest,
+  MissionUpdate,
 } from '@mmf/shared'
 import { authedFetch } from './client'
 
@@ -18,6 +19,7 @@ export type {
   TeamMember,
   CreateProposalRequest,
   UpdateProposalRequest,
+  MissionUpdate,
 }
 
 export interface ProposalFilterParams {
@@ -42,6 +44,13 @@ export async function fetchProposal(id: string): Promise<ProposalDetail> {
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   const json = await response.json()
   return ProposalDetailSchema.parse(json.data)
+}
+
+export async function listMissionUpdates(proposalId: string): Promise<MissionUpdate[]> {
+  const response = await fetch(`/v1/proposals/${proposalId}/updates`)
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const json = await response.json()
+  return (json.data as unknown[]).map((item) => MissionUpdateSchema.parse(item))
 }
 
 export async function fetchReviewQueue(): Promise<ProposalSummary[]> {

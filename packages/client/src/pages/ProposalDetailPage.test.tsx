@@ -70,6 +70,15 @@ vi.mock('../hooks/useProposal', () => ({
   }),
 }))
 
+vi.mock('../hooks/useMissionUpdates', () => ({
+  useMissionUpdates: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+    error: null,
+  }),
+}))
+
 vi.mock('../context/AuthContext', () => ({
   useAuthContext: () => ({
     user: null,
