@@ -25,6 +25,30 @@ hook would: the agent may check formatting but not rewrite it, and a style nit s
 fail the gate. The script prints the run id, branch, model that ran, turns and cost, then
 the agent's final message, then the gate.
 
+## Pipeline: plan, then code
+
+```bash
+harness/pipeline.sh harness/tasks/mission-updates.md
+```
+
+One run id, one run folder and one worktree, shared code with `run-task.sh` (`harness/lib.sh`),
+and one `run.log` and `events.jsonl` that both stages write to.
+
+1. The before screenshot is taken.
+1. **Stage 1, plan:** `claude -p` with `harness/settings.plan.json`: Read, Glob, Grep and the same
+   look-around Bash commands and denies as `settings.json`, but no Edit, no Write and no other
+   commands. It is told it is the planning stage and must output a markdown plan. The harness
+   saves that output as `plan.md`. `HARNESS_YOLO` does not apply to this stage. If it fails or
+   produces no plan, stage 2 does not run.
+1. **Stage 2, code:** `claude -p` with `harness/settings.json`; its whole prompt is the plan,
+   after "Execute this plan exactly. If a step is wrong, stop and say so rather than
+   improvising."
+1. Once, after stage 2: Prettier, the commit, the after screenshot and the gate.
+
+The script prints where each stage's output is: `plan.md` (stage 1), `result.md` (stage 2's
+final message) and `events.jsonl` and `run.log` (both). Model, turns and cost are totals over
+both stages.
+
 ## The gate
 
 After the commit, `./scripts/ci-check.sh` runs inside the run's worktree with
