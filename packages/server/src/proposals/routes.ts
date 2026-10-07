@@ -1,6 +1,7 @@
 import { Router } from 'express'
 import type { Pool } from 'pg'
 import jwt from 'jsonwebtoken'
+import { CreateMissionUpdateRequestSchema } from '@mmf/shared'
 import {
   ListQuerySchema,
   RouteParamsSchema,
@@ -30,6 +31,7 @@ import {
   createNotification,
   getProposalState,
   listMissionUpdates,
+  createMissionUpdate,
   launchProposal,
   recordContribution,
   cancelProposal,
@@ -46,6 +48,8 @@ import {
 import { authenticate } from '../middleware/authenticate.js'
 import { requireRole } from '../middleware/requireRole.js'
 import { writeAuditEvent } from './audit.js'
+
+const MISSION_UPDATE_STATUSES: readonly string[] = ['Live', 'Funded', 'Settlement', 'Complete']
 
 type JwtUser = { id?: string; role?: string }
 
@@ -356,6 +360,72 @@ export function createProposalRouter(pool: Pool): Router {
       res.json({ data: updates })
     } catch (err) {
       next(err)
+    }
+  })
+
+  router.post('/:id/updates', authenticate, requireRole('Creator'), async (req, res, next) => {
+    const parsedParams = RouteParamsSchema.safeParse(req.params)
+    if (!parsedParams.success) {
+      const err = Object.assign(new Error('Invalid proposal ID'), {
+        status: 400,
+        code: 'INVALID_PROPOSAL_ID',
+        details: parsedParams.error.flatten(),
+      })
+      return next(err)
+    }
+
+    const parsedBody = CreateMissionUpdateRequestSchema.safeParse(req.body)
+    if (!parsedBody.success) {
+      const err = Object.assign(new Error('Invalid request body'), {
+        status: 400,
+        code: 'INVALID_REQUEST_BODY',
+        details: parsedBody.error.flatten(),
+      })
+      return next(err)
+    }
+
+    const user = res.locals['user'] as { id: string }
+    const proposalId = parsedParams.data.id
+
+    try {
+      const proposal = await getProposalState(pool, proposalId)
+      if (proposal === null) {
+        return next(makeError('Proposal not found', 404, 'PROPOSAL_NOT_FOUND'))
+      }
+
+      if (proposal.creatorId === null || proposal.creatorId !== user.id) {
+        return next(makeError('Forbidden', 403, 'FORBIDDEN'))
+      }
+
+      if (!MISSION_UPDATE_STATUSES.includes(proposal.status)) {
+        const err = Object.assign(new Error('Proposal is not in a state that accepts updates'), {
+          status: 409,
+          code: 'INVALID_PROPOSAL_STATE',
+          details: { currentStatus: proposal.status },
+        })
+        return next(err)
+      }
+
+      const update = await createMissionUpdate(pool, proposalId, user.id, parsedBody.data)
+
+      await writeAuditEvent(pool, {
+        action: 'proposal.mission_update_posted',
+        correlationId: res.locals['correlationId'] as string | undefined,
+        actorId: user.id,
+        actorType: 'user',
+        resourceType: 'proposal_update',
+        resourceId: update.id,
+        outcome: 'success',
+        newState: { proposalId, bodyLength: parsedBody.data.body.length },
+      })
+
+      res.status(201).json({ data: update })
+    } catch (err) {
+      const known = err as { status?: unknown; code?: unknown }
+      if (typeof known.status === 'number' && typeof known.code === 'string') {
+        return next(err)
+      }
+      next(makeError('Internal server error', 500, 'INTERNAL_SERVER_ERROR'))
     }
   })
 

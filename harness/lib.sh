@@ -4,7 +4,10 @@
 #   harness_init <task-file>   one run id, folder and worktree, npm ci, the traps
 #   harness_before_shot        the run's own app, before screenshot, servers stopped again
 #   harness_agent ...          one claude -p call, logged to run.log and events.jsonl
-#   harness_finish <status>    Prettier, commit, summary, after screenshot, gate, exit
+#   harness_commit <message>   Prettier, then commit what changed
+#   harness_after_shot         the run's own app again, on the committed code: the after screenshot
+#   harness_gate               the CI checks on the committed code; sets $gate
+#   harness_finish <status>    all of the above for a one-stage run, then exit
 
 # Scripts in a worktree's npm install would write a git hook, and .git is a file there.
 export npm_config_ignore_scripts=true
@@ -160,15 +163,19 @@ harness_before_shot() {
   fi
 }
 
-# harness_agent <prompt> <settings-file> <system-prompt> [yolo-allowed: 1]
-# One claude -p call in the worktree. Its status is left in $agent_status (124 on timeout).
+# harness_agent <prompt> <settings-file> <system-prompt> [yolo-allowed: 1] [model]
+# One claude -p call in the worktree. Its status is left in $agent_status (124 on timeout) and
+# its final message, if it ended without an error, in $agent_result. The model defaults to
+# HARNESS_MODEL (sonnet).
 # stderr goes to the terminal and run.log so claude's own errors are not lost.
 # stdout (the event stream) is appended whole to events.jsonl, outside the worktree.
 # --setting-sources local keeps the project's .claude/settings.json (curl, git push) out.
 # A refused call only says "denied", so the agent is told the rules up front.
 # HARNESS_YOLO=1 restores the old, unrestricted behaviour, for callers that pass yolo-allowed.
 harness_agent() {
-  local prompt=$1 settings=$2 system=$3 yolo=${4:-0} perm_args
+  local prompt=$1 settings=$2 system=$3 yolo=${4:-0} model=${5:-${HARNESS_MODEL:-sonnet}} perm_args
+  local mark
+  mark=$(wc -l <"$run/events.jsonl" 2>/dev/null || echo 0)
   if [ "${HARNESS_YOLO:-}" = 1 ] && [ "$yolo" = 1 ]; then
     echo "permissions: OFF (HARNESS_YOLO=1)"
     perm_args=(--dangerously-skip-permissions)
@@ -187,7 +194,7 @@ harness_agent() {
     timeout "${TIMEOUT_SECONDS:-900}" claude -p "$prompt" \
       --output-format stream-json --verbose \
       --max-turns "${MAX_TURNS:-25}" \
-      --model "${HARNESS_MODEL:-sonnet}" \
+      --model "$model" \
       "${perm_args[@]}" \
       </dev/null 2> >(tee -a "$log" >&2) |
       tee -a "$run/events.jsonl" |
@@ -199,11 +206,12 @@ harness_agent() {
     exit "${PIPESTATUS[0]}" # claude's (timeout's) status, not tee's or jq's
   )
   agent_status=$?
+  agent_result=$(tail -n +"$((mark + 1))" "$run/events.jsonl" |
+    jq -R -r 'fromjson? | select(.type == "result" and (.is_error | not)) | .result // empty')
 }
 
-# harness_finish <agent-status>: everything after the agent. Does not return.
-harness_finish() {
-  local status=$1
+# harness_commit <message>: format what the agent changed, then commit it to the run branch.
+harness_commit() {
   cd "$work" || exit 1
 
   # Format what the agent changed, as a pre-commit hook would: it may check formatting but not
@@ -221,17 +229,55 @@ harness_finish() {
   # Explicit identity: the container may have none configured.
   git add -A
   git -c user.name="Harness" -c user.email="harness@localhost" \
-    commit -q -m "Harness run $id: $(head -n 1 "$task_file" | cut -c1-60)" || echo "Nothing to commit"
+    commit -q -m "$1" || echo "Nothing to commit"
+}
 
+# harness_after_shot: the committed code, on a freshly migrated database (the agent may have
+# added migrations). run-task.sh takes it before the gate, whose npm ci replaces node_modules;
+# the pipeline takes it once, after the gate and the review loop, so it shows the final code.
+harness_after_shot() {
+  [ "$preview" = 1 ] || return 0
+  if port_taken "$api_port" || port_taken "$web_port"; then
+    echo "after screenshot skipped: port $api_port or $web_port answers now" >&2
+  elif migrate_run_db && start_servers; then
+    shoot after
+  else
+    echo "screenshot after failed: could not start the run's app (see $log)" >&2
+  fi
+  stop_servers
+}
+
+# harness_gate: the CI checks, run on the committed code. An empty run has not done the task, and
+# checking untouched code would pass. The branch is kept either way. Sets $gate to PASSED/FAILED.
+harness_gate() {
+  echo "--- gate (output in $run/run.log)"
+  gate=FAILED
+  if [ "$(git -C "$work" rev-parse HEAD)" = "$base" ]; then
+    echo "gate: the run committed nothing" | tee -a "$log"
+  elif (cd "$work" && npm_config_ignore_scripts=true ./scripts/ci-check.sh) >>"$log" 2>&1; then
+    gate=PASSED
+  fi
+  echo "GATE $gate"
+}
+
+# harness_print_run: run id, branch, and the model, turns and cost summed over every stage.
+# The result events are the source of truth. -R/-s/fromjson? so a half-written last line after
+# a timeout cannot stop it.
+harness_print_run() {
   echo "run:    $id"
   echo "branch: $branch"
-  # The result events are the source of truth for model, turns and cost (summed over stages).
-  # -R/-s/fromjson? so a half-written last line after a timeout cannot stop it.
   jq -R -s -r '[split("\n")[] | fromjson? | select(.type == "result")] as $r
     | if ($r | length) == 0 then empty else
       "model:  \($r | map(.modelUsage // {} | keys) | add | unique | join(", "))\nturns:  \($r | map(.num_turns // 0) | add)"
       + (if ($r | map(.total_cost_usd) | any(. != null)) then "\ncost:   $\($r | map(.total_cost_usd // 0) | add)" else "" end)
       end' "$run/events.jsonl"
+}
+
+# harness_finish <agent-status>: everything after the agent, for a one-stage run. Does not return.
+harness_finish() {
+  local status=$1
+  harness_commit "Harness run $id: $(head -n 1 "$task_file" | cut -c1-60)"
+  harness_print_run
 
   # The last stage's own closing message - its answer to the task - kept with the record.
   echo "--- result (also in $run/result.md)"
@@ -239,29 +285,9 @@ harness_finish() {
     jq -R -r 'fromjson? | select(.type == "result") | .result // empty' |
     tee "$run/result.md"
 
-  # "After": the committed code, on a freshly migrated database (the agent may have added
-  # migrations). Taken before the gate, whose npm ci replaces node_modules.
-  if [ "$preview" = 1 ]; then
-    if port_taken "$api_port" || port_taken "$web_port"; then
-      echo "after screenshot skipped: port $api_port or $web_port answers now" >&2
-    elif migrate_run_db && start_servers; then
-      shoot after
-    else
-      echo "screenshot after failed: could not start the run's app (see $log)" >&2
-    fi
-    stop_servers
-  fi
-
-  # The gate: the CI checks, run on the committed code. An empty run has not done the task, and
-  # checking untouched code would pass. The branch is kept either way.
-  echo "--- gate (output in $run/run.log)"
-  local gate=FAILED
-  if [ "$(git -C "$work" rev-parse HEAD)" = "$base" ]; then
-    echo "gate: the run committed nothing" | tee -a "$log"
-  elif (cd "$work" && npm_config_ignore_scripts=true ./scripts/ci-check.sh) >>"$log" 2>&1; then
-    gate=PASSED
-  fi
-  echo "GATE $gate"
+  # Taken before the gate, as before.
+  harness_after_shot
+  harness_gate
   local shot
   for shot in "${shots[@]}"; do echo "screenshot: $shot"; done
 

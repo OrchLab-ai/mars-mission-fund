@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, within } from '@testing-library/react'
+import { render, screen, within, fireEvent } from '@testing-library/react'
 import type { User } from '@mmf/shared'
 import { MissionUpdatesSection } from './MissionUpdatesSection'
 import type { MissionUpdate } from '../../api/proposals'
@@ -8,6 +8,13 @@ const mockHook = vi.fn()
 
 vi.mock('../../hooks/useMissionUpdates', () => ({
   useMissionUpdates: (id: string) => mockHook(id),
+}))
+
+const mockMutate = vi.fn()
+let mockPending = false
+
+vi.mock('../../hooks/useCreateMissionUpdate', () => ({
+  useCreateMissionUpdate: () => ({ mutate: mockMutate, isPending: mockPending }),
 }))
 
 const CREATOR_ID = '22222222-2222-2222-2222-222222222222'
@@ -43,6 +50,82 @@ const LOAD_ERROR = "We couldn't load the updates right now. Refresh the page to 
 describe('MissionUpdatesSection', () => {
   beforeEach(() => {
     mockHook.mockReset()
+    mockMutate.mockReset()
+    mockPending = false
+  })
+
+  describe('post form', () => {
+    it('is absent when signed out, as a Backer, and as a non-owning Creator', () => {
+      setHook({ data: [] })
+      const { unmount: u1 } = renderSection(null)
+      expect(screen.queryByRole('button', { name: 'Post update' })).toBeNull()
+      u1()
+      const { unmount: u2 } = renderSection(makeUser(CREATOR_ID, 'Backer'))
+      expect(screen.queryByRole('button', { name: 'Post update' })).toBeNull()
+      u2()
+      renderSection(makeUser('someone-else', 'Creator'))
+      expect(screen.queryByRole('button', { name: 'Post update' })).toBeNull()
+      expect(screen.queryByLabelText('Title')).toBeNull()
+    })
+
+    it('is shown to the owning creator, above the list, with labels and help text wired', () => {
+      setHook({ data: [makeUpdate()] })
+      renderSection(makeUser(CREATOR_ID))
+      const title = screen.getByLabelText('Title')
+      const body = screen.getByLabelText("What's happening?")
+      expect(title.getAttribute('maxlength')).toBe('120')
+      expect(body.getAttribute('maxlength')).toBe('5000')
+      const titleHelp = document.getElementById(title.getAttribute('aria-describedby')!)
+      const bodyHelp = document.getElementById(body.getAttribute('aria-describedby')!)
+      expect(titleHelp?.textContent).toBe('Keep it short, like a headline. Up to 120 characters.')
+      expect(bodyHelp?.textContent).toBe(
+        "Progress, setbacks, what's next. Plain text, up to 5,000 characters."
+      )
+      const form = screen.getByRole('button', { name: 'Post update' }).closest('form')!
+      const list = screen.getByRole('list')
+      expect(form.compareDocumentPosition(list) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    })
+
+    it('disables the button while a post is in flight', () => {
+      setHook({ data: [] })
+      mockPending = true
+      renderSection(makeUser(CREATOR_ID))
+      expect(
+        (screen.getByRole('button', { name: 'Post update' }) as HTMLButtonElement).disabled
+      ).toBe(true)
+    })
+
+    it('posts the typed values and clears the form on success', () => {
+      setHook({ data: [] })
+      mockMutate.mockImplementation((_data, opts) => opts.onSuccess())
+      renderSection(makeUser(CREATOR_ID))
+      fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Big news' } })
+      fireEvent.change(screen.getByLabelText("What's happening?"), {
+        target: { value: 'Line one\nLine two' },
+      })
+      fireEvent.click(screen.getByRole('button', { name: 'Post update' }))
+      expect(mockMutate.mock.calls[0]![0]).toEqual({
+        title: 'Big news',
+        body: 'Line one\nLine two',
+      })
+      expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe('')
+      expect((screen.getByLabelText("What's happening?") as HTMLTextAreaElement).value).toBe('')
+      expect(screen.queryByRole('alert')).toBeNull()
+    })
+
+    it('shows the failure message and keeps the text when a post fails', () => {
+      setHook({ data: [] })
+      mockMutate.mockImplementation((_data, opts) => opts.onError(new Error('HTTP 500')))
+      renderSection(makeUser(CREATOR_ID))
+      fireEvent.change(screen.getByLabelText('Title'), { target: { value: 'Big news' } })
+      fireEvent.change(screen.getByLabelText("What's happening?"), { target: { value: 'Body' } })
+      fireEvent.click(screen.getByRole('button', { name: 'Post update' }))
+      expect(screen.getByRole('alert').textContent).toBe(
+        "That update didn't go through. Your text is still here, so try posting again."
+      )
+      expect((screen.getByLabelText('Title') as HTMLInputElement).value).toBe('Big news')
+      expect((screen.getByLabelText("What's happening?") as HTMLTextAreaElement).value).toBe('Body')
+    })
   })
 
   it('is a labelled region found by its heading', () => {
@@ -152,6 +235,13 @@ describe('MissionUpdatesSection', () => {
     setHook({ data: [] })
     copy.push(renderSection().container.textContent ?? '')
     copy.push(renderSection(makeUser(CREATOR_ID)).container.textContent ?? '')
+    mockMutate.mockImplementation((_data, opts) => opts.onError(new Error('x')))
+    const owner = renderSection(makeUser(CREATOR_ID))
+    const form = within(owner.container)
+    fireEvent.change(form.getByLabelText('Title'), { target: { value: 't' } })
+    fireEvent.change(form.getByLabelText("What's happening?"), { target: { value: 'b' } })
+    fireEvent.click(form.getByRole('button', { name: 'Post update' }))
+    copy.push(owner.container.textContent ?? '')
     setHook({ isError: true })
     copy.push(renderSection().container.textContent ?? '')
     setHook({ isLoading: true })

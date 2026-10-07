@@ -778,6 +778,32 @@ export async function listMissionUpdates(pool: Pool, proposalId: string): Promis
   return result.rows
 }
 
+export async function createMissionUpdate(
+  pool: Pool,
+  proposalId: string,
+  authorId: string,
+  input: { title: string; body: string }
+): Promise<MissionUpdate> {
+  const result = await pool.query<MissionUpdate>(
+    `WITH ins AS (
+      INSERT INTO proposal_updates (proposal_id, author_id, title, body)
+      VALUES ($1, $2, $3, $4)
+      RETURNING *
+    )
+    SELECT
+      ins.id,
+      ins.title,
+      ins.body,
+      ins.author_id AS "authorId",
+      a.display_name AS "authorName",
+      ins.created_at AS "createdAt"
+    FROM ins
+    JOIN accounts a ON a.id = ins.author_id`,
+    [proposalId, authorId, input.title, input.body]
+  )
+  return result.rows[0]!
+}
+
 export async function launchProposal(pool: Pool, id: string): Promise<LaunchResult> {
   const result = await pool.query<LaunchResult>(
     `UPDATE proposals

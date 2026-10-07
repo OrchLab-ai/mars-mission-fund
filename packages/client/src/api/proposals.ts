@@ -8,6 +8,7 @@ import type {
   CreateProposalRequest,
   UpdateProposalRequest,
   MissionUpdate,
+  CreateMissionUpdateRequest,
 } from '@mmf/shared'
 import { authedFetch } from './client'
 
@@ -20,6 +21,7 @@ export type {
   CreateProposalRequest,
   UpdateProposalRequest,
   MissionUpdate,
+  CreateMissionUpdateRequest,
 }
 
 export interface ProposalFilterParams {
@@ -51,6 +53,19 @@ export async function listMissionUpdates(proposalId: string): Promise<MissionUpd
   if (!response.ok) throw new Error(`HTTP ${response.status}`)
   const json = await response.json()
   return (json.data as unknown[]).map((item) => MissionUpdateSchema.parse(item))
+}
+
+export async function createMissionUpdate(
+  proposalId: string,
+  data: CreateMissionUpdateRequest
+): Promise<MissionUpdate> {
+  const response = await authedFetch(`/v1/proposals/${proposalId}/updates`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+  if (!response.ok) throw new Error(`HTTP ${response.status}`)
+  const json = await response.json()
+  return MissionUpdateSchema.parse(json.data)
 }
 
 export async function fetchReviewQueue(): Promise<ProposalSummary[]> {
