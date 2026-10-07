@@ -12,38 +12,58 @@ Each run gets an id from the timestamp and a folder `/workspace/runs/<id>/`:
 - `events.jsonl` — every stream-json event, as it arrived.
 - `run.log` — `npm ci` output, tool-call lines and claude's stderr.
 - `result.md` — the agent's final message: its answer to the task.
-- `before.png`, `after.png` — screenshots of the first proposal's detail page (see Gate and screenshots).
-- `web.log` — output of the site served for the screenshots.
 
 The record is outside the worktree, so removing the worktree keeps it
 (`git worktree remove /workspace/runs/<id>/repo`).
 
-Whatever the agent changed is committed to the branch, after the script runs the worktree's own
-Prettier (`npx prettier --write --ignore-unknown`) on the changed files, as a pre-commit hook
-would: the agent may check formatting but not rewrite it, and a style nit should not fail the
-gate. Deleted files and files Prettier does not handle are skipped; its output is in `run.log`. The script prints the run id,
-branch, model that ran, turns and cost, then the agent's final message, then the gate
-(below). The branch is kept whatever the outcome, so it can be inspected.
+- `api.log`, `web.log` — output of the run's own API and client (see Screenshots).
+- `screenshots.log` — Playwright output, and `before.png` / `after.png` (see Screenshots).
 
-## Gate and screenshots
+Whatever the agent changed is committed to the branch, after the changed files are formatted
+with the worktree's own Prettier (`npx prettier --write --ignore-unknown`), as a pre-commit
+hook would: the agent may check formatting but not rewrite it, and a style nit should not
+fail the gate. The script prints the run id, branch, model that ran, turns and cost, then
+the agent's final message, then the gate.
 
-After the work is committed, the script runs `./scripts/ci-check.sh` inside the run's worktree
-(with `npm_config_ignore_scripts=true`, since the install's `prepare` step cannot write git hooks
-from a worktree) and appends its output to `run.log`. It then prints `--- gate` and exactly
-`GATE PASSED` or `GATE FAILED`. If the run committed nothing, that is `GATE FAILED` too: an
-empty run has not done the task, and untouched code would pass the checks.
+## The gate
 
-For the human reviewer, before the agent starts the script serves the worktree's client on
-`HARNESS_WEB_PORT` (default `5373`, `--strictPort`), sending `/v1` to the running API on
-3001, and uses the worktree's Playwright to screenshot the detail page of the first proposal
-(from `GET /v1/proposals`) as `before.png`. After the commit it screenshots the same page as
-`after.png`, and copies both to `/screenshots/<run id>-before.png` and
-`/screenshots/<run id>-after.png`, so they open on the host and runs never overwrite each
-other. The paths are printed after the gate line. The site is stopped when the run ends,
-whatever happens. A screenshot that fails is reported but never fails the run.
+After the commit, `./scripts/ci-check.sh` runs inside the run's worktree with
+`npm_config_ignore_scripts=true` (the install's `prepare` step cannot write git hooks from a
+worktree). Its output goes to `run.log`. The script prints a `--- gate` line, then exactly
+`GATE PASSED` or `GATE FAILED`. The branch is kept either way, so it can be inspected.
 
-Exit status: the agent's status if that is non-zero (124 on timeout), otherwise `0` if the gate
-passed and `1` if it failed.
+A run that committed nothing is `GATE FAILED`: it has not done the task, and checking
+untouched code would pass.
+
+**Exit status:** the agent's own non-zero status if it has one (124 on timeout); otherwise 1
+if the gate failed; otherwise 0.
+
+## Screenshots
+
+For the human reviewer, taken from the run's own copy of the app, so they show the worktree's
+code and never touch the running one:
+
+- Before the agent starts, a database for this run alone is created beside the one in
+  `DATABASE_URL` (named `<db>_harness_<run id>`) and migrated with `dbmate` from the worktree's
+  migrations (the seed migrations give it the usual proposals). Only `dbmate` and the run's API
+  get it, as an inline variable; the agent and the gate never do.
+- The worktree's API starts on `HARNESS_API_PORT` (default 3373) and its client on
+  `HARNESS_WEB_PORT` (default 5373, `--strictPort`, proxying to that API). Each runs under
+  `setsid` and is stopped by killing its whole process group.
+- Playwright from the worktree's `node_modules` (`harness/screenshot.cjs`) photographs
+  `/proposals/00000000-0001-0000-0000-000000000001` as `before.png`. Both servers are then
+  stopped, so nothing of the run's is listening while the agent works.
+- After the commit the database is migrated again (the agent may have added migrations), both
+  servers start again from the committed code, and `after.png` is taken. This is done before
+  the gate, whose `npm ci` replaces `node_modules`.
+- Both are copied to `/screenshots/<run id>-before.png` and `-after.png`, and their paths are
+  printed after the gate line.
+- If either port already answers beforehand, the screenshots are skipped and the script says
+  so, rather than photographing someone else's server.
+- When the run ends, however it ends, both servers are stopped and the run's database is
+  dropped.
+
+A screenshot that fails is reported, but never fails the run.
 
 ## Settings (environment variables)
 
@@ -52,7 +72,6 @@ passed and `1` if it failed.
 | `HARNESS_MODEL` | `sonnet` | `--model` alias or full name |
 | `MAX_TURNS` | `25` | turn cap |
 | `TIMEOUT_SECONDS` | `900` | wall-clock limit |
-| `HARNESS_WEB_PORT` | `5373` | port for the site served for the screenshots |
 | `HARNESS_YOLO` | unset | `1` turns the permissions off (see below) |
 
 ## Permissions

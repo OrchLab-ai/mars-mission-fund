@@ -13,51 +13,140 @@ branch=harness/$id
 # Scripts in a worktree's npm install would write a git hook, and .git is a file there.
 export npm_config_ignore_scripts=true
 
+api_port=${HARNESS_API_PORT:-3373}
+web_port=${HARNESS_WEB_PORT:-5373}
+page_path=/proposals/00000000-0001-0000-0000-000000000001 # a seeded proposal
+
 mkdir -p "$run"
 # A worktree leaves the checkout we were started from untouched.
 git -C "$repo" worktree add -q -b "$branch" "$work" HEAD || exit 1
+base=$(git -C "$work" rev-parse HEAD) # an empty run is one that ends here
 log=$run/run.log
 : >"$log"
+
+# --- the run's own copy of the app, for the screenshots -------------------------------------
+# Its database goes only to dbmate and the run's API, as an inline variable on each command:
+# it is never exported, so the agent and the gate never see it.
+run_db_url=""
+run_db_name=""
+db_created=0
+api_pid=""
+web_pid=""
+preview=1
+
+# Something answering on the port means it is taken. bash's /dev/tcp needs no extra tools.
+port_taken() { (exec 3<>"/dev/tcp/127.0.0.1/$1") 2>/dev/null; }
+
+# Kill a whole process group: killing npm alone leaves Vite on the port.
+stop_group() {
+  [ -n "$1" ] || return 0
+  kill -- "-$1" 2>/dev/null || true
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    kill -0 -- "-$1" 2>/dev/null || break
+    sleep 0.5
+  done
+  kill -KILL -- "-$1" 2>/dev/null || true
+  wait "$1" 2>/dev/null || true
+}
+
+stop_servers() {
+  stop_group "$web_pid"
+  stop_group "$api_pid"
+  web_pid=""
+  api_pid=""
+}
+
+cleanup() {
+  trap - INT TERM
+  stop_servers
+  if [ "$db_created" = 1 ]; then
+    (cd "$work" && DATABASE_URL="$run_db_url" dbmate --no-dump-schema drop) >>"$log" 2>&1 ||
+      echo "WARNING: could not drop database $run_db_name" >&2
+  fi
+}
+trap cleanup EXIT
+trap 'exit 130' INT TERM
+
+# Migrate the run's database from the worktree's migrations (the agent may add some).
+migrate_run_db() {
+  (cd "$work" && DATABASE_URL="$run_db_url" dbmate --no-dump-schema \
+    -d packages/server/db/migrations up) >>"$log" 2>&1
+}
+
+# Start the worktree's API and client, each in its own session (setsid), and wait for both.
+start_servers() {
+  (
+    cd "$work" || exit 1
+    DATABASE_URL="$run_db_url" PORT="$api_port" \
+      setsid npx tsx packages/server/src/index.ts >>"$run/api.log" 2>&1 </dev/null &
+    echo $! >"$run/.api.pid"
+  )
+  api_pid=$(<"$run/.api.pid")
+  (
+    cd "$work/packages/client" || exit 1
+    API_PROXY_TARGET="http://127.0.0.1:$api_port" \
+      setsid npx vite --host 127.0.0.1 --port "$web_port" --strictPort \
+      >>"$run/web.log" 2>&1 </dev/null &
+    echo $! >"$run/.web.pid"
+  )
+  web_pid=$(<"$run/.web.pid")
+  for port in "$api_port" "$web_port"; do
+    for _ in $(seq 1 60); do
+      # curl writes 000 when the connection is refused: anything else is an answer.
+      [ "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$port/" 2>/dev/null)" != 000 ] && continue 2
+      sleep 1
+    done
+    echo "nothing answered on :$port within 60s (see $run/api.log, $run/web.log)" >&2
+    return 1
+  done
+}
+
+# shoot before|after: screenshot the seeded proposal, copy it where the host can open it.
+shoot() {
+  local png=$run/$1.png
+  if node "$repo/harness/screenshot.cjs" "$work" "http://127.0.0.1:$web_port$page_path" "$png" \
+    >>"$run/screenshots.log" 2>&1; then
+    mkdir -p /screenshots && cp "$png" "/screenshots/$id-$1.png" && shots+=("/screenshots/$id-$1.png")
+  else
+    echo "screenshot $1 failed (see $run/screenshots.log)" >&2
+  fi
+}
+shots=()
+
+# Screenshots never fail the run: any trouble below only turns them off.
+if [ -z "${DATABASE_URL:-}" ]; then
+  echo "screenshots skipped: DATABASE_URL is not set" >&2
+  preview=0
+elif port_taken "$api_port" || port_taken "$web_port"; then
+  echo "screenshots skipped: port $api_port or $web_port already answers (another server, not photographed)" >&2
+  preview=0
+fi
 
 if ! (cd "$work" && npm ci) >>"$log" 2>&1; then
   echo "npm ci failed in $work; see $log" >&2
   exit 1
 fi
 
-# Screenshots for the human reviewer. Any failure here is reported and never fails the run.
-web_port=${HARNESS_WEB_PORT:-5373}
-web_pid=
-shots_ok=
-before_ok=
-proposal_url=
-shoot() { # shoot <name>: screenshot the proposal page into the run folder
-  (cd "$work" && node "$repo/harness/screenshot.mjs" "$proposal_url" "$run/$1.png") >>"$log" 2>&1 ||
-    { echo "screenshot $1.png failed; see $log"; return 1; }
-}
-stop_web() {
-  [ -n "$web_pid" ] && kill "$web_pid" 2>/dev/null
-  web_pid=
-}
-trap stop_web EXIT # whatever happens, the site does not outlive the run
-
-proposal_id=$(curl -sf http://localhost:3001/v1/proposals | jq -r '.data[0].id // empty')
-if [ -z "$proposal_id" ]; then
-  echo "screenshots skipped: no proposal from GET /v1/proposals"
-else
-  proposal_url=http://localhost:$web_port/proposals/$proposal_id
-  (cd "$work" && API_PROXY_TARGET=http://localhost:3001 \
-    exec npm run dev -w @mmf/client -- --port "$web_port" --strictPort) >"$run/web.log" 2>&1 &
-  web_pid=$!
-  for _ in $(seq 60); do
-    curl -sf -o /dev/null "http://localhost:$web_port/" && { shots_ok=1; break; }
-    kill -0 "$web_pid" 2>/dev/null || break
-    sleep 1
-  done
-  if [ -z "$shots_ok" ]; then
-    echo "screenshots skipped: site did not start on port $web_port; see $run/web.log"
-    stop_web
+# "Before": the untouched code, before the agent starts. The servers are stopped again straight
+# away, so nothing of the run's is listening while the agent works.
+if [ "$preview" = 1 ]; then
+  base_db=${DATABASE_URL%%\?*}
+  query=""
+  [ "$base_db" != "$DATABASE_URL" ] && query="?${DATABASE_URL#*\?}"
+  # Beside the database in DATABASE_URL, named after the run.
+  run_db_name="${base_db##*/}_harness_${id//-/_}"
+  run_db_url="${base_db%/*}/$run_db_name$query"
+  if (cd "$work" && DATABASE_URL="$run_db_url" dbmate --no-dump-schema create) >>"$log" 2>&1; then
+    db_created=1
+    if migrate_run_db && start_servers; then
+      shoot before
+    else
+      echo "screenshot before failed: could not start the run's app (see $log)" >&2
+    fi
+    stop_servers
   else
-    shoot before && before_ok=1
+    echo "screenshots skipped: could not create database $run_db_name (see $log)" >&2
+    preview=0
   fi
 fi
 
@@ -95,32 +184,22 @@ timeout "${TIMEOUT_SECONDS:-900}" claude -p "$(cat "$task_file")" \
   tee -a "$log"
 status=${PIPESTATUS[0]} # claude's (timeout's) status, not tee's or jq's
 
-base=$(git rev-parse HEAD)
-
-# Format what the agent changed, as a pre-commit hook would: the agent may check formatting
-# but is not allowed to rewrite it, and a style nit should not fail the gate.
-# Deleted files are left out, --ignore-unknown skips files Prettier does not handle, and a
-# file it cannot parse is only logged.
-git add -A
-echo "=== prettier --write on changed files ===" >>"$log"
-git diff --cached --name-only --diff-filter=d -z |
-  xargs -0 -r npx prettier --write --ignore-unknown >>"$log" 2>&1 ||
-  echo "prettier could not format every changed file; see $log"
-git add -A
+# Format what the agent changed, as a pre-commit hook would: it may check formatting but not
+# rewrite it, and a style nit should not fail the gate. The worktree's own Prettier;
+# --ignore-unknown skips files it does not handle.
+changed=()
+while IFS= read -r -d '' f; do
+  [ -f "$f" ] && changed+=("$f")
+done < <(git ls-files -z --modified --others --exclude-standard)
+if [ "${#changed[@]}" -gt 0 ]; then
+  npx prettier --write --ignore-unknown "${changed[@]}" >>"$log" 2>&1 ||
+    echo "prettier could not format every changed file (see $log)" >&2
+fi
 
 # Explicit identity: the container may have none configured.
+git add -A
 git -c user.name="Harness" -c user.email="harness@localhost" \
   commit -q -m "Harness run $id: $(head -n 1 "$task_file" | cut -c1-60)" || echo "Nothing to commit"
-
-committed=
-[ "$(git rev-parse HEAD)" != "$base" ] && committed=1
-
-# The same page again, with the agent's work in place.
-after_ok=
-if [ -n "$shots_ok" ]; then
-  shoot after && after_ok=1
-fi
-stop_web
 
 echo "run:    $id"
 echo "branch: $branch"
@@ -135,30 +214,32 @@ echo "--- result (also in $run/result.md)"
 jq -R -r 'fromjson? | select(.type == "result") | .result // empty' "$run/events.jsonl" |
   tee "$run/result.md"
 
-# The gate: the project's own CI checks, run on the committed work in the worktree.
-# An empty run has not done the task, and untouched code would pass, so it fails.
-echo "--- gate"
-if [ -z "$committed" ]; then
-  echo "nothing was committed" >>"$log"
-  gate=1
-else
-  echo "=== gate: scripts/ci-check.sh ===" >>"$log"
-  (cd "$work" && ./scripts/ci-check.sh) >>"$log" 2>&1
-  gate=$?
-fi
-if [ "$gate" -eq 0 ]; then echo "GATE PASSED"; else echo "GATE FAILED"; fi
-
-# Copy under the run id so runs never overwrite each other; /screenshots opens on the host.
-if [ -n "$before_ok" ] || [ -n "$after_ok" ]; then
-  mkdir -p /screenshots
-  for n in before after; do
-    declare -n ok=${n}_ok
-    [ -z "$ok" ] && continue
-    cp "$run/$n.png" "/screenshots/$id-$n.png" && echo "/screenshots/$id-$n.png" ||
-      echo "copy of $n.png to /screenshots failed"
-  done
+# "After": the committed code, on a freshly migrated database (the agent may have added
+# migrations). Taken before the gate, whose npm ci replaces node_modules.
+if [ "$preview" = 1 ]; then
+  if port_taken "$api_port" || port_taken "$web_port"; then
+    echo "after screenshot skipped: port $api_port or $web_port answers now" >&2
+  elif migrate_run_db && start_servers; then
+    shoot after
+  else
+    echo "screenshot after failed: could not start the run's app (see $log)" >&2
+  fi
+  stop_servers
 fi
 
-# The agent's own failure comes first; otherwise the gate decides.
-if [ "$status" -ne 0 ]; then exit "$status"; fi
-exit "$gate"
+# The gate: the CI checks, run on the committed code. An empty run has not done the task, and
+# checking untouched code would pass. The branch is kept either way.
+echo "--- gate (output in $run/run.log)"
+gate=FAILED
+if [ "$(git -C "$work" rev-parse HEAD)" = "$base" ]; then
+  echo "gate: the run committed nothing" | tee -a "$log"
+elif (cd "$work" && npm_config_ignore_scripts=true ./scripts/ci-check.sh) >>"$log" 2>&1; then
+  gate=PASSED
+fi
+echo "GATE $gate"
+for shot in "${shots[@]}"; do echo "screenshot: $shot"; done
+
+# The agent's own failure (124 on timeout) comes first; else a failed gate is 1.
+[ "$status" -ne 0 ] && exit "$status"
+[ "$gate" = PASSED ] || exit 1
+exit 0
