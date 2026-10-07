@@ -16,6 +16,7 @@ Each run gets an id from the timestamp and a folder `/workspace/runs/<id>/`:
 The record is outside the worktree, so removing the worktree keeps it
 (`git worktree remove /workspace/runs/<id>/repo`).
 
+- `plan.md`, `review-<n>.json`, `summary.md` — pipeline only (see Pipeline).
 - `api.log`, `web.log` — output of the run's own API and client (see Screenshots).
 - `screenshots.log` — Playwright output, and `before.png` / `after.png` (see Screenshots).
 
@@ -39,15 +40,57 @@ and one `run.log` and `events.jsonl` that both stages write to.
    look-around Bash commands and denies as `settings.json`, but no Edit, no Write and no other
    commands. It is told it is the planning stage and must output a markdown plan. The harness
    saves that output as `plan.md`. `HARNESS_YOLO` does not apply to this stage. If it fails or
-   produces no plan, stage 2 does not run.
+   produces no plan, stage 2 does not run. The contents of `harness/LEARNINGS.md` in your
+   checkout (see Report) are put in its prompt, committed or not.
 1. **Stage 2, code:** `claude -p` with `harness/settings.json`; its whole prompt is the plan,
-   after "Execute this plan exactly. If a step is wrong, stop and say so rather than
-   improvising."
-1. Once, after stage 2: Prettier, the commit, the after screenshot and the gate.
+   after "Execute this plan exactly". If a step is wrong it must stop with a final line that starts
+   with `BLOCKED:` and says why. The run then ends (exit 3) with nothing committed and no gate.
+1. Prettier, the commit and the gate.
+1. The review loop, if the coding stage succeeded and the gate passed (see below).
+1. The after screenshot, once, on the final code.
+1. The report.
 
 The script prints where each stage's output is: `plan.md` (stage 1), `result.md` (stage 2's
-final message) and `events.jsonl` and `run.log` (both). Model, turns and cost are totals over
-both stages.
+final message) and `events.jsonl` and `run.log` (all stages). Model, turns and cost are totals over
+every stage, review and fix rounds included.
+
+## Review loop
+
+After the gate passes, up to `MAX_LOOPS` (default 2) fix rounds:
+
+1. **Review:** `claude -p --model $REVIEW_MODEL` (default `opus`), with the read-only
+   `harness/settings.review.json` (Read, Glob, Grep, the look-around Bash commands, and
+   `git diff`, `git log` and `git show`; nothing else, and `HARNESS_YOLO` never applies). It
+   reviews `git diff <start commit> harness/<id>` and must reply with JSON only:
+   `{"verdict": "pass"|"fail", "findings": [{"severity", "confidence", "file", "issue"}]}`.
+   Severity is `low`, `medium`, `high` or `critical`; it reports every finding, uncertain ones
+   too, and fails the work only for medium or above. The raw reply is saved as `review-<n>.json`.
+   The harness fails the work if the reply is anything but that JSON, if any finding is medium
+   or above, or if the verdict is not `pass`, so the verdict and findings must agree. A reply
+   that is not that JSON ends the loop at once, since a fixer would have nothing to fix.
+1. **Fix:** on a fail, a fixing agent runs in the same worktree with `harness/settings.json` and
+   the coding model (`HARNESS_MODEL`), given the task and the findings. It fixes medium and above,
+   lower ones only where small and safe, changes nothing else, and says why a finding is wrong on
+   a line starting `DISPUTED:`.
+1. The harness runs Prettier, commits `Harness run <id>: review fixes, round <n>`, and runs the
+   gate (skipped if the fixer changed nothing). The next review is given the `DISPUTED:` lines
+   and accepts or rejects them.
+
+The loop stops when a review passes, when the gate fails, when a fixer or review fails, or after
+`MAX_LOOPS` fix rounds. A coding stage that failed, or a first gate that failed, skips the loop.
+
+## Report
+
+On a pass the script prints the remaining findings and `git merge --squash harness/<id>`, the
+command a human runs to approve the work, and exits 0. Otherwise it prints the open findings,
+says a human must decide, and exits non-zero (the agent's own status if it has one, else 1).
+
+Either way a report stage (`harness/settings.plan.json`) writes `summary.md` in the run folder:
+three sentences for a non-technical stakeholder (what changed, the risk, what happens next). It
+also appends one line per lesson from the findings of every round to `harness/LEARNINGS.md` in
+your checkout, not in the run's worktree, so the lessons survive a run you do not merge. Those
+lines go into the next planning prompt, so only plain list lines (starting with a dash) are kept, each capped at 300
+characters; read the file before you commit it.
 
 ## The gate
 
@@ -77,9 +120,13 @@ code and never touch the running one:
 - Playwright from the worktree's `node_modules` (`harness/screenshot.cjs`) photographs
   `/proposals/00000000-0001-0000-0000-000000000001` as `before.png`. Both servers are then
   stopped, so nothing of the run's is listening while the agent works.
+- Both are taken signed in as the seeded creator (`creator@example.com`, the app's local demo
+  account, through the Email and Password fields), so a change only a creator can see shows up.
+  A failed sign-in fails the screenshot like any other trouble.
 - After the commit the database is migrated again (the agent may have added migrations), both
-  servers start again from the committed code, and `after.png` is taken. This is done before
-  the gate, whose `npm ci` replaces `node_modules`.
+  servers start again from the committed code, and `after.png` is taken. `run-task.sh` does this
+  before the gate, whose `npm ci` replaces `node_modules`; the pipeline does it once, after the
+  review loop, so it shows the final code.
 - Both are copied to `/screenshots/<run id>-before.png` and `-after.png`, and their paths are
   printed after the gate line.
 - If either port already answers beforehand, the screenshots are skipped and the script says
@@ -94,6 +141,8 @@ A screenshot that fails is reported, but never fails the run.
 | Variable | Default | Meaning |
 |---|---|---|
 | `HARNESS_MODEL` | `sonnet` | `--model` alias or full name |
+| `REVIEW_MODEL` | `opus` | the reviewer's model (pipeline only) |
+| `MAX_LOOPS` | `2` | fix rounds before a human must decide (pipeline only) |
 | `MAX_TURNS` | `25` | turn cap |
 | `TIMEOUT_SECONDS` | `900` | wall-clock limit |
 | `HARNESS_YOLO` | unset | `1` turns the permissions off (see below) |

@@ -137,6 +137,11 @@ export const MissionUpdateSchema = z.object({
   createdAt: z.coerce.date(),
 })
 
+export const CreateMissionUpdateRequestSchema = z.object({
+  title: z.string().trim().min(1).max(120),
+  body: z.string().trim().min(1).max(5000),
+})
+
 export const CreateMilestoneRequestSchema = z.object({
   title: z.string().min(1),
   description: z.string(),
@@ -190,3 +195,4 @@ export type AuditLogEntry = z.infer<typeof AuditLogEntrySchema>
 export type Notification = z.infer<typeof NotificationSchema>
 export type MilestoneEvidence = z.infer<typeof MilestoneEvidenceSchema>
 export type MissionUpdate = z.infer<typeof MissionUpdateSchema>
+export type CreateMissionUpdateRequest = z.infer<typeof CreateMissionUpdateRequestSchema>
