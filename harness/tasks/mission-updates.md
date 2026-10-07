@@ -1,0 +1,3 @@
+# Build Mission Updates (read side)
+
+Build the read side of Mission Updates from specs/mission-updates.v2.spec.md: acceptance criteria D1 to D6, S1, S3 for MissionUpdateSchema only, A1 to A4, A13 and A14 for the GET endpoint, K1, K2, C1 for listMissionUpdates only, C2 to C6, C11 to C13, and C14 for what those cover. Nothing else: no POST endpoint, no form, no audit and no end-to-end tests; those come later. Also add a seed migration with two example updates, posted by its creator, on the seeded proposal 00000000-0001-0000-0000-000000000001, so the feature shows on that page. Where the spec is silent, follow the existing code; where you would have to guess something that matters, stop.

@@ -105,6 +105,17 @@ Schema: `packages/server/db/schema.sql`
 
 Client uses `@/*` → `src/*` (configured in tsconfig + vite)
 
+## Running Headless (no human available)
+
+When you run under `claude -p` (for example from `harness/`), nobody can answer you. Never ask a
+question. Either:
+
+- write your assumptions under an `ASSUMPTIONS` heading and carry on; or
+- stop, with a line starting `BLOCKED:` followed by the reason, when you would have to guess
+  something that matters.
+
+The `BLOCKED:` must start the line; the harness ignores a line that only mentions it.
+
 ## Specifications
 
 All implementation must align with the layered spec system in `specs/`. Read `specs/README.md` first — it defines the hierarchy (L1 strategic → L2 standards → L3 technical → L4 domain workflows) and the agent protocol for reading/applying specs.
