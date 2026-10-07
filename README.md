@@ -98,7 +98,6 @@ packages/server/    Express API server
 packages/shared/    Shared TypeScript types
 specs/              Product and technical specifications (start here)
 scripts/            Development and CI utility scripts
-autonomous/         Image for the workshop's claude-container (Claude Code + Playwright + dbmate)
 ```
 
 ---
