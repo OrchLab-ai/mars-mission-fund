@@ -120,6 +120,22 @@ CREATE TABLE public.proposal_audit_log (
 
 
 --
+-- Name: proposal_updates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.proposal_updates (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    proposal_id uuid NOT NULL,
+    author_id uuid NOT NULL,
+    title text NOT NULL,
+    body text NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    CONSTRAINT proposal_updates_body_length CHECK (((char_length(btrim(body)) >= 1) AND (char_length(btrim(body)) <= 5000))),
+    CONSTRAINT proposal_updates_title_length CHECK (((char_length(btrim(title)) >= 1) AND (char_length(btrim(title)) <= 120)))
+);
+
+
+--
 -- Name: proposal_milestones; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -292,6 +308,14 @@ ALTER TABLE ONLY public.proposal_audit_log
 
 
 --
+-- Name: proposal_updates proposal_updates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_updates
+    ADD CONSTRAINT proposal_updates_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: proposal_milestones proposal_milestones_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -363,6 +387,13 @@ CREATE INDEX idx_proposal_audit_log_proposal_id ON public.proposal_audit_log USI
 
 
 --
+-- Name: idx_proposal_updates_proposal_id_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX idx_proposal_updates_proposal_id_created_at ON public.proposal_updates USING btree (proposal_id, created_at DESC, id DESC);
+
+
+--
 -- Name: idx_milestone_evidence_milestone_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -422,6 +453,22 @@ ALTER TABLE ONLY public.proposal_audit_log
 
 ALTER TABLE ONLY public.proposal_audit_log
     ADD CONSTRAINT proposal_audit_log_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id);
+
+
+--
+-- Name: proposal_updates proposal_updates_author_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_updates
+    ADD CONSTRAINT proposal_updates_author_id_fkey FOREIGN KEY (author_id) REFERENCES public.accounts(id);
+
+
+--
+-- Name: proposal_updates proposal_updates_proposal_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.proposal_updates
+    ADD CONSTRAINT proposal_updates_proposal_id_fkey FOREIGN KEY (proposal_id) REFERENCES public.proposals(id) ON DELETE CASCADE;
 
 
 --
@@ -546,4 +593,6 @@ INSERT INTO public.schema_migrations (version) VALUES
     ('20260311000015'),
     ('20260311000016'),
     ('20260315000001'),
-    ('20260401000001');
+    ('20260401000001'),
+    ('20261006000001'),
+    ('20261006000002');

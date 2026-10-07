@@ -1,5 +1,6 @@
 import { randomBytes } from 'crypto'
 import { Pool } from 'pg'
+import type { MissionUpdate } from '@mmf/shared'
 import {
   ProposalSummary,
   ProposalDetail,
@@ -757,6 +758,24 @@ export async function getProposalState(pool: Pool, id: string): Promise<Proposal
     [id]
   )
   return result.rowCount === 0 ? null : (result.rows[0] ?? null)
+}
+
+export async function listMissionUpdates(pool: Pool, proposalId: string): Promise<MissionUpdate[]> {
+  const result = await pool.query<MissionUpdate>(
+    `SELECT
+      u.id,
+      u.title,
+      u.body,
+      u.author_id AS "authorId",
+      a.display_name AS "authorName",
+      u.created_at AS "createdAt"
+    FROM proposal_updates u
+    JOIN accounts a ON a.id = u.author_id
+    WHERE u.proposal_id = $1
+    ORDER BY u.created_at DESC, u.id DESC`,
+    [proposalId]
+  )
+  return result.rows
 }
 
 export async function launchProposal(pool: Pool, id: string): Promise<LaunchResult> {

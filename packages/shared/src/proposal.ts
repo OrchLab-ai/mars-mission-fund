@@ -128,6 +128,15 @@ export const MilestoneEvidenceSchema = z.object({
   submittedAt: z.coerce.date(),
 })
 
+export const MissionUpdateSchema = z.object({
+  id: z.string().uuid(),
+  title: z.string(),
+  body: z.string(),
+  authorId: z.string().uuid(),
+  authorName: z.string().nullable(),
+  createdAt: z.coerce.date(),
+})
+
 export const CreateMilestoneRequestSchema = z.object({
   title: z.string().min(1),
   description: z.string(),
@@ -180,3 +189,4 @@ export type ProposalDetail = z.infer<typeof ProposalDetailSchema>
 export type AuditLogEntry = z.infer<typeof AuditLogEntrySchema>
 export type Notification = z.infer<typeof NotificationSchema>
 export type MilestoneEvidence = z.infer<typeof MilestoneEvidenceSchema>
+export type MissionUpdate = z.infer<typeof MissionUpdateSchema>

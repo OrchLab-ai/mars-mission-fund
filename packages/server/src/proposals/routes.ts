@@ -29,6 +29,7 @@ import {
   createAuditEvent,
   createNotification,
   getProposalState,
+  listMissionUpdates,
   launchProposal,
   recordContribution,
   cancelProposal,
@@ -325,6 +326,34 @@ export function createProposalRouter(pool: Pool): Router {
         return next(err)
       }
       res.json({ data: proposal })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.get('/:id/updates', async (req, res, next) => {
+    const parsed = RouteParamsSchema.safeParse(req.params)
+    if (!parsed.success) {
+      const err = Object.assign(new Error('Invalid proposal ID'), {
+        status: 400,
+        code: 'INVALID_PROPOSAL_ID',
+        details: parsed.error.flatten(),
+      })
+      return next(err)
+    }
+
+    try {
+      const proposal = await getProposalState(pool, parsed.data.id)
+      if (proposal === null) {
+        const err = Object.assign(new Error('Proposal not found'), {
+          status: 404,
+          code: 'PROPOSAL_NOT_FOUND',
+          details: {},
+        })
+        return next(err)
+      }
+      const updates = await listMissionUpdates(pool, parsed.data.id)
+      res.json({ data: updates })
     } catch (err) {
       next(err)
     }

@@ -9,6 +9,7 @@ import { FundingProgressSection } from '../components/proposals/FundingProgressS
 import { MilestonesSection } from '../components/proposals/MilestonesSection'
 import { StretchGoalsSection } from '../components/proposals/StretchGoalsSection'
 import { TeamSection } from '../components/proposals/TeamSection'
+import { MissionUpdatesSection } from '../components/proposals/MissionUpdatesSection'
 import { ReviewActionsPanel } from '../components/proposals/ReviewActionsPanel'
 import { AdminActionsPanel } from '../components/proposals/AdminActionsPanel'
 import { useAuthContext } from '../context/AuthContext'
@@ -426,6 +427,14 @@ export function ProposalDetailPage() {
 
               <div style={sectionSpacingStyle}>
                 <StretchGoalsSection stretchGoals={proposal.stretchGoals} />
+              </div>
+
+              <div style={sectionSpacingStyle}>
+                <MissionUpdatesSection
+                  proposalId={proposal.id}
+                  creatorId={proposal.creatorId}
+                  user={user}
+                />
               </div>
 
               <div style={sectionSpacingStyle}>
