@@ -18,8 +18,14 @@ const { chromium } = createRequire(path.join(path.resolve(worktree), 'noop.js'))
   try {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } })
     // Not networkidle alone: a dev server can keep the network busy, and then it never comes.
-    // Wait for the page to load, then give its data up to 10 seconds to arrive.
+    // Wait for the page to load and show its title, then give the rest of its data up to 10 seconds.
     await page.goto(url, { waitUntil: 'load', timeout: 30000 })
+    // The page says "Loading proposal..." until its data arrives; the title means it has.
+    await page.locator('h1').first().waitFor({ state: 'visible', timeout: 30000 })
+    // Each section fetches its own data and says "Loading..." until it has it.
+    await page
+      .waitForFunction(() => !/Loading/.test(document.body.innerText), null, { timeout: 15000 })
+      .catch(() => {})
     await page.waitForLoadState('networkidle', { timeout: 10000 }).catch(() => {})
     await page.screenshot({ path: out, fullPage: true })
   } finally {
